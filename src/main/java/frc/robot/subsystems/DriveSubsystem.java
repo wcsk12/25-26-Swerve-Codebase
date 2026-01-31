@@ -27,6 +27,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTableInstance;
 // Subsystem Imports
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // Config and Constant Imports
@@ -158,12 +159,42 @@ public class DriveSubsystem extends SubsystemBase {
     */
   
 
-    //SmartDashboard.putNumber("Swerve Gyro Angle", m_Pigeon2.getYaw().getValueAsDouble());
-    // Puts data in SmartDashboard
-    SmartDashboard.putNumber("fRightDrive", m_frontRight.getRelativeEncoder());
-    SmartDashboard.putNumber("fLeftDrive", m_frontLeft.getRelativeEncoder());
-    SmartDashboard.putNumber("bRightDrive", m_rearRight.getRelativeEncoder());
-    SmartDashboard.putNumber("bLeftDrive", m_rearLeft.getRelativeEncoder());
+  // Publish common telemetry to SmartDashboard / Shuffleboard
+  SmartDashboard.putNumber("Gyro Angle", getHeading());
+  SmartDashboard.putNumber("Gyro Rate", getTurnRate());
+
+  Pose2d pose = getPose();
+  SmartDashboard.putNumber("Pose X (m)", pose.getX());
+  SmartDashboard.putNumber("Pose Y (m)", pose.getY());
+  SmartDashboard.putNumber("Pose Rot (deg)", pose.getRotation().getDegrees());
+
+  // Module speeds (m/s) and angles (deg)
+  var flState = m_frontLeft.getState();
+  var frState = m_frontRight.getState();
+  var blState = m_rearLeft.getState();
+  var brState = m_rearRight.getState();
+
+  SmartDashboard.putNumber("FL Speed (m/s)", flState.speedMetersPerSecond);
+  SmartDashboard.putNumber("FR Speed (m/s)", frState.speedMetersPerSecond);
+  SmartDashboard.putNumber("BL Speed (m/s)", blState.speedMetersPerSecond);
+  SmartDashboard.putNumber("BR Speed (m/s)", brState.speedMetersPerSecond);
+
+  SmartDashboard.putNumber("FL Angle (deg)", Math.toDegrees(flState.angle.getRadians()));
+  SmartDashboard.putNumber("FR Angle (deg)", Math.toDegrees(frState.angle.getRadians()));
+  SmartDashboard.putNumber("BL Angle (deg)", Math.toDegrees(blState.angle.getRadians()));
+  SmartDashboard.putNumber("BR Angle (deg)", Math.toDegrees(brState.angle.getRadians()));
+
+  // Keep the original relative encoder velocity values for backwards compatibility
+  SmartDashboard.putNumber("fRightDrive", m_frontRight.getRelativeEncoder());
+  SmartDashboard.putNumber("fLeftDrive", m_frontLeft.getRelativeEncoder());
+  SmartDashboard.putNumber("bRightDrive", m_rearRight.getRelativeEncoder());
+  SmartDashboard.putNumber("bLeftDrive", m_rearLeft.getRelativeEncoder());
+
+  // Limelight values (if a Limelight is present and named "limelight")
+  var nt = NetworkTableInstance.getDefault().getTable("limelight");
+  SmartDashboard.putNumber("limelight_tx", nt.getEntry("tx").getDouble(0.0));
+  SmartDashboard.putNumber("limelight_ty", nt.getEntry("ty").getDouble(0.0));
+  SmartDashboard.putNumber("limelight_ta", nt.getEntry("ta").getDouble(0.0));
     
   }
 
@@ -336,6 +367,13 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_Pigeon2.getAngularVelocityZWorld().getValueAsDouble() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  /**
+   * Expose the Field2d used for visualization so Dashboard can add the same instance.
+   */
+  public Field2d getField() {
+    return m_field;
   }
 
 }

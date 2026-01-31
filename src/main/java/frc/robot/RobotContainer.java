@@ -40,6 +40,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Initializes the subsystems
     m_robotDrive = new DriveSubsystem();
+  // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
+  Dashboard.init(m_robotDrive);
     exampleSubsystem = new ExampleSubsystem();
     // Gets controller binding
     configureBindings();
@@ -75,5 +77,13 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // The chosen auto in autoChooser is returned
     return autoChooser.getSelected();
+  }
+
+  /**
+   * Expose the DriveSubsystem instance so Robot (and tests) can access it without creating
+   * duplicate hardware objects.
+   */
+  public DriveSubsystem getDriveSubsystem() {
+    return m_robotDrive;
   }
 }
