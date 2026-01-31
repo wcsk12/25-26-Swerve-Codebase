@@ -33,8 +33,8 @@ public class RobotContainer {
   private final ExampleSubsystem exampleSubsystem;
   
   // Initializes the controller (Xbox)
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OIConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController =
+      new CommandXboxController(OIConstants.kOperatorControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -44,14 +44,7 @@ public class RobotContainer {
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
-    m_robotDrive.setDefaultCommand(
-      new RunCommand(
-        () -> m_robotDrive.drive(
-        -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 
-        -MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
-        true),
-      m_robotDrive));
+
     // -------------------------------- PathPlanner Code -------------------------------- \\
     // For convenience a programmer could change this when going to competition.
       boolean isCompetition = false;
@@ -67,6 +60,7 @@ public class RobotContainer {
         //Put the Auto Chooser on SmartDashboard so we can select autos.
         SmartDashboard.putData("Auto Chooser", autoChooser);
   }
+
   // Sets up controller bindings
   private void configureBindings() {
     // Initiallizyng Buttons

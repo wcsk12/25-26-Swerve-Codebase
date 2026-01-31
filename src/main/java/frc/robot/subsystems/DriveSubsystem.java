@@ -132,7 +132,7 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-    /* 
+    
     m_odometry.update(
         Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()),
         new SwerveModulePosition[] {
@@ -141,7 +141,6 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
-    */
 /* Limelight Code
     if (DriverStation.isAutonomous()){
       LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
@@ -235,7 +234,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
    */
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     // Convert the commanded speeds into the correct units for the drivetrain
     double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
@@ -260,10 +259,16 @@ public class DriveSubsystem extends SubsystemBase {
     }*/
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+      ChassisSpeeds.discretize(
         fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
-            : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+          ? ChassisSpeeds.fromFieldRelativeSpeeds(
+            xSpeed, ySpeed, rot, m_Pigeon2.getRotation2d())
+            : new ChassisSpeeds (xSpeed, ySpeed, rot),
+          periodSeconds));
+        // fieldRelative
+        //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+        //         Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
+        //     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);

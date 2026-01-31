@@ -1,8 +1,15 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import frc.robot.LimelightHelpers;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -12,7 +19,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
+  private final XboxController m_driverController = 
+    new XboxController(OIConstants.kDriverControllerPort);
+
+  private final DriveSubsystem m_swerve = new DriveSubsystem();
   private final RobotContainer m_robotContainer;
+
+  private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
+  private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
+  private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -60,7 +75,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    drive(false);
+    m_swerve.periodic();
+  }
 
   @Override
   public void teleopInit() {
@@ -75,7 +93,56 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    drive(true);
+  }
+
+  public static double limelight_aim_proportional()
+  {
+    double kP = .035;
+
+    double targetingAngularVelocity = LimelightHelpers.getTX("limelight") * kP;
+
+    targetingAngularVelocity *= -1.0;
+    System.out.println(targetingAngularVelocity);
+    return targetingAngularVelocity;
+  }
+
+  public static double limelight_range_proportional()
+  {
+    double kP = .035;
+    
+    double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * kP;
+    targetingForwardSpeed *= 0.1;
+    targetingForwardSpeed *= -1.0;
+    return targetingForwardSpeed;
+  }
+
+  private void drive(boolean fieldRelative){
+    var xSpeed = 
+      -m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftY(), 0.02))
+        * DriveConstants.kMaxSpeedMetersPerSecond;
+
+    var ySpeed = 
+      -m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftX(), 0.02))
+        * DriveConstants.kMaxSpeedMetersPerSecond;
+
+    var rot = 
+      -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverController.getRightY(), 0.02))
+        * DriveConstants.kMaxSpeedMetersPerSecond;
+
+    if (m_driverController.getAButton()){
+      final var rot_limelight = limelight_aim_proportional();
+      rot = rot_limelight;
+
+      final var foward_limelight = limelight_range_proportional();
+      xSpeed = foward_limelight;
+
+      fieldRelative = false;
+    }
+
+    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
+  }
 
   @Override
   public void testInit() {
