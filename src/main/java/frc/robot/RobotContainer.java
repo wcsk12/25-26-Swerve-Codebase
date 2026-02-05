@@ -31,6 +31,11 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final ExampleSubsystem exampleSubsystem;
+
+  /** Expose DriveSubsystem for Robot or other classes that need direct access. */
+  public DriveSubsystem getDriveSubsystem() {
+    return m_robotDrive;
+  }
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =

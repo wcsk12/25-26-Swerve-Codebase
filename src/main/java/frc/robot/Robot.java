@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
   private final XboxController m_driverController = 
     new XboxController(OIConstants.kDriverControllerPort);
 
-  private final DriveSubsystem m_swerve = new DriveSubsystem();
+  private DriveSubsystem m_swerve;
   private final RobotContainer m_robotContainer;
 
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -37,6 +37,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    // Reuse the DriveSubsystem instance created by RobotContainer to avoid duplicate hardware objects
+    m_swerve = m_robotContainer.getDriveSubsystem();
   }
 
   /**
