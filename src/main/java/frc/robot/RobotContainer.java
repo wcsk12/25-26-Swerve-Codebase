@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.AlignToAprilTag;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 /**
@@ -70,7 +71,11 @@ public class RobotContainer {
   // Sets up controller bindings
   private void configureBindings() {
     // Initiallizyng Buttons
+    // Example buttons (uncomment and tune as needed)
+    // Run example command while A is held
     //m_driverController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
+    // Align to an AprilTag while A is held (0.6 m target distance)
+    m_driverController.a().whileTrue(new AlignToAprilTag(m_robotDrive, 0.6));
     //m_driverController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
   }
 
