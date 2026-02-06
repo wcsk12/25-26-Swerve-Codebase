@@ -65,9 +65,15 @@ public class RobotContainer {
     exampleSubsystem = new ExampleSubsystem();
     // Gets controller binding
     configureBindings();
-    // Sets joystick to drive\
-    
-
+    // Sets joystick to drive
+    m_robotDrive.setDefaultCommand(
+      new RunCommand(
+        () -> m_robotDrive.drive(
+        -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
+        true),
+      m_robotDrive));
     // -------------------------------- PathPlanner Code -------------------------------- \\
     // For convenience a programmer could change this when going to competition.
       boolean isCompetition = false;
