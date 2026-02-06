@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
         * DriveConstants.kMaxSpeedMetersPerSecond;
 
     var rot = 
-      -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverController.getRightY(), 0.02))
+      -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverController.getRightX(), 0.02))
         * DriveConstants.kMaxSpeedMetersPerSecond;
 
     if (m_driverController.getAButton()){
@@ -141,7 +141,7 @@ public class Robot extends TimedRobot {
       fieldRelative = false;
     }
 
-    m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
+    m_swerve.drive(xSpeed, -ySpeed, -rot, fieldRelative, getPeriod());
   }
 
   @Override

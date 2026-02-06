@@ -60,7 +60,7 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
     public static final double kBackRightChassisAngularOffset = 0;
 
-    // SWERVE SPARK MAX CAN IDs
+    // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
     public static final int kFrontLeftDrivingCanId = 2;
     public static final int kFrontRightDrivingCanId = 4;
@@ -75,11 +75,7 @@ public final class Constants {
     public static int modeValue = 0;
 
     // OTHER SPARK MAX CAN IDs (These will likely be changed each year)
-    public static final int elevatorId = 23;
-    public static final int climberId = 24;
-    public static final int funnelId = 22;
-    public static final int EndEffectorId1 = 20;
-    public static final int EndEffectorId2 = 21;
+    public static final int exampleId = 10;
 
     public static final boolean kGyroReversed = false;
   }

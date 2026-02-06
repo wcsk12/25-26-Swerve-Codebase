@@ -8,13 +8,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 
 public class ExampleSubsystem extends SubsystemBase {
   private final SparkMax sparkMaxMotor;
 
   /** Creates a new ExampleSubsystem. */
   public ExampleSubsystem() {
-    sparkMaxMotor = new SparkMax(10, MotorType.kBrushless);
+    sparkMaxMotor = new SparkMax(DriveConstants.exampleId, MotorType.kBrushless);
   }
 
   public void setMotorSpeed(double speed){

@@ -40,11 +40,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final ExampleSubsystem exampleSubsystem;
-
-  /** Expose DriveSubsystem for Robot or other classes that need direct access. */
-  public DriveSubsystem getDriveSubsystem() {
-    return m_robotDrive;
-  }
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =
@@ -70,7 +65,8 @@ public class RobotContainer {
     exampleSubsystem = new ExampleSubsystem();
     // Gets controller binding
     configureBindings();
-    // Sets joystick to drive
+    // Sets joystick to drive\
+    
 
     // -------------------------------- PathPlanner Code -------------------------------- \\
     // For convenience a programmer could change this when going to competition.
@@ -146,8 +142,8 @@ public class RobotContainer {
   // Sets up controller bindings
   private void configureBindings() {
     // Initiallizyng Buttons
-    //m_driverController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
-    //m_driverController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
+    //m_operatorController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
+    //m_operatorController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
     // Bind the operator controller Start button as a fallback to run the CAN checker
     // while the robot is disabled. This is useful when Shuffleboard widgets are not
     // allowing writes from the client.
