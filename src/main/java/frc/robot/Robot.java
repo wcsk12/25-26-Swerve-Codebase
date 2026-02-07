@@ -37,6 +37,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    // Reuse DriveSubsystem from RobotContainer
+    m_swerve = m_robotContainer.getDriveSubsystem();
   }
 
   /**
@@ -94,6 +96,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
     drive(true);
   }
 
@@ -131,15 +134,7 @@ public class Robot extends TimedRobot {
       -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverController.getRightX(), 0.02))
         * DriveConstants.kMaxSpeedMetersPerSecond;
 
-    if (m_driverController.getAButton()){
-      final var rot_limelight = limelight_aim_proportional();
-      rot = rot_limelight;
-
-      final var foward_limelight = limelight_range_proportional();
-      xSpeed = foward_limelight;
-
-      fieldRelative = false;
-    }
+    // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
 
     m_swerve.drive(xSpeed, -ySpeed, -rot, fieldRelative, getPeriod());
   }

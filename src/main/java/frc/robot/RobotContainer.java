@@ -10,12 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 //Constants Imports\\
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.ExampleCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 /**
@@ -24,13 +21,13 @@ import frc.robot.subsystems.DriveSubsystem;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.AutoAlignCommand;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,11 +36,15 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
-  private final ExampleSubsystem exampleSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =
-      new CommandXboxController(OIConstants.kOperatorControllerPort);
+    new CommandXboxController(OIConstants.kOperatorControllerPort);
+  // Driver controller (used for driving default command)
+  private final CommandXboxController m_driverController =
+    new CommandXboxController(OIConstants.kDriverControllerPort);
+  // Fallback raw joystick (in case client uses a non-Xbox joystick on the driver port)
+  private final Joystick m_driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
 
   // Set this to true to run the CAN checker at startup (probes SparkMax IDs).
   // Default is false — use the Shuffleboard button to run on demand.
@@ -62,7 +63,6 @@ public class RobotContainer {
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
-    exampleSubsystem = new ExampleSubsystem();
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -72,7 +72,8 @@ public class RobotContainer {
         -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
-        true),
+        true,
+        0.02),
       m_robotDrive));
     // -------------------------------- PathPlanner Code -------------------------------- \\
     // For convenience a programmer could change this when going to competition.
@@ -148,6 +149,17 @@ public class RobotContainer {
   // Sets up controller bindings
   private void configureBindings() {
     // Initiallizyng Buttons
+    // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
+    try {
+      // Debug: log when A is pressed
+      m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
+      m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+      // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
+      new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
+      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+    } catch (Exception e) {
+      System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
+    }
     //m_operatorController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
     //m_operatorController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
     // Bind the operator controller Start button as a fallback to run the CAN checker
