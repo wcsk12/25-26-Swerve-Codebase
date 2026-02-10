@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.LimelightHelpers;
@@ -28,6 +29,8 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
   private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+
+  public static double rot = 0.0;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -98,6 +101,11 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
     drive(true);
+    /*if (m_driverController.getAButton()) {
+      rot = AutoAlignCommand.rCmd;
+    } else {
+      rot = MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband);
+    }*/
   }
 
   public static double limelight_aim_proportional()
@@ -136,7 +144,7 @@ public class Robot extends TimedRobot {
 
     // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
 
-    m_swerve.drive(xSpeed, -ySpeed, -rot, fieldRelative, getPeriod());
+    m_swerve.drive(xSpeed, -ySpeed, rot, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
   }
 
   @Override

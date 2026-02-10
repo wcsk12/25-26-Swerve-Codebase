@@ -9,6 +9,7 @@ import frc.robot.subsystems.DriveSubsystem;
 
 /** Command that uses Limelight fiducials to align robot to a tag. */
 public class AutoAlignCommand extends Command {
+  public static double rCmd = 0.0;
   private final DriveSubsystem m_drive;
   private final String m_llName;
   private final double m_targetDist;
@@ -36,7 +37,8 @@ public class AutoAlignCommand extends Command {
     System.out.println("[AutoAlign] execute() called");
     if (results == null) {
       System.out.println("[AutoAlign] no Limelight results (null)");
-      m_drive.drive(0, 0, 0, false, 0.02);
+      //m_drive.drive(0, 0, 0, false, 0.02);
+      rCmd = 0.0;
       SmartDashboard.putString("AutoAlign/status", "no_results");
       return;
     }
@@ -54,7 +56,8 @@ public class AutoAlignCommand extends Command {
       SmartDashboard.putBoolean("AutoAlign/nt_tv", tv);
       if (!tv) {
         SmartDashboard.putString("AutoAlign/status", "no_tag_nt");
-        m_drive.drive(0, 0, 0, false, 0.02);
+        //m_drive.drive(0, 0, 0, false, 0.02);
+        rCmd = 0.0;
         return;
       }
 
@@ -82,10 +85,13 @@ public class AutoAlignCommand extends Command {
 
     double xCmd = MathUtil.clamp(kPX * forwardError, -1.0, 1.0);
     double yCmd = MathUtil.clamp(kPY * lateralError, -1.0, 1.0);
-    double rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
-
+    rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
+    
+    System.out.println("Command rCmd: " + rCmd);
     // drive robot-relative
-    m_drive.drive(xCmd, -yCmd, -rCmd, false, 0.02);
+    //m_drive.drive(xCmd, -yCmd, rCmd, false, 0.02);
+
+
     SmartDashboard.putString("AutoAlign/status", "running");
   }
 
