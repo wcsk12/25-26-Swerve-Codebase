@@ -77,7 +77,7 @@ public class RobotContainer {
         () -> m_robotDrive.drive(
         -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 
-        m_driverController.a().getAsBoolean() ? AutoAlignCommand.rCmd : MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
         true, 0.02),
       m_robotDrive));
     // -------------------------------- PathPlanner Code -------------------------------- \\

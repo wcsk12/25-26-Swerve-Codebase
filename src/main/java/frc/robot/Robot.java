@@ -101,11 +101,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
     drive(true);
-    /*if (m_driverController.getAButton()) {
-      rot = AutoAlignCommand.rCmd;
-    } else {
-      rot = MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband);
-    }*/
   }
 
   public static double limelight_aim_proportional()
@@ -130,21 +125,17 @@ public class Robot extends TimedRobot {
   }
 
   private void drive(boolean fieldRelative){
-    var xSpeed = 
-      -m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftY(), 0.02))
-        * DriveConstants.kMaxSpeedMetersPerSecond;
+    var xSpeed = -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband);
+      /*-m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftY(), 0.02))
+        * DriveConstants.kMaxSpeedMetersPerSecond;*/
 
-    var ySpeed = 
-      -m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftX(), 0.02))
-        * DriveConstants.kMaxSpeedMetersPerSecond;
-
-    var rot = 
-      -m_rotLimiter.calculate(MathUtil.applyDeadband(m_driverController.getRightX(), 0.02))
-        * DriveConstants.kMaxSpeedMetersPerSecond;
+    var ySpeed = MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband);
+      /*-m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftX(), 0.02))
+        * DriveConstants.kMaxSpeedMetersPerSecond;*/
 
     // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
 
-    m_swerve.drive(xSpeed, -ySpeed, rot, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
+    m_swerve.drive(xSpeed, ySpeed, AutoAlignCommand.rCmd, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
   }
 
   @Override
