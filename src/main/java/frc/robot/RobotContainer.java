@@ -41,6 +41,7 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
+  private final frc.robot.subsystems.LedSubsystem m_ledSubsystem;
   private final ExampleSubsystem exampleSubsystem;
   
   // Initializes the controller (Xbox)
@@ -63,7 +64,9 @@ public class RobotContainer {
     }
 
     // Initializes the subsystems
-    m_robotDrive = new DriveSubsystem();
+  m_robotDrive = new DriveSubsystem();
+  // Create LED subsystem (REV Blinkin on PWM 1). Uses same target distance as AutoAlign (0.6m).
+  m_ledSubsystem = new frc.robot.subsystems.LedSubsystem(0.6);
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
