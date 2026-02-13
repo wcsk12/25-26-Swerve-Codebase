@@ -81,9 +81,19 @@ public final class Configs {
    * @throws ParseException if a JSON parsing error occurs
    */
   public static RobotConfig fromGUISettings() throws IOException, ParseException {
-    BufferedReader br =
-        new BufferedReader(
-            new FileReader(new File(Filesystem.getDeployDirectory(), "C:////Users////hatchetrobotics////Desktop////2025_SwerveRobot-main////2025_SwerveRobot-main////src////main////deploy////pathplanner////settings.json")));
+    // Use the deploy directory on the RoboRIO. PathPlanner settings are expected under
+    // <deploy>/pathplanner/settings.json when deployed with the robot code.
+    final java.io.File settingsFile = new java.io.File(Filesystem.getDeployDirectory(), "pathplanner/settings.json");
+
+    // Defensive check: if file doesn't exist, print guidance and throw an IOException so
+    // callers get a clear error message instead of a confusing FileNotFoundException later.
+    if (!settingsFile.exists()) {
+      System.out.println("[Configs] PathPlanner settings file not found: " + settingsFile.getAbsolutePath());
+      System.out.println("[Configs] Please ensure you have exported PathPlanner files into src/main/deploy/pathplanner/ so they are deployed to the RoboRIO.");
+      throw new java.io.IOException("PathPlanner settings.json missing: " + settingsFile.getAbsolutePath());
+    }
+
+    BufferedReader br = new BufferedReader(new FileReader(settingsFile));
 
     StringBuilder fileContentBuilder = new StringBuilder();
     String line;
