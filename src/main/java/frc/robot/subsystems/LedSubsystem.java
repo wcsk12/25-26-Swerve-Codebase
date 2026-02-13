@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,12 +33,14 @@ public class LedSubsystem extends SubsystemBase {
 
   private final String m_limelightName = "limelight";
   private final double m_targetDistanceMeters;
+  private final XboxController m_driverController;
 
-  public LedSubsystem(double targetDistanceMeters) {
+  public LedSubsystem(double targetDistanceMeters, XboxController driverController) {
     m_targetDistanceMeters = targetDistanceMeters;
-  m_servo = new Servo(BLINKIN_PWM_PORT);
-  // Set a safe default
-  setBlue();
+    m_driverController = driverController;
+    m_servo = new Servo(BLINKIN_PWM_PORT);
+    // Set a safe default
+    setBlue();
   }
 
   @Override
@@ -64,9 +68,27 @@ public class LedSubsystem extends SubsystemBase {
   boolean linedUp = Math.abs(forwardError) < LATERAL_TOL_METERS && Math.abs(lateralError) < LATERAL_TOL_METERS && Math.abs(angError) < ANG_TOL_RAD;
     if (linedUp) {
       setGreen();
+      // Vibrate controller when lined up
+      try {
+        if (m_driverController != null) {
+          m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, 0.6);
+          m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, 0.6);
+        }
+      } catch (Exception e) {
+        System.out.println("[LedSubsystem] Failed to set controller rumble: " + e);
+      }
       // reason 'lined_up' is set inside setGreen()
     } else {
       setYellow();
+      // stop rumble when not lined up
+      try {
+        if (m_driverController != null) {
+          m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, 0.0);
+          m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, 0.0);
+        }
+      } catch (Exception e) {
+        System.out.println("[LedSubsystem] Failed to clear controller rumble: " + e);
+      }
     }
   }
 

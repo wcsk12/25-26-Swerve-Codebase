@@ -66,7 +66,8 @@ public class RobotContainer {
     // Initializes the subsystems
   m_robotDrive = new DriveSubsystem();
   // Create LED subsystem (REV Blinkin on PWM 1). Uses same target distance as AutoAlign (0.6m).
-  m_ledSubsystem = new frc.robot.subsystems.LedSubsystem(0.6);
+  // Pass the driver's XboxController HID so LedSubsystem can control rumble.
+  m_ledSubsystem = new frc.robot.subsystems.LedSubsystem(0.6, m_driverController.getHID());
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
