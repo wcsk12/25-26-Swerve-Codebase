@@ -118,8 +118,10 @@ public class AutoAlignCommand extends Command {
     if (!interrupted) {
       try {
         m_led.setGreenWithReason("command-ended");
+        // Short rumble to notify the driver that AutoAlign finished
+        m_led.pulseRumble(0.9, 300);
       } catch (Exception e) {
-        System.out.println("[AutoAlign] Failed to set LED to green: " + e);
+        System.out.println("[AutoAlign] Failed to set LED to green or pulse rumble: " + e);
       }
     }
   }

@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Servo;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,6 +31,7 @@ public class LedSubsystem extends SubsystemBase {
 
   private final Servo m_servo;
   private int m_lastPattern = -1;
+  private final ScheduledExecutorService m_rumbleScheduler = Executors.newSingleThreadScheduledExecutor();
   private String m_state = "unknown";
   private String m_stateReason = "";
 
@@ -41,6 +45,29 @@ public class LedSubsystem extends SubsystemBase {
     m_servo = new Servo(BLINKIN_PWM_PORT);
     // Set a safe default
     setBlue();
+  }
+
+  /** Pulse the controller rumble at given intensity (0.0..1.0) for durationMs milliseconds. */
+  public void pulseRumble(double intensity, long durationMs) {
+    if (m_driverController == null) {
+      return;
+    }
+    try {
+      // Apply rumble immediately
+      m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, intensity);
+      m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, intensity);
+      // Schedule clearing the rumble after the duration
+      m_rumbleScheduler.schedule(() -> {
+        try {
+          m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, 0.0);
+          m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, 0.0);
+        } catch (Exception e) {
+          System.out.println("[LedSubsystem] Failed to clear rumble: " + e);
+        }
+      }, durationMs, TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      System.out.println("[LedSubsystem] Failed to pulse rumble: " + e);
+    }
   }
 
   @Override
