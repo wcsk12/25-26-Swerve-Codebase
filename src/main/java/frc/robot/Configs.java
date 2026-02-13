@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 // Pathplanner Imports
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
+import frc.robot.Constants.DriveConstants;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 // Constant Imports
@@ -85,12 +86,35 @@ public final class Configs {
     // <deploy>/pathplanner/settings.json when deployed with the robot code.
     final java.io.File settingsFile = new java.io.File(Filesystem.getDeployDirectory(), "pathplanner/settings.json");
 
-    // Defensive check: if file doesn't exist, print guidance and throw an IOException so
-    // callers get a clear error message instead of a confusing FileNotFoundException later.
+    // Defensive check: if file doesn't exist, print guidance and return a conservative
+    // fallback RobotConfig so the robot can still boot and run with safe defaults.
     if (!settingsFile.exists()) {
       System.out.println("[Configs] PathPlanner settings file not found: " + settingsFile.getAbsolutePath());
-      System.out.println("[Configs] Please ensure you have exported PathPlanner files into src/main/deploy/pathplanner/ so they are deployed to the RoboRIO.");
-      throw new java.io.IOException("PathPlanner settings.json missing: " + settingsFile.getAbsolutePath());
+      System.out.println("[Configs] Returning fallback RobotConfig. To enable PathPlanner GUI settings, export them into src/main/deploy/pathplanner/ so they are deployed to the RoboRIO.");
+
+      // Conservative defaults derived from Constants
+      boolean isHolonomic = true;
+      double massKG = 50.0; // reasonable default robot mass
+      double MOI = 1.0; // default moment of inertia
+      double wheelRadius = ModuleConstants.kWheelDiameterMeters / 2.0;
+      double maxDriveSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
+      double wheelCOF = 1.0; // coefficient of friction guess
+      double driveCurrentLimit = 40.0; // conservative current limit
+
+      int numMotors = isHolonomic ? 1 : 2;
+      // Use a NEO gearbox as a conservative default
+      DCMotor gearbox = DCMotor.getNEO(numMotors);
+      ModuleConfig moduleConfig = new ModuleConfig(wheelRadius, maxDriveSpeed, wheelCOF, gearbox, driveCurrentLimit, numMotors);
+
+      // Use the same module offsets as the kDriveKinematics used elsewhere in the constants
+      Translation2d[] moduleOffsets = new Translation2d[] {
+        new Translation2d(DriveConstants.kWheelBase / 2.0, DriveConstants.kTrackWidth / 2.0),
+        new Translation2d(DriveConstants.kWheelBase / 2.0, -DriveConstants.kTrackWidth / 2.0),
+        new Translation2d(-DriveConstants.kWheelBase / 2.0, DriveConstants.kTrackWidth / 2.0),
+        new Translation2d(-DriveConstants.kWheelBase / 2.0, -DriveConstants.kTrackWidth / 2.0)
+      };
+
+      return new RobotConfig(massKG, MOI, moduleConfig, moduleOffsets);
     }
 
     BufferedReader br = new BufferedReader(new FileReader(settingsFile));
