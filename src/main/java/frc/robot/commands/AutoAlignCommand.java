@@ -6,11 +6,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LedSubsystem;
 
 /** Command that uses Limelight fiducials to align robot to a tag. */
 public class AutoAlignCommand extends Command {
   public static double rCmd = 0.0;
   private final DriveSubsystem m_drive;
+  private final LedSubsystem m_led;
   private final String m_llName;
   private final double m_targetDist;
 
@@ -21,11 +23,12 @@ public class AutoAlignCommand extends Command {
   private final double posTol = 0.05;
   private final double angTol = Math.toRadians(3.0);
 
-  public AutoAlignCommand(DriveSubsystem drive, double targetDistanceMeters) {
+  public AutoAlignCommand(DriveSubsystem drive, double targetDistanceMeters, LedSubsystem led) {
     m_drive = drive;
+    m_led = led;
     m_llName = "limelight";
     m_targetDist = targetDistanceMeters;
-    addRequirements(m_drive);
+    addRequirements(m_drive, m_led);
   }
 
   @Override
@@ -82,17 +85,18 @@ public class AutoAlignCommand extends Command {
   SmartDashboard.putNumber("AutoAlign/forwardErr", forwardError);
   SmartDashboard.putNumber("AutoAlign/lateralErr", lateralError);
   SmartDashboard.putNumber("AutoAlign/angleErr", angError);
+  SmartDashboard.putNumber("AutoAlign/kPX", kPX);
+  SmartDashboard.putNumber("AutoAlign/kPY", kPY);
 
-    double xCmd = MathUtil.clamp(kPX * forwardError, -1.0, 1.0);
-    double yCmd = MathUtil.clamp(kPY * lateralError, -1.0, 1.0);
-    rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
+  rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
     
     System.out.println("Command rCmd: " + rCmd);
     // drive robot-relative
     //m_drive.drive(xCmd, -yCmd, rCmd, false, 0.02);
 
 
-    SmartDashboard.putString("AutoAlign/status", "running");
+  SmartDashboard.putString("AutoAlign/status", "running");
+  // Optionally drive x/y here in the future; currently rotation is applied via Robot.teleopPeriodic using rCmd.
   }
 
   @Override
@@ -111,5 +115,12 @@ public class AutoAlignCommand extends Command {
   public void end(boolean interrupted) {
     m_drive.drive(0, 0, 0, false, 0.02);
     SmartDashboard.putString("AutoAlign/status", interrupted ? "interrupted" : "ended");
+    if (!interrupted) {
+      try {
+        m_led.setGreen();
+      } catch (Exception e) {
+        System.out.println("[AutoAlign] Failed to set LED to green: " + e);
+      }
+    }
   }
 }

@@ -161,10 +161,10 @@ public class RobotContainer {
     try {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
-      m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+  m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6, m_ledSubsystem));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
-      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+  new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6, m_ledSubsystem));
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
