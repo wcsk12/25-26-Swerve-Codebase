@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 
 /** Controls a REV Blinkin connected to a RoboRIO PWM port. */
@@ -25,6 +26,8 @@ public class LedSubsystem extends SubsystemBase {
 
   private final Servo m_servo;
   private int m_lastPattern = -1;
+  private String m_state = "unknown";
+  private String m_stateReason = "";
 
   private final String m_limelightName = "limelight";
   private final double m_targetDistanceMeters;
@@ -61,6 +64,7 @@ public class LedSubsystem extends SubsystemBase {
   boolean linedUp = Math.abs(forwardError) < LATERAL_TOL_METERS && Math.abs(lateralError) < LATERAL_TOL_METERS && Math.abs(angError) < ANG_TOL_RAD;
     if (linedUp) {
       setGreen();
+      // reason 'lined_up' is set inside setGreen()
     } else {
       setYellow();
     }
@@ -74,24 +78,42 @@ public class LedSubsystem extends SubsystemBase {
     try {
       m_servo.setAngle(angle);
       m_lastPattern = a;
+      // publish current LED state and reason to Shuffleboard
+      SmartDashboard.putString("LED/state", m_state);
+      SmartDashboard.putString("LED/reason", m_stateReason);
     } catch (Exception e) {
       System.out.println("[LedSubsystem] Failed to set Blinkin angle: " + e);
     }
   }
 
   public void setBlue() {
+    m_state = "Blue";
+    m_stateReason = "no_tag";
     setPattern(PATTERN_BLUE);
   }
 
   public void setYellow() {
+    m_state = "Yellow";
+    m_stateReason = "visible";
     setPattern(PATTERN_YELLOW);
   }
 
   public void setGreen() {
+    m_state = "Green";
+    m_stateReason = "lined_up";
     setPattern(PATTERN_GREEN);
   }
 
   public void setOff() {
     setPattern(0.0);
+  }
+
+  /**
+   * Explicitly set green with a custom reason string (e.g. "command-ended").
+   */
+  public void setGreenWithReason(String reason) {
+    m_state = "Green";
+    m_stateReason = reason;
+    setPattern(PATTERN_GREEN);
   }
 }

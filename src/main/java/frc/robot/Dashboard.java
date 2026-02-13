@@ -57,6 +57,10 @@ public final class Dashboard {
   visionTab.add("AutoAlign/angleErr", 0.0).withSize(2, 1).withPosition(5, 1);
   visionTab.add("AutoAlign/status", "").withSize(2, 1).withPosition(7, 1).withWidget(BuiltInWidgets.kTextView);
 
+  // LED status (updated by LedSubsystem)
+  visionTab.add("LED/state", "unknown").withSize(1, 1).withPosition(0, 2).withWidget(BuiltInWidgets.kTextView);
+  visionTab.add("LED/reason", "").withSize(3, 1).withPosition(1, 2).withWidget(BuiltInWidgets.kTextView);
+
   // Auto tab (Auto chooser is already published by RobotContainer to SmartDashboard as "Auto Chooser")
   ShuffleboardTab autoTab = Shuffleboard.getTab("Auto");
   autoTab.add("Auto Chooser", 0.0).withSize(3, 2).withPosition(0, 0);

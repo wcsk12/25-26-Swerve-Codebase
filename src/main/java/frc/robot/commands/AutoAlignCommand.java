@@ -117,7 +117,7 @@ public class AutoAlignCommand extends Command {
     SmartDashboard.putString("AutoAlign/status", interrupted ? "interrupted" : "ended");
     if (!interrupted) {
       try {
-        m_led.setGreen();
+        m_led.setGreenWithReason("command-ended");
       } catch (Exception e) {
         System.out.println("[AutoAlign] Failed to set LED to green: " + e);
       }
