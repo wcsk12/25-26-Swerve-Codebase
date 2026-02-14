@@ -100,7 +100,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
-    drive(true);
+    if (m_driverController.getAButton()) {
+      drive(true);
+    }
   }
 
   public static double limelight_aim_proportional()
