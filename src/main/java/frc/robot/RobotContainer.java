@@ -1,6 +1,7 @@
 package frc.robot;
 //Pathplanner Imports\\
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 //Math Imports\\
 import edu.wpi.first.math.MathUtil;
 //SmartDashboard Imports\\
