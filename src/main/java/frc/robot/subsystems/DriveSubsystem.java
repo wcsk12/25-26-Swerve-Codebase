@@ -271,24 +271,6 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-    /*if(speedMode == 0){
-      xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
-    }else if(speedMode == 1){
-      xSpeedDelivered = xSpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.5);
-      ySpeedDelivered = ySpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.5);
-      rotDelivered = rot * (DriveConstants.kMaxAngularSpeed*.5);
-    }else if(speedMode == 2){
-      xSpeedDelivered = xSpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.25);
-      ySpeedDelivered = ySpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.25);
-      rotDelivered = rot * (DriveConstants.kMaxAngularSpeed*.25);
-    }else{
-      xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
-    }*/
-
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
       ChassisSpeeds.discretize(
         fieldRelative

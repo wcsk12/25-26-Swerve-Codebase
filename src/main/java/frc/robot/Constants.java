@@ -28,22 +28,9 @@ public final class Constants {
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     // Motor Speeds of other motors
-    public static final double elevatorMotorSpeedSlow = 0.9;
-    public static final double elevatorMotorSpeedFast = .9;
-    public static final double climberMotorSpeed = .8;
-    public static final double resetClimberMotorSpeed = 0.4;
-    public static final double funnelMotorSpeed = 0.3;
-    public static final double resetFunnelMotorSpeed = 0.1;
-    public static final double scoreMotorFullSpeed = 0.35;
-    public static final double scoreMotorSlowSpeed = 0.15;
+    public static final double IntakeMotorSpeed = 0.35; //Intake
+    public static final double ShooterMotorSpeed = 0.2;
     public static final double scoreMotorSlowSpeedDrive = 0.35;
-    public static final double retreatMotorSpeed = 0.08;
-
-    // Elevator Constants
-    public static final double kStartPose = -44.4;
-    public static double h = 0;// Elevator Encoder Value
-    // Distance Sensor Constants
-    public static final double endEffectorDist = 0.08;
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
@@ -79,7 +66,12 @@ public final class Constants {
 
     public static final boolean kGyroReversed = false;
   }
-
+//------Intake and Shooter-----//
+  public static final class OtherMotors {
+    public static final int IntakeMotorId = 14;
+    public static final int ShooterMotorId = 15;
+  }
+//------Module-----//
   public static final class ModuleConstants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with

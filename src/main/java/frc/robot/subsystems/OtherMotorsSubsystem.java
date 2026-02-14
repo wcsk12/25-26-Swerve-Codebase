@@ -8,20 +8,23 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OtherMotors;
 
-public class ExampleSubsystem extends SubsystemBase {
-  private final SparkMax sparkMaxMotor;
+public class OtherMotorsSubsystem extends SubsystemBase {
 
   /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {
-    sparkMaxMotor = new SparkMax(DriveConstants.exampleId, MotorType.kBrushless);
-  }
-
-  public void setMotorSpeed(double speed){
+  
+    public static SparkMax sparkMaxMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
+  //Intake Speed
+  public static void setIntakeSpeed(double speed){
     sparkMaxMotor.set(speed);
   }
-
+  //Shooter Speed -Not Yet Set Up.
+  public static void setShooterSpeed(double speed){
+    sparkMaxMotor.set(speed);
+  }
+  //Create a new OtherMotorsSubsystem
+  public OtherMotorsSubsystem() {}
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

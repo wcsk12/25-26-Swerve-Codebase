@@ -128,12 +128,8 @@ public class Robot extends TimedRobot {
 
   private void drive(boolean fieldRelative){
     var xSpeed = -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband);
-      /*-m_xspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftY(), 0.02))
-        * DriveConstants.kMaxSpeedMetersPerSecond;*/
 
     var ySpeed = MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband);
-      /*-m_yspeedLimiter.calculate(MathUtil.applyDeadband(m_driverController.getLeftX(), 0.02))
-        * DriveConstants.kMaxSpeedMetersPerSecond;*/
 
     // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
 
