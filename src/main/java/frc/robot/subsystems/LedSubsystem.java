@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Servo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -56,11 +57,15 @@ public class LedSubsystem extends SubsystemBase {
       // Apply rumble immediately
       m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, intensity);
       m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, intensity);
+      SmartDashboard.putBoolean("LED/rumbleActive", true);
+      System.out.println("[LedSubsystem] pulseRumble: started intensity=" + intensity + " durationMs=" + durationMs);
       // Schedule clearing the rumble after the duration
       m_rumbleScheduler.schedule(() -> {
         try {
           m_driverController.setRumble(GenericHID.RumbleType.kLeftRumble, 0.0);
           m_driverController.setRumble(GenericHID.RumbleType.kRightRumble, 0.0);
+          SmartDashboard.putBoolean("LED/rumbleActive", false);
+          System.out.println("[LedSubsystem] pulseRumble: cleared");
         } catch (Exception e) {
           System.out.println("[LedSubsystem] Failed to clear rumble: " + e);
         }
