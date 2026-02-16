@@ -75,7 +75,10 @@ public final class Constants {
     public static int modeValue = 0;
 
     // OTHER SPARK MAX CAN IDs (These will likely be changed each year)
-    public static final int exampleId = 10;
+    public static final int intakeId = 14;
+    public static final int shooterId = 15;
+    public static final int posIntakeId = 16;
+    public static final int releaseId = 17;
 
     public static final boolean kGyroReversed = false;
   }

@@ -17,7 +17,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeCMD;
+import frc.robot.commands.ReleaseCMD;
+import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 /**
@@ -26,7 +28,9 @@ import frc.robot.subsystems.DriveSubsystem;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.MiscSubsystem;
+import frc.robot.subsystems.PosIntakeSubsystem;
+import frc.robot.subsystems.PosIntakeSubsystem.IntakePositions;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -42,7 +46,8 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
-  private final ExampleSubsystem exampleSubsystem;
+  private final MiscSubsystem miscSubsystem;
+  private final PosIntakeSubsystem posIntakeSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =
@@ -51,6 +56,7 @@ public class RobotContainer {
     new CommandXboxController(OIConstants.kDriverControllerPort);
   // Fallback raw joystick (in case client uses a non-Xbox joystick on the driver port)
   private final Joystick m_driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
+  private final Joystick m_operatorJoystick = new Joystick(OIConstants.kOperatorControllerPort);
 
   // Set this to true to run the CAN checker at startup (probes SparkMax IDs).
   // Default is false — use the Shuffleboard button to run on demand.
@@ -69,7 +75,8 @@ public class RobotContainer {
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
-    exampleSubsystem = new ExampleSubsystem();
+    miscSubsystem = new MiscSubsystem();
+    posIntakeSubsystem = new PosIntakeSubsystem();
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -182,6 +189,21 @@ public class RobotContainer {
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
       }));
+      m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, 0.3)); // Takes in fuel
+      m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -0.3)); // Shoots out fuel
+      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, .3)); // Use if limelight starts to fail
+      m_operatorController.rightTrigger(0.5).whileTrue(new ReleaseCMD(miscSubsystem, 0.3)); // Send fuel to shooter
+      m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
+      m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
+      // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
+      new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, 0.3)); // Takes in fuel
+      new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -0.3)); // Shoots out fuel
+      new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
+      new JoystickButton(m_operatorJoystick, 5).whileTrue(new ShooterCMD(miscSubsystem, .3)); // Use if limelight starts to fail
+      new JoystickButton(m_operatorJoystick, 8).whileTrue(new ReleaseCMD(miscSubsystem, 0.3)); // Send fuel to shooter
+      new JoystickButton(m_operatorJoystick, 1).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
+      new JoystickButton(m_operatorJoystick, 4).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
     } catch (Exception e) {
       // Defensive: if controller library changes or no controller connected, log and continue.
       System.out.println("[RobotContainer] Failed to bind controller CAN check: " + e);
