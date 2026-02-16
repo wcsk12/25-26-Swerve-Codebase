@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,6 +12,7 @@ import frc.robot.commands.AutoAlignCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.RawFiducial;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -42,6 +45,9 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     // Reuse DriveSubsystem from RobotContainer
     m_swerve = m_robotContainer.getDriveSubsystem();
+    //Set up a camera --Potentially set up two this year.
+    //UsbCamera1 usbCamera = CameraServer.startAutomaticCapture();
+    //usbCamera.setResolution(640, 480);
   }
 
   /**
@@ -124,6 +130,16 @@ public class Robot extends TimedRobot {
     targetingForwardSpeed *= 0.1;
     targetingForwardSpeed *= -1.0;
     return targetingForwardSpeed;
+  }
+
+  public static int limelight_id() {
+    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("limelight");
+    int apriltagid = 0;
+    for (RawFiducial fiducial : fiducials) {
+      apriltagid = fiducial.id;
+    }
+    System.out.println("id: " + apriltagid); //Prints the current seen apriltag.
+    return apriltagid;
   }
 
   private void drive(boolean fieldRelative){

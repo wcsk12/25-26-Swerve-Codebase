@@ -14,14 +14,19 @@ public class OtherMotorsSubsystem extends SubsystemBase {
 
   /** Creates a new ExampleSubsystem. */
   
-    public static SparkMax sparkMaxMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
+    public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
+    public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
+    public static SparkMax ReleaseMotor = new SparkMax(OtherMotors.ShooterMotorReleaseId, MotorType.kBrushless);
   //Intake Speed
-  public static void setIntakeSpeed(double speed){
-    sparkMaxMotor.set(speed);
+  public void setIntakeSpeed(double speed){
+    IntakeMotor.set(speed);
   }
   //Shooter Speed -Not Yet Set Up.
-  public static void setShooterSpeed(double speed){
-    sparkMaxMotor.set(speed);
+  public void setShooterSpeed(double speed){
+    ShooterMotor.set(speed);
+  }
+   public void setReleaseSpeed(double speed){
+    ReleaseMotor.set(speed);
   }
   //Create a new OtherMotorsSubsystem
   public OtherMotorsSubsystem() {}
