@@ -1,4 +1,12 @@
 package frc.robot;
+
+/**
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and trigger mappings) should be declared here.
+ */
+
 //Pathplanner Imports\\
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -13,45 +21,45 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-//Constants Imports\\
+//Constants
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+//Commands
 import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeCMD;
+import frc.robot.commands.ReleaseCMD;
+import frc.robot.commands.ShooterCMD;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.OtherMotorsSubsystem;
+//Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+//Other
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 public class RobotContainer {
   //Intialize the Autochooser for selecting autos in SmartDashboard\\
   private final SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
-  private final ExampleSubsystem exampleSubsystem;
+  private final OtherMotorsSubsystem m_OtherMotorsSubsystem;
   
   // Initializes the controller (Xbox)
-  private final CommandXboxController m_operatorController =
+  private final CommandXboxController m_operatorController = //Operator Controller
       new CommandXboxController(OIConstants.kOperatorControllerPort);
-  private final CommandXboxController m_driverController =
+  private final CommandXboxController m_driverController = //Driver Controller -Change to FlightSim
     new CommandXboxController(OIConstants.kDriverControllerPort);
   // Fallback raw joystick (in case client uses a non-Xbox joystick on the driver port)
   private final Joystick m_driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
-
+  private final Joystick m_operatorJoystick = new Joystick(OIConstants.kOperatorControllerPort);
   // Set this to true to run the CAN checker at startup (probes SparkMax IDs).
   // Default is false — use the Shuffleboard button to run on demand.
   private static final boolean RUN_CAN_CHECKER = false;
@@ -59,6 +67,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Optionally run the CAN checker before instantiating subsystems that create SparkMax
+
     if (RUN_CAN_CHECKER) {
       CANChecker.runChecks();
     }
@@ -69,7 +78,7 @@ public class RobotContainer {
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
-    exampleSubsystem = new ExampleSubsystem();
+    m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -153,22 +162,39 @@ public class RobotContainer {
   }
 
   // Sets up controller bindings
+  
   private void configureBindings() {
     // Initiallizyng Buttons
+        // Commands that go to PathPlanner
+    //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
+    NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0).withTimeout(1)); // ALign
+    NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1)); // Shoot
+    NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1)); // Release up to shooter
+
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+      // ------------------------------------------ Intake ------------------------------------------ \\
+      m_operatorController.b().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, true)); //Intake speed (Forwards)
+      m_operatorController.x().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, false));
+      // ------------------------------------------ Shooter ------------------------------------------ \\
+      m_operatorController.rightBumper().whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, 0.2)); 
+      m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, 0.2));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
-      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6)); //Potentially just use onTrue - A BUTTON
+      // ------------------------------------------ Intake ------------------------------------------ \\
+       new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, true)); //Intake speed (Forwards) - B BUTTON
+        new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, false)); //Intake speed (Backwards) - X BUTTON
+        // ------------------------------------------ Shooter ------------------------------------------ \\
+        new JoystickButton(m_operatorJoystick, 6).whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, 0.2)); //Shooter - RIGHT BUTTON --Shoot!
+        new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, 0.2)); //Release - LEFT BUTTON --Go Up to Shooter!
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
 
-    //m_operatorController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
-    //m_operatorController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
     // Bind the operator controller Start button as a fallback to run the CAN checker
     // while the robot is disabled. This is useful when Shuffleboard widgets are not
     // allowing writes from the client.

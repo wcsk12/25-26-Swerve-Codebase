@@ -93,7 +93,6 @@ public class AutoAlignCommand extends Command {
 
 
     SmartDashboard.putString("AutoAlign/status", "running");
-    SmartDashboard.putNumber("Limelight aim", rCmd);
   }
 
   @Override
@@ -110,7 +109,7 @@ public class AutoAlignCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    //m_drive.drive(0, 0, 0, false, 0.02);
+    m_drive.drive(0, 0, 0, false, 0.02);
     SmartDashboard.putString("AutoAlign/status", interrupted ? "interrupted" : "ended");
   }
 }

@@ -9,7 +9,7 @@ public class IntakeCMD extends Command {
   private final double speed;
   private final boolean forward;
 
-  /** Creates a new ExampleCommand. */
+  /** Creates a new IntakeCommand. */
   public IntakeCMD(OtherMotorsSubsystem m_otherMotorsSubsystem, double speed, boolean forward) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.otherMotorsSubsystem = m_otherMotorsSubsystem;

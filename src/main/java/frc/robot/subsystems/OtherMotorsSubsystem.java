@@ -12,7 +12,8 @@ import frc.robot.Constants.OtherMotors;
 
 public class OtherMotorsSubsystem extends SubsystemBase {
 
-  /** Creates a new ExampleSubsystem. */
+   //Create a new OtherMotorsSubsystem
+    public OtherMotorsSubsystem() {}
   
     public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
     public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
@@ -28,8 +29,7 @@ public class OtherMotorsSubsystem extends SubsystemBase {
    public void setReleaseSpeed(double speed){
     ReleaseMotor.set(speed);
   }
-  //Create a new OtherMotorsSubsystem
-  public OtherMotorsSubsystem() {}
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
