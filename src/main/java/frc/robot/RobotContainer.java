@@ -94,11 +94,11 @@ public class RobotContainer {
     // For convenience a programmer could change this when going to competition.
       boolean isCompetition = false;
     // Build an auto chooser. This will use Commands.none() as the default option.
-        // As an example, this will only show autos that start with "comp" while at
+        // As an example, this will only show autos that end with "Auto" while at
         // competition as defined by the programmer
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
             (stream) -> isCompetition
-            ? stream.filter(auto -> auto.getName().startsWith("comp"))
+            ? stream.filter(auto -> auto.getName().endsWith("Auto"))
             : stream
         );
 
@@ -168,8 +168,9 @@ public class RobotContainer {
         // Commands that go to PathPlanner
     //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0).withTimeout(1)); // ALign
-    NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1)); // Shoot
-    NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1)); // Release up to shooter
+    NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1)); // Shoot (1.2 accounts for .2 wait in PathPlanner)
+    NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, 0.2).withTimeout(1.2)); // Release up to shooter
+    NamedCommands.registerCommand("Intake!", new IntakeCMD(m_OtherMotorsSubsystem, 0.2, true).withTimeout(2)); // Intake the Fuel!
 
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
@@ -177,20 +178,20 @@ public class RobotContainer {
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
       // ------------------------------------------ Intake ------------------------------------------ \\
-      m_operatorController.b().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, true)); //Intake speed (Forwards)
-      m_operatorController.x().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, false));
+      m_operatorController.b().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
+      m_operatorController.x().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
-      m_operatorController.rightBumper().whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, 0.2)); 
-      m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, 0.2));
+      m_operatorController.rightBumper().whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, DriveConstants.ShooterMotorSpeed)); 
+      m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6)); //Potentially just use onTrue - A BUTTON
       // ------------------------------------------ Intake ------------------------------------------ \\
-       new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, true)); //Intake speed (Forwards) - B BUTTON
-        new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, 0.4, false)); //Intake speed (Backwards) - X BUTTON
+       new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - B BUTTON
+        new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - X BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
-        new JoystickButton(m_operatorJoystick, 6).whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, 0.2)); //Shooter - RIGHT BUTTON --Shoot!
-        new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, 0.2)); //Release - LEFT BUTTON --Go Up to Shooter!
+        new JoystickButton(m_operatorJoystick, 6).whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, DriveConstants.ShooterMotorSpeed)); //Shooter - RIGHT BUTTON --Shoot!
+        new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
