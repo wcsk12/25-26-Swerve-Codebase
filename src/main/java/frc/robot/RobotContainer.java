@@ -17,8 +17,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
+import frc.robot.commands.IndexerCMD;
 import frc.robot.commands.IntakeCMD;
-import frc.robot.commands.ReleaseCMD;
+import frc.robot.commands.LauncherCMD;
 import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
@@ -71,12 +72,21 @@ public class RobotContainer {
 
     // Initializes the subsystems
     m_robotDrive = new DriveSubsystem();
+
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
     miscSubsystem = new MiscSubsystem();
     posIntakeSubsystem = new PosIntakeSubsystem();
+  // NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
+    NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
+    NamedCommands.registerCommand("IntakeCMD", new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed).withTimeout(1));
+    NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
+    NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional()).withTimeout(1));
+    NamedCommands.registerCommand("LowerIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)));
+    NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
+
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -189,19 +199,21 @@ public class RobotContainer {
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
       }));
-      m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, 0.3)); // Takes in fuel
-      m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -0.3)); // Shoots out fuel
-      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
-      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, .3)); // Use if limelight starts to fail
-      m_operatorController.rightTrigger(0.5).whileTrue(new ReleaseCMD(miscSubsystem, 0.3)); // Send fuel to shooter
+      m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
+      m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
+      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
+      m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
+      m_operatorController.rightTrigger(0.5).whileTrue(new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed)); // Send fuel to launcher **TEMP Button Config**
       m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
       m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-      new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, 0.3)); // Takes in fuel
-      new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -0.3)); // Shoots out fuel
+      new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
+      new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
       new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
-      new JoystickButton(m_operatorJoystick, 5).whileTrue(new ShooterCMD(miscSubsystem, .3)); // Use if limelight starts to fail
-      new JoystickButton(m_operatorJoystick, 8).whileTrue(new ReleaseCMD(miscSubsystem, 0.3)); // Send fuel to shooter
+      new JoystickButton(m_operatorJoystick, 5).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
+      new JoystickButton(m_operatorJoystick, 8).whileTrue(new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
+      new JoystickButton(m_operatorJoystick, 8).whileTrue(new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed)); // Send fuel to launcher **TEMP Button Config**
       new JoystickButton(m_operatorJoystick, 1).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
       new JoystickButton(m_operatorJoystick, 4).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
     } catch (Exception e) {

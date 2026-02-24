@@ -27,17 +27,11 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.8;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
-    // Motor Speeds of other motors
-    public static final double elevatorMotorSpeedSlow = 0.9;
-    public static final double elevatorMotorSpeedFast = .9;
-    public static final double climberMotorSpeed = .8;
-    public static final double resetClimberMotorSpeed = 0.4;
-    public static final double funnelMotorSpeed = 0.3;
-    public static final double resetFunnelMotorSpeed = 0.1;
-    public static final double scoreMotorFullSpeed = 0.35;
-    public static final double scoreMotorSlowSpeed = 0.15;
-    public static final double scoreMotorSlowSpeedDrive = 0.35;
-    public static final double retreatMotorSpeed = 0.08;
+    //--- Motor Speeds of other motors ---\\
+    public static final double indexerMotorSpeed = 0.3;
+    public static final double intakeMotorSpeed = 0.3;
+    public static final double launcherMotorSpeed = 0.3;
+    public static final double shooterMotorSpeed = 0.3;
 
     // Elevator Constants
     public static final double kStartPose = -44.4;
@@ -74,11 +68,13 @@ public final class Constants {
 
     public static int modeValue = 0;
 
-    // OTHER SPARK MAX CAN IDs (These will likely be changed each year)
+    //--- OTHER SPARK MAX CAN IDs (These will likely be changed each year) ---\\
     public static final int intakeId = 14;
-    public static final int shooterId = 15;
-    public static final int posIntakeId = 16;
-    public static final int releaseId = 17;
+    public static final int posIntakeId = 15;
+    public static final int shooter1Id = 16;
+    public static final int shooter2Id = 17;
+    public static final int launcherId = 18;
+    public static final int indexerId = 19; // removed launcher2 and indexer2 because there are only one motor per each
 
     public static final boolean kGyroReversed = false;
   }

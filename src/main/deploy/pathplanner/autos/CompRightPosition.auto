@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Start to Bottom Scoring"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShooterCMD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherCMD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerCMD"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Scoring to Neutral Field"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCMD"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Neutral Field to Bottom Scoring"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShooterCMD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherCMD"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IndexerCMD"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RaiseIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Scoring to Tower"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ClimbCMD"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

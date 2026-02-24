@@ -12,14 +12,18 @@ import frc.robot.Constants.DriveConstants;
 
 public class MiscSubsystem extends SubsystemBase {
   private final SparkMax intakeMotor;
-  private final SparkMax shooterMotor;
-  private final SparkMax releaseMotor;
+  private final SparkMax shooterMotor1;
+  private final SparkMax shooterMotor2;
+  private final SparkMax launcherMotor;
+  private final SparkMax indexerMotor;
 
   /** Creates a new ExampleSubsystem. */
   public MiscSubsystem() {
     intakeMotor = new SparkMax(DriveConstants.intakeId, MotorType.kBrushless);
-    shooterMotor = new SparkMax(DriveConstants.shooterId, MotorType.kBrushless);
-    releaseMotor = new SparkMax(DriveConstants.releaseId, MotorType.kBrushless);
+    shooterMotor1 = new SparkMax(DriveConstants.shooter1Id, MotorType.kBrushless);
+    shooterMotor2 = new SparkMax(DriveConstants.shooter2Id, MotorType.kBrushless);
+    launcherMotor = new SparkMax(DriveConstants.launcherId, MotorType.kBrushless);
+    indexerMotor = new SparkMax(DriveConstants.indexerId, MotorType.kBrushless);
   }
 
   public void setIntakeSpeed(double speed){
@@ -27,11 +31,16 @@ public class MiscSubsystem extends SubsystemBase {
   }
 
   public void setShooterSpeed(double speed){
-    shooterMotor.set(speed);
+    shooterMotor1.set(speed);
+    shooterMotor2.set(-speed);
   }
 
-  public void setReleaseSpeed(double speed){
-    releaseMotor.set(speed);
+  public void setLauncherSpeed(double speed){
+    launcherMotor.set(speed);
+  }
+
+  public void setIndexerSpeed(double speed){
+    indexerMotor.set(speed);
   }
 
   @Override

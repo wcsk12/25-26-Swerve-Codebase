@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.MiscSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ReleaseCMD extends Command {
+public class LauncherCMD extends Command {
   private final MiscSubsystem miscSubsystem;
   private final double speed;
 
   /** Creates a new ReleaseCMD. */
-  public ReleaseCMD(MiscSubsystem miscSubsystem, double speed) {
+  public LauncherCMD(MiscSubsystem miscSubsystem, double speed) {
     this.miscSubsystem = miscSubsystem;
     this.speed = speed;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -27,7 +27,7 @@ public class ReleaseCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    miscSubsystem.setReleaseSpeed(speed);
+    miscSubsystem.setLauncherSpeed(speed);
   }
 
   // Called once the command ends or is interrupted.
