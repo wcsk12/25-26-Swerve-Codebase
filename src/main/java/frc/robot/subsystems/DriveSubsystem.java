@@ -35,6 +35,7 @@ import frc.robot.Configs;
 import frc.robot.Constants;
 import frc.robot.pathConfig;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.RobotContainer;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -294,7 +295,7 @@ public class DriveSubsystem extends SubsystemBase {
         fieldRelative
           ? ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rot, m_Pigeon2.getRotation2d())
-            : new ChassisSpeeds (xSpeed, ySpeed, rot),
+            : new ChassisSpeeds (xSpeed * RobotContainer.speedMode, ySpeed * RobotContainer.speedMode, rot * RobotContainer.speedMode),
           periodSeconds));
         // fieldRelative
         //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
