@@ -30,7 +30,7 @@ public final class Constants {
     // Motor Speeds of other motors
     public static final double IntakeMotorSpeed = 0.35; //Intake
     public static final double ShooterMotorSpeed = 0.8;
-    public static final double ReleaseMotorSpeed = -0.35; //negative to spin the correct way.
+    public static final double ReleaseMotorSpeed = -0.6; //negative to spin the correct way.
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
