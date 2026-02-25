@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -18,7 +17,7 @@ public class ShooterCMD extends Command {
     // Use addRequirements() here to declare subsystem dependencies.
     this.otherMotorsSubsystem = m_otherMotorsSubsystem;
     this.speed = speed;
-    addRequirements(otherMotorsSubsystem);
+    addRequirements(m_otherMotorsSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -42,7 +41,7 @@ public class ShooterCMD extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    otherMotorsSubsystem.setShooterSpeed(0);
+    otherMotorsSubsystem.setIntakeSpeed(0);
   }
 
   // Returns true when the command should end.

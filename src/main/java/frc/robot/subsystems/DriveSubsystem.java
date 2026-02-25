@@ -266,25 +266,28 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
-    // Convert the commanded speeds into the correct units for the drivetrain
+    // Convert the commanded (normalized -1..1) speeds into physical units
     double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-      ChassisSpeeds.discretize(
-        fieldRelative
-          ? ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, rot, m_Pigeon2.getRotation2d())
-            : new ChassisSpeeds (xSpeed, ySpeed, rot),
-          periodSeconds));
-        // fieldRelative
-        //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-        //         Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
-        //     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+    // Build chassis speeds using the delivered (scaled) values. Use field-relative
+    // conversion when requested so joystick inputs are interpreted relative to the
+    // field rather than the robot.
+    ChassisSpeeds chassisSpeeds = fieldRelative
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+            m_Pigeon2.getRotation2d())
+        : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    ChassisSpeeds discretized = ChassisSpeeds.discretize(chassisSpeeds, periodSeconds);
+
+    SwerveModuleState[] swerveModuleStates = DriveConstants.kDriveKinematics
+        .toSwerveModuleStates(discretized);
+
+    // Ensure wheel speeds are within the configured maximum
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+
+    // Assign states in the canonical order: [0]=FL, [1]=FR, [2]=BL, [3]=BR
     m_frontLeft.setDesiredState(swerveModuleStates[2]);
     m_frontRight.setDesiredState(swerveModuleStates[3]);
     m_rearLeft.setDesiredState(swerveModuleStates[0]);

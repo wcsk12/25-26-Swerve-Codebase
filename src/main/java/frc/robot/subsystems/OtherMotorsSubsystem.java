@@ -13,11 +13,23 @@ import frc.robot.Constants.OtherMotors;
 public class OtherMotorsSubsystem extends SubsystemBase {
 
    //Create a new OtherMotorsSubsystem
-    public OtherMotorsSubsystem() {}
+    public OtherMotorsSubsystem() {
+      // Ensure motors start stopped. Defensive: guarantee shooter/intake/release
+      // are commanded to 0 until an explicit command (button) runs them.
+      try {
+        IntakeMotor.set(0.0);
+      } catch (Throwable t) {}
+      try {
+        ShooterMotor.set(0.0);
+      } catch (Throwable t) {}
+      try {
+        ReleaseMotor.set(0.0);
+      } catch (Throwable t) {}
+    }
   
-    public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
-    public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
-    public static SparkMax ReleaseMotor = new SparkMax(OtherMotors.ShooterMotorReleaseId, MotorType.kBrushless);
+  public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
+  public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
+  public static SparkMax ReleaseMotor = new SparkMax(OtherMotors.ShooterMotorReleaseId, MotorType.kBrushless);
   //Intake Speed
   public void setIntakeSpeed(double speed){
     IntakeMotor.set(speed);

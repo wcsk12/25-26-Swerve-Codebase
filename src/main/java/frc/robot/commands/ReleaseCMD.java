@@ -11,7 +11,8 @@ import frc.robot.subsystems.OtherMotorsSubsystem;
 public class ReleaseCMD extends Command {
   private final double speed;
   private final OtherMotorsSubsystem otherMotorsSubsystem;
-  /** Creates a new ShooterCMD. */
+
+  /** Creates a new ReleaseCMD. */
   public ReleaseCMD(OtherMotorsSubsystem m_otherMotorsSubsystem, double speed) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.otherMotorsSubsystem = m_otherMotorsSubsystem;
