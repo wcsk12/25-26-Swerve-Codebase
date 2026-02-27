@@ -27,6 +27,7 @@ import frc.robot.Constants.OIConstants;
 //Commands
 import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.IntakeCMD;
+import frc.robot.commands.LowerSpeedCMD;
 import frc.robot.commands.ReleaseCMD;
 import frc.robot.commands.ShooterCMD;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -186,7 +187,8 @@ public class RobotContainer {
   m_operatorController.x().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)));
-  //m_operatorController.rightBumper().onFalse(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF));
+      // ------------------------------------------ LowerSpeed ------------------------------------------ \\
+  m_driverController.leftBumper().toggleOnTrue(new InstantCommand(() -> new LowerSpeedCMD(m_robotDrive, 2))); //set to two when pressed!
   m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
@@ -196,7 +198,8 @@ public class RobotContainer {
    new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - X BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)); //Shooter - RIGHT BUTTON --Shoot!
-  //new JoystickButton(m_operatorJoystick, 6).onFalse(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF));
+  //
+  new JoystickButton(m_driverJoystick, 5).toggleOnTrue(new InstantCommand(() -> new LowerSpeedCMD(m_robotDrive, 2))); //set to two when pressed!
   new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
