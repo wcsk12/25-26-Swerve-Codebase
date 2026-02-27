@@ -295,7 +295,7 @@ public class DriveSubsystem extends SubsystemBase {
         fieldRelative
           ? ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rot, m_Pigeon2.getRotation2d())
-            : new ChassisSpeeds (xSpeed * RobotContainer.speedMode, ySpeed * RobotContainer.speedMode, rot * RobotContainer.speedMode),
+            : new ChassisSpeeds (xSpeed, ySpeed, rot),
           periodSeconds));
         // fieldRelative
         //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,

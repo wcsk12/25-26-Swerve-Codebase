@@ -97,9 +97,9 @@ public class RobotContainer {
     m_robotDrive.setDefaultCommand(
       new RunCommand(
         () -> m_robotDrive.drive(
-        -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(m_driverController.getRawAxis(4), OIConstants.kDriveDeadband), 
+        -MathUtil.applyDeadband(m_driverController.getRawAxis(1) * speedMode, OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(4) * speedMode, OIConstants.kDriveDeadband), 
         true, 0.02),
       m_robotDrive));
     // -------------------------------- PathPlanner Code -------------------------------- \\
@@ -179,7 +179,7 @@ public class RobotContainer {
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
       // Debug: log when A is pressed
-      m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
+      m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed " + speedMode)));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
       //.5 speed mode
       m_driverController.rightBumper().onTrue(new InstantCommand(() -> speedMode = .5));
@@ -209,9 +209,8 @@ public class RobotContainer {
         }
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
-      })); //TODO: fix speedmode, fix posintake
+      })); //TODO: fix posintake
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
       m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
       m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
       // When operator right trigger is held, run both launcher and indexer together.
@@ -230,8 +229,8 @@ public class RobotContainer {
           miscSubsystem.setIndexerSpeed(0);
           miscSubsystem.setShooterSpeed(0);
         }, miscSubsystem));
-      m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
-      m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
+      //m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
+      //m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
       new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
