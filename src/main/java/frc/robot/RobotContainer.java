@@ -56,7 +56,7 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
     new CommandXboxController(OIConstants.kDriverControllerPort);
 
-  public static double speedMode = 1.0;
+  //public static double speedMode = 1.0;
 
   // Fallback raw joystick (in case client uses a non-Xbox joystick on the driver port)
   private final Joystick m_driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
@@ -181,12 +181,13 @@ public class RobotContainer {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
-      //.5 speed mode
+      /*//.5 speed mode
       m_driverController.rightBumper().onTrue(new InstantCommand(() -> speedMode = .5));
       m_driverController.rightBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
       //.25 speed mode
       m_driverController.leftBumper().onTrue(new InstantCommand(() -> speedMode = .25));
-      m_driverController.leftBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
+      m_driverController.leftBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));*/
+      
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));

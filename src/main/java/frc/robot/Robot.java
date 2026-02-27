@@ -96,13 +96,22 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
   }
-
+  public static double speedMode = 1;
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
     if (m_driverController.getAButton()) {
       drive(true);
+    }
+
+    // experimental drive speed mode
+    if (m_driverController.getLeftBumper()) { //.25
+      speedMode = .25;
+    } else if (m_driverController.getRightBumper()) { //5
+      speedMode = .5;
+    } else {
+      speedMode = 1;
     }
   }
 
