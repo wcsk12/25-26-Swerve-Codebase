@@ -267,36 +267,18 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
-    // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+    // Convert joystick inputs (-1..1) into chassis speeds (m/s, rad/s)
+    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond * RobotContainer.speedMode;
+    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond * RobotContainer.speedMode;
+    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed * RobotContainer.speedMode;
 
-    /*if(speedMode == 0){
-      xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
-    }else if(speedMode == 1){
-      xSpeedDelivered = xSpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.5);
-      ySpeedDelivered = ySpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.5);
-      rotDelivered = rot * (DriveConstants.kMaxAngularSpeed*.5);
-    }else if(speedMode == 2){
-      xSpeedDelivered = xSpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.25);
-      ySpeedDelivered = ySpeed * (DriveConstants.kMaxSpeedMetersPerSecond*.25);
-      rotDelivered = rot * (DriveConstants.kMaxAngularSpeed*.25);
-    }else{
-      xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-      rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
-    }*/
+    // Build chassis speeds in correct units and honor field-relative flag
+    ChassisSpeeds chassisSpeeds = fieldRelative
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, m_Pigeon2.getRotation2d())
+        : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-      ChassisSpeeds.discretize(
-        fieldRelative
-          ? ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed, ySpeed, rot, m_Pigeon2.getRotation2d())
-            : new ChassisSpeeds (xSpeed, ySpeed, rot),
-          periodSeconds));
+        ChassisSpeeds.discretize(chassisSpeeds, periodSeconds));
         // fieldRelative
         //     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
         //         Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
