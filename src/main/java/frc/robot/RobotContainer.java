@@ -219,10 +219,17 @@ public class RobotContainer {
       // `miscSubsystem`, causing a conflict where only one would run. Use a
       // single RunCommand so both motors are commanded simultaneously.
       m_operatorController.rightTrigger(0.5).whileTrue(
-          new RunCommand(() -> {
-            miscSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed);
-            miscSubsystem.setIndexerSpeed(DriveConstants.indexerMotorSpeed);
-          }, miscSubsystem));
+        new RunCommand(() -> {
+          miscSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed);
+          miscSubsystem.setIndexerSpeed(DriveConstants.indexerMotorSpeed);
+          miscSubsystem.setShooterSpeed(DriveConstants.shooterMotorSpeed);
+        }, miscSubsystem));
+      m_operatorController.rightTrigger(0.5).onFalse(
+        new RunCommand(() -> {
+          miscSubsystem.setLauncherSpeed(0);
+          miscSubsystem.setIndexerSpeed(0);
+          miscSubsystem.setShooterSpeed(0);
+        }, miscSubsystem));
       m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
       m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
