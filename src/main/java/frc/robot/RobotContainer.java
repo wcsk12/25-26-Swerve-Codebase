@@ -209,26 +209,25 @@ public class RobotContainer {
         }
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
-      })); //TODO: fix posintake
+      })); //TODO: fix posintake, MAKE A NEW SUBSYSTEM FOR SHOOTER TO ALLOW SHOOTING AND LAUNCHER AT ONCE
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
       m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
-      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
-      // When operator right trigger is held, run both launcher and indexer together.
-      // Previously these were two separate commands that both required the same
-      // `miscSubsystem`, causing a conflict where only one would run. Use a
-      // single RunCommand so both motors are commanded simultaneously.
+      m_operatorController.leftBumper().toggleOnTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
       m_operatorController.rightTrigger(0.5).whileTrue(
         new RunCommand(() -> {
           miscSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed);
           miscSubsystem.setIndexerSpeed(DriveConstants.indexerMotorSpeed);
-          miscSubsystem.setShooterSpeed(DriveConstants.shooterMotorSpeed);
         }, miscSubsystem));
       m_operatorController.rightTrigger(0.5).onFalse(
         new RunCommand(() -> {
           miscSubsystem.setLauncherSpeed(0);
           miscSubsystem.setIndexerSpeed(0);
-          miscSubsystem.setShooterSpeed(0);
         }, miscSubsystem));
+      // When operator right trigger is held, run both launcher and indexer together.
+      // Previously these were two separate commands that both required the same
+      // `miscSubsystem`, causing a conflict where only one would run. Use a
+      // single RunCommand so both motors are commanded simultaneously.
+      
       //m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
       //m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
