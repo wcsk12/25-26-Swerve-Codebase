@@ -30,8 +30,8 @@ public final class Constants {
     //--- Motor Speeds of other motors ---\\
     public static final double indexerMotorSpeed = 0.3;
     public static final double intakeMotorSpeed = 0.3;
-    public static final double launcherMotorSpeed = 0.3;
-    public static final double shooterMotorSpeed = 0.3;
+    public static final double launcherMotorSpeed = -0.3;
+    public static final double shooterMotorSpeed = -0.3; 
 
     // Elevator Constants
     public static final double kStartPose = -44.4;
