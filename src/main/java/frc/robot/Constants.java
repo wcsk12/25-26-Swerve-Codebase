@@ -24,17 +24,14 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-  // Increased allowed maximum speed to make the swerve drive faster on-field.
-  // Conservative increase from 4.8 m/s to 6.0 m/s. Tune further if needed.
-  public static final double kMaxSpeedMetersPerSecond = 6.0;
+    public static final double kMaxSpeedMetersPerSecond = 6.0; //Originally 4.8
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     // Motor Speeds of other motors
-  public static final double IntakeMotorSpeed = 0.35; //Intake
-  public static final double ShooterMotorSpeed = 0.8;
-  // Use a positive value for release motor; direction is controlled by this constant.
-  // Increased from 0.6 to 0.75 for a bit more speed as requested.
-  public static final double ReleaseMotorSpeed = 0.75;
+    public static final double IntakeMotorSpeed = 0.7; //Intake
+    public static final double ShooterMotorSpeed = 0.8;
+    public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
+    public static final double ReleaseMotorSpeed = -0.7; //negative to spin the correct way.
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot

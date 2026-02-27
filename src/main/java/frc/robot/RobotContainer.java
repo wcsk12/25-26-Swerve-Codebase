@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 //Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -51,6 +52,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final OtherMotorsSubsystem m_OtherMotorsSubsystem;
+  private final ShooterSubsystem m_ShooterSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController = //Operator Controller
@@ -74,11 +76,13 @@ public class RobotContainer {
 
     // Initializes the subsystems
     m_robotDrive = new DriveSubsystem();
+    m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
+    m_ShooterSubsystem = new ShooterSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
-    m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
+    
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -168,7 +172,7 @@ public class RobotContainer {
         // Commands that go to PathPlanner
     //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
   NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0).withTimeout(1)); // ALign
-  NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_OtherMotorsSubsystem, DriveConstants.ShooterMotorSpeed).withTimeout(1)); // Shoot
+  NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed).withTimeout(1)); // Shoot
   NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed).withTimeout(1)); // Release up to shooter
   NamedCommands.registerCommand("Intake!", new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true).withTimeout(2)); // Intake the Fuel! - Potentially remove withTimeout due to parallel deadline command.
 
@@ -181,7 +185,8 @@ public class RobotContainer {
   m_operatorController.b().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
   m_operatorController.x().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
-  m_operatorController.rightBumper().whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, DriveConstants.ShooterMotorSpeed));
+  m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)));
+  //m_operatorController.rightBumper().onFalse(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF));
   m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
@@ -190,7 +195,8 @@ public class RobotContainer {
   new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - B BUTTON
    new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - X BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
-  new JoystickButton(m_operatorJoystick, 6).whileTrue(new ShooterCMD(m_OtherMotorsSubsystem, DriveConstants.ShooterMotorSpeed)); //Shooter - RIGHT BUTTON --Shoot!
+  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)); //Shooter - RIGHT BUTTON --Shoot!
+  //new JoystickButton(m_operatorJoystick, 6).onFalse(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF));
   new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);

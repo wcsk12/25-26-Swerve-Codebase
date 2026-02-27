@@ -46,8 +46,8 @@ public class Robot extends TimedRobot {
     // Reuse DriveSubsystem from RobotContainer
     m_swerve = m_robotContainer.getDriveSubsystem();
     //Set up a camera --Potentially set up two this year.
-    //UsbCamera1 usbCamera = CameraServer.startAutomaticCapture();
-    //usbCamera.setResolution(640, 480);
+    UsbCamera usbCamera = CameraServer.startAutomaticCapture();
+    usbCamera.setResolution(640, 480);
   }
 
   /**

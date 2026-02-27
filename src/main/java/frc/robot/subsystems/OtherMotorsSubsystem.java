@@ -19,25 +19,25 @@ public class OtherMotorsSubsystem extends SubsystemBase {
       try {
         IntakeMotor.set(0.0);
       } catch (Throwable t) {}
-      try {
-        ShooterMotor.set(0.0);
-      } catch (Throwable t) {}
+      // try {
+      //   ShooterMotor.set(0.0);
+      // } catch (Throwable t) {}
       try {
         ReleaseMotor.set(0.0);
       } catch (Throwable t) {}
     }
   
   public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
-  public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
+  //public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
   public static SparkMax ReleaseMotor = new SparkMax(OtherMotors.ShooterMotorReleaseId, MotorType.kBrushless);
   //Intake Speed
   public void setIntakeSpeed(double speed){
     IntakeMotor.set(speed);
   }
   //Shooter Speed -Not Yet Set Up.
-  public void setShooterSpeed(double speed){
-    ShooterMotor.set(speed);
-  }
+  // public void setShooterSpeed(double speed){
+  //   ShooterMotor.set(speed);
+  // }
    public void setReleaseSpeed(double speed){
     ReleaseMotor.set(-speed);
   }
