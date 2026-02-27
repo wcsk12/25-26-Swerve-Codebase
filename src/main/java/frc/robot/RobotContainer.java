@@ -84,13 +84,13 @@ public class RobotContainer {
     miscSubsystem = new MiscSubsystem();
     posIntakeSubsystem = new PosIntakeSubsystem();
   // NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
-    NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
+    /*NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional()).withTimeout(1));
     NamedCommands.registerCommand("LowerIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)));
     NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
-
+    */ // These were causing the robot to not instantiate ^
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -209,7 +209,7 @@ public class RobotContainer {
         }
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
-      }));
+      })); //TODO: invert shooter, invert posintake, fix infinite intake fix speedmode
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
       m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
       m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
