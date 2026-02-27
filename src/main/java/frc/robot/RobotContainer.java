@@ -214,8 +214,15 @@ public class RobotContainer {
       m_operatorController.b().whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
       m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
       m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
-      m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
-      m_operatorController.rightTrigger(0.5).whileTrue(new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed)); // Send fuel to launcher **TEMP Button Config**
+      // When operator right trigger is held, run both launcher and indexer together.
+      // Previously these were two separate commands that both required the same
+      // `miscSubsystem`, causing a conflict where only one would run. Use a
+      // single RunCommand so both motors are commanded simultaneously.
+      m_operatorController.rightTrigger(0.5).whileTrue(
+          new RunCommand(() -> {
+            miscSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed);
+            miscSubsystem.setIndexerSpeed(DriveConstants.indexerMotorSpeed);
+          }, miscSubsystem));
       m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
       m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers

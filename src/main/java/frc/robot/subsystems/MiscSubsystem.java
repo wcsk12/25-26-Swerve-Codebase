@@ -36,7 +36,8 @@ public class MiscSubsystem extends SubsystemBase {
   }
 
   public void setLauncherSpeed(double speed){
-    launcherMotor.set(speed);
+    // Invert launcher direction here so callers can pass a positive logical speed.
+    launcherMotor.set(-speed);
   }
 
   public void setIndexerSpeed(double speed){
