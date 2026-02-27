@@ -39,7 +39,7 @@ public class OtherMotorsSubsystem extends SubsystemBase {
     ShooterMotor.set(speed);
   }
    public void setReleaseSpeed(double speed){
-    ReleaseMotor.set(speed);
+    ReleaseMotor.set(-speed);
   }
   
   @Override
