@@ -20,6 +20,8 @@ import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.ExampleCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.commands.LED_command;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -43,6 +45,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final ExampleSubsystem exampleSubsystem;
+  private final LEDSubsystem m_leds;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =
@@ -64,7 +67,8 @@ public class RobotContainer {
     }
 
     // Initializes the subsystems
-    m_robotDrive = new DriveSubsystem();
+  m_robotDrive = new DriveSubsystem();
+  m_leds = new LEDSubsystem(1); // Blinkin on PWM port 1
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
@@ -179,9 +183,11 @@ public class RobotContainer {
           SmartDashboard.putString("CAN Checks/lastRunError", "Controller probe aborted: robot must be disabled");
           return;
         }
-        System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
-        CANChecker.runChecks();
-      }));
+          System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
+          CANChecker.runChecks();
+        }));
+        // Do not bind operator buttons. Use LED_command (default) to reflect AutoAlign state.
+        m_leds.setDefaultCommand(new LED_command(m_leds));
     } catch (Exception e) {
       // Defensive: if controller library changes or no controller connected, log and continue.
       System.out.println("[RobotContainer] Failed to bind controller CAN check: " + e);
