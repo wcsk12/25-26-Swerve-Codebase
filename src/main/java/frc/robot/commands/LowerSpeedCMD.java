@@ -14,8 +14,10 @@ public class LowerSpeedCMD extends Command {
   private final double divisor;
   public LowerSpeedCMD(DriveSubsystem m_DriveSubsystem, double divisor) {
     this.divisor = divisor;
-    addRequirements(m_DriveSubsystem);
-    // Use addRequirements() here to declare subsystem dependencies.
+    // Do NOT add the DriveSubsystem as a requirement here. LowerSpeedCMD only
+    // modifies a static speed divisor. If it required the drive subsystem it
+    // would interrupt the default RunCommand that reads joystick inputs and
+    // calls drive(...), preventing steering/rotation while slow mode is active.
   }
 
   // Called when the command is initially scheduled.
