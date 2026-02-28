@@ -35,6 +35,7 @@ import frc.robot.Configs;
 import frc.robot.Constants;
 import frc.robot.pathConfig;
 import frc.robot.Constants.DriveConstants;
+import pabeles.concurrency.IntOperatorTask.Max;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -265,14 +266,15 @@ public class DriveSubsystem extends SubsystemBase {
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
    */
-
-  public void setDriveSpeed(double divisor) { //set speed to half
-    DriveConstants.kMaxSpeedMetersPerSecond = DriveConstants.kMaxSpeedMetersPerSecond/divisor; //divide by 2.
+   
+    public static void setDriveSpeed(double divisor) { //set speed to half
+    double MaxDriveSpeed = DriveConstants.kMaxSpeedMetersPerSecond/divisor; //divide by 2.
+    
   }
-
+  
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     // Convert the commanded (normalized -1..1) speeds into physical units
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double xSpeedDelivered = xSpeed * MaxDriveSpeed;
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
