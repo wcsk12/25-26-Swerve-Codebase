@@ -196,7 +196,19 @@ public class DriveSubsystem extends SubsystemBase {
   SmartDashboard.putNumber("limelight_tx", nt.getEntry("tx").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ty", nt.getEntry("ty").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ta", nt.getEntry("ta").getDouble(0.0));
+  // Publish slow mode state and current divisor so Dashboard can update the banner
+  frc.robot.Dashboard.setSlowModeBanner(isSlowModeActive(), getSpeedDivisor());
     
+  }
+
+  /** Returns true when a speed divisor greater than 1 is active (i.e., slow mode). */
+  public static boolean isSlowModeActive() {
+    return MaxDriveSpeed < DriveConstants.kMaxSpeedMetersPerSecond;
+  }
+
+  /** Returns the effective divisor applied to max speed (>=1). */
+  public static double getSpeedDivisor() {
+    return DriveConstants.kMaxSpeedMetersPerSecond / MaxDriveSpeed;
   }
 
   /**

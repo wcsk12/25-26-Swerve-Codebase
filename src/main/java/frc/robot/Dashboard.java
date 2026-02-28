@@ -4,6 +4,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.networktables.GenericEntry;
 
 /**
  * Programmatic Shuffleboard layout so every driver station sees the same widgets.
@@ -11,12 +12,25 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public final class Dashboard {
   private Dashboard() {}
 
+  // Banner and entries are kept static so subsystems can update them reliably
+  private static GenericEntry slowModeEntry;
+  private static GenericEntry speedDivisorEntry;
+  private static GenericEntry normalBannerEntry;
+  private static GenericEntry slowBannerEntry;
+
   public static void init(DriveSubsystem drive) {
     // Drive tab
     ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
 
+  // Prominent colored indicators at the top: NORMAL and SLOW boxes. Each is a BooleanBox
+  // which shows green when true and red when false. We set only one to true at a time.
+  var normalWidget = driveTab.add("NORMAL", true).withSize(5, 1).withPosition(0, 0).withWidget(BuiltInWidgets.kBooleanBox);
+  normalBannerEntry = normalWidget.getEntry();
+  var slowWidgetTop = driveTab.add("SLOW", false).withSize(5, 1).withPosition(5, 0).withWidget(BuiltInWidgets.kBooleanBox);
+  slowBannerEntry = slowWidgetTop.getEntry();
+
     // Field visualization (reuse DriveSubsystem's Field2d instance)
-    driveTab.add("Field", drive.getField()).withSize(6, 4).withPosition(0, 0);
+    driveTab.add("Field", drive.getField()).withSize(6, 4).withPosition(0, 1);
 
     // Gyro / pose
     driveTab.add("Gyro Angle", 0.0).withSize(2, 1).withPosition(6, 0).withWidget(BuiltInWidgets.kTextView);
@@ -38,6 +52,12 @@ public final class Dashboard {
     driveTab.add("BL Angle (deg)", 0.0).withSize(2, 1).withPosition(4, 5);
     driveTab.add("BR Angle (deg)", 0.0).withSize(2, 1).withPosition(6, 5);
 
+    // Small status widgets (redundant with banner): keep numeric/text indicators
+  var slowWidget = driveTab.add("Slow Mode", false).withSize(2, 1).withPosition(8, 4).withWidget(BuiltInWidgets.kTextView);
+  slowModeEntry = slowWidget.getEntry();
+    var divWidget = driveTab.add("Speed Divisor", 1.0).withSize(1, 1).withPosition(10, 4).withWidget(BuiltInWidgets.kTextView);
+    speedDivisorEntry = divWidget.getEntry();
+
     // Legacy encoder values
     driveTab.add("fLeftDrive", 0.0).withSize(1, 1).withPosition(0, 6);
     driveTab.add("fRightDrive", 0.0).withSize(1, 1).withPosition(1, 6);
@@ -50,18 +70,35 @@ public final class Dashboard {
     visionTab.add("limelight_ty", 0.0).withSize(2, 1).withPosition(2, 0);
     visionTab.add("limelight_ta", 0.0).withSize(2, 1).withPosition(4, 0);
 
-  // AutoAlign telemetry (populated by AutoAlignCommand via SmartDashboard)
-  visionTab.add("AutoAlign/tagCount", 0.0).withSize(1, 1).withPosition(0, 1);
-  visionTab.add("AutoAlign/forwardErr", 0.0).withSize(2, 1).withPosition(1, 1);
-  visionTab.add("AutoAlign/lateralErr", 0.0).withSize(2, 1).withPosition(3, 1);
-  visionTab.add("AutoAlign/angleErr", 0.0).withSize(2, 1).withPosition(5, 1);
-  visionTab.add("AutoAlign/status", "").withSize(2, 1).withPosition(7, 1).withWidget(BuiltInWidgets.kTextView);
+    // AutoAlign telemetry (populated by AutoAlignCommand via SmartDashboard)
+    visionTab.add("AutoAlign/tagCount", 0.0).withSize(1, 1).withPosition(0, 1);
+    visionTab.add("AutoAlign/forwardErr", 0.0).withSize(2, 1).withPosition(1, 1);
+    visionTab.add("AutoAlign/lateralErr", 0.0).withSize(2, 1).withPosition(3, 1);
+    visionTab.add("AutoAlign/angleErr", 0.0).withSize(2, 1).withPosition(5, 1);
+    visionTab.add("AutoAlign/status", "").withSize(2, 1).withPosition(7, 1).withWidget(BuiltInWidgets.kTextView);
 
-  // Auto tab (Auto chooser is already published by RobotContainer to SmartDashboard as "Auto Chooser")
-  ShuffleboardTab autoTab = Shuffleboard.getTab("Auto");
-  autoTab.add("Auto Chooser", 0.0).withSize(3, 2).withPosition(0, 0);
+    // Auto tab (Auto chooser is already published by RobotContainer to SmartDashboard as "Auto Chooser")
+    ShuffleboardTab autoTab = Shuffleboard.getTab("Auto");
+    autoTab.add("Auto Chooser", 0.0).withSize(3, 2).withPosition(0, 0);
 
     // Note: the numeric widgets above will automatically pick up values published to NetworkTables
     // by the DriveSubsystem (SmartDashboard.putNumber) and Limelight entries.
+  }
+
+  /** Update the banner and small widgets. Call from subsystems periodically. */
+  public static void setSlowModeBanner(boolean active, double divisor) {
+    // active == true means SLOW mode. We set the top indicators so only one is green.
+    if (normalBannerEntry != null) {
+      normalBannerEntry.setBoolean(!active);
+    }
+    if (slowBannerEntry != null) {
+      slowBannerEntry.setBoolean(active);
+    }
+    if (slowModeEntry != null) {
+      slowModeEntry.setBoolean(active);
+    }
+    if (speedDivisorEntry != null) {
+      speedDivisorEntry.setDouble(divisor);
+    }
   }
 }
