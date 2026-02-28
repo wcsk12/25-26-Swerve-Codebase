@@ -267,15 +267,22 @@ public class DriveSubsystem extends SubsystemBase {
    *                      field.
    */
    
-    public static void setDriveSpeed(double divisor) { //set speed to half
-    double MaxDriveSpeed = DriveConstants.kMaxSpeedMetersPerSecond/divisor; //divide by 2.
-    
+  /**
+   * Set the scaling divisor for the X-axis drive speed.
+   * Example: divisor=2 halves the maximum delivered X speed.
+   */
+  public static void setDriveSpeed(double divisor) { //set speed to half
+    MaxDriveSpeed = DriveConstants.kMaxSpeedMetersPerSecond / divisor; //divide by divisor.
   }
   
+  // Current maximum linear drive speed used by `drive(...)` for X axis scaling.
+  // Default to the configured maximum in DriveConstants.
+  private static double MaxDriveSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
+
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     // Convert the commanded (normalized -1..1) speeds into physical units
     double xSpeedDelivered = xSpeed * MaxDriveSpeed;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double ySpeedDelivered = ySpeed * MaxDriveSpeed;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
     // Build chassis speeds using the delivered (scaled) values. Use field-relative
