@@ -12,9 +12,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 public class LowerSpeedCMD extends Command {
   /** Creates a new LowerSpeedCMD. */
   private final double divisor;
-  private final DriveSubsystem driveSubsystem;
   public LowerSpeedCMD(DriveSubsystem m_DriveSubsystem, double divisor) {
-    this.driveSubsystem = m_DriveSubsystem;
     this.divisor = divisor;
     addRequirements(m_DriveSubsystem);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -22,18 +20,22 @@ public class LowerSpeedCMD extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  // Apply the lowered speed once when the command starts
+  DriveSubsystem.setDriveSpeed(divisor);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveSubsystem.setDriveSpeed(divisor); //divide by two
+    // No-op: speed already set in initialize. Keeping execute lightweight.
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    driveSubsystem.setDriveSpeed(divisor); //divide by one
+  // Restore normal speed when the command ends/cancelled
+  DriveSubsystem.setDriveSpeed(1);
   }
     
   // Returns true when the command should end.

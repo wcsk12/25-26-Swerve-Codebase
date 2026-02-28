@@ -204,7 +204,8 @@ public class RobotContainer {
       // ------------------------------------------ Shooter ------------------------------------------ \\
   m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, false)));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
-  m_driverController.b().toggleOnTrue(new InstantCommand(() -> new LowerSpeedCMD(m_robotDrive, 2))); //set to two when pressed! -B button
+  // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
+  m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
       // ------------------------------------------ Release ------------------------------------------ \\
   m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
