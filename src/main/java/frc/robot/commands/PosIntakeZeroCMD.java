@@ -7,12 +7,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PosIntakeSubsystem;
 
+
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class PosIntakeCMD extends Command {
+public class PosIntakeZeroCMD extends Command {
   private final PosIntakeSubsystem posIntakeSubsystem;
   private final double speed;
+  private double position;
+  private double distance;
+
   /** Creates a new PosIntakeCMD. */
-  public PosIntakeCMD(PosIntakeSubsystem posIntakeSubsystem, double speed) {
+  public PosIntakeZeroCMD(PosIntakeSubsystem posIntakeSubsystem, double speed) {
     this.posIntakeSubsystem = posIntakeSubsystem;
     this.speed = speed;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -26,7 +30,21 @@ public class PosIntakeCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    posIntakeSubsystem.setPosIntakeSpeed(speed);
+    position = posIntakeSubsystem.getPosIntakePosition(); //position is 1.0 (0.0) at starting position, 
+      //counts down from .999 to about .600 where .600 is resting on the bumper
+    if (position < 0.05) {
+      position = 1.0;
+    }
+    distance = 1.0 - position + 0.7; //destination - position + an offset to prevent distance multiplying speed to essentially 0
+    if (distance < 0.2) { //prevent extremely low and negative values
+      distance = 0.2;
+    }
+    System.out.println("ZeroCMD: " + position + " " + distance);
+    if (position < .95) { //.05 deadzone
+      posIntakeSubsystem.setPosIntakeSpeed(-1.0 * speed * distance);
+    } else {
+      posIntakeSubsystem.setPosIntakeSpeed(0);
+    }
   }
 
   // Called once the command ends or is interrupted.

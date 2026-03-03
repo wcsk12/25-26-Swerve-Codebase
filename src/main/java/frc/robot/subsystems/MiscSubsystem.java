@@ -27,8 +27,8 @@ public class MiscSubsystem extends SubsystemBase {
   }
 
   public void setShooterSpeed(double speed){
-    shooterMotor1.set(speed);
-    shooterMotor2.set(-speed);
+    shooterMotor1.set(-speed);
+    shooterMotor2.set(speed);
   }
 
   @Override

@@ -60,7 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
-  private final Pigeon2 m_Pigeon2 = new Pigeon2(12);
+  private static final Pigeon2 m_Pigeon2 = new Pigeon2(12);
   // 2d Field in SmartDashboard
   private final Field2d m_field = new Field2d(); 
 
@@ -331,7 +331,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /** Zeroes the heading of the robot. */
-  public void zeroHeading() {
+  public static void zeroHeading() {
     //m_gyro.reset();
     m_Pigeon2.reset();
   }

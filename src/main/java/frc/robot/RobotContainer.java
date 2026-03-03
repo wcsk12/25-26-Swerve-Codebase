@@ -20,7 +20,9 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.LauncherCMD;
-import frc.robot.commands.PosIntakeCMD;
+import frc.robot.commands.PosIntakeBumperCMD;
+import frc.robot.commands.PosIntakeShakeCMD;
+import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
@@ -33,7 +35,6 @@ import frc.robot.subsystems.LauncherSubsystem;
  */
 import frc.robot.subsystems.MiscSubsystem;
 import frc.robot.subsystems.PosIntakeSubsystem;
-import frc.robot.subsystems.PosIntakeSubsystem.IntakePositions;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -103,7 +104,7 @@ public class RobotContainer {
         () -> m_robotDrive.drive(
         -MathUtil.applyDeadband(m_driverController.getRawAxis(1) * speedMode, OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(m_driverController.getRawAxis(4) * speedMode, OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(-m_driverController.getRawAxis(4) * speedMode, OIConstants.kDriveDeadband), 
         true, 0.02),
       m_robotDrive));
     // -------------------------------- PathPlanner Code -------------------------------- \\
@@ -186,15 +187,15 @@ public class RobotContainer {
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed " + speedMode)));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
       //.5 speed mode
-      m_driverController.rightBumper().onTrue(new InstantCommand(() -> speedMode = .5));
-      m_driverController.rightBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
-      //.25 speed mode
-      m_driverController.leftBumper().onTrue(new InstantCommand(() -> speedMode = .25));
+      m_driverController.leftBumper().onTrue(new InstantCommand(() -> speedMode = .5));
       m_driverController.leftBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
-      
+      //.25 speed mode
+      m_driverController.rightBumper().onTrue(new InstantCommand(() -> speedMode = .25));
+      m_driverController.rightBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
+      m_driverController.back().onTrue(new InstantCommand(()-> DriveSubsystem.zeroHeading()));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-      new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
-      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+      /*new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
+      new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));*/
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
@@ -213,27 +214,17 @@ public class RobotContainer {
         }
         System.out.println("[RobotContainer] Controller-triggered CAN check starting.");
         CANChecker.runChecks();
-      })); //TODO: fix posintake, MAKE A NEW SUBSYSTEM FOR SHOOTER TO ALLOW SHOOTING AND LAUNCHER AT ONCE
+      }));
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      //m_operatorController.a().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
-      //    .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves posIntake into position when using intake
-      m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
+      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Moves posIntake into position when using intake
+      //m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
+      m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, 0.55));
       m_operatorController.leftBumper().toggleOnTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
       m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed));
-      m_operatorController.x().toggleOnTrue(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0.1)))
-          .toggleOnFalse(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0)));
-      m_operatorController.y().toggleOnTrue(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(-0.1)))
-          .toggleOnFalse(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0)));
-      /*m_operatorController.rightTrigger(0.5).whileTrue(new InstantCommand(()-> {
-      posIntakeSubsystem.setPosition(IntakePositions.shake1);
-      new WaitCommand(0.5);
-      posIntakeSubsystem.setPosition(IntakePositions.shake2);
-      }));
-      m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)))
-          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
-      m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
-          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
-      */
+      m_operatorController.rightTrigger(0.5).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Jiggles posIntake when using launcher
+      m_operatorController.x().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Move posIntake to bumper
+      m_operatorController.y().whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Move posIntake to zero
+      
           // When operator right trigger is held, run both launcher and indexer together.
       // Previously these were two separate commands that both required the same
       // `miscSubsystem`, causing a conflict where only one would run. Use a
