@@ -28,8 +28,10 @@ public class PosIntakeSubsystem extends SubsystemBase {
   private SparkMaxConfig posIntakeMotorConfig;
 
   public enum IntakePositions{
-    zero(0),
-    low(8);
+    zero(1),
+    shake1(4),
+    shake2(6),
+    low(10);
 
     private final double value;
 
@@ -54,9 +56,9 @@ public class PosIntakeSubsystem extends SubsystemBase {
             // i = Correction
             // d = Dampening
     posIntakeMotorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(0.05)
+        .p(0.03)
         .i(0)
-        .d(0)
+        .d(.25)
         .outputRange(-1, 1);
     posIntakeMotorConfig
         .inverted(false)

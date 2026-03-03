@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //Commands and Controllers\\
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,12 +18,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.IndexerCMD;
 import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.LauncherCMD;
+import frc.robot.commands.PosIntakeCMD;
 import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -48,6 +50,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final MiscSubsystem miscSubsystem;
+  private final LauncherSubsystem launcherSubsystem;
   private final PosIntakeSubsystem posIntakeSubsystem;
   
   // Initializes the controller (Xbox)
@@ -82,6 +85,7 @@ public class RobotContainer {
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
     miscSubsystem = new MiscSubsystem();
+    launcherSubsystem = new LauncherSubsystem();
     posIntakeSubsystem = new PosIntakeSubsystem();
   // NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     /*NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
@@ -211,34 +215,40 @@ public class RobotContainer {
         CANChecker.runChecks();
       })); //TODO: fix posintake, MAKE A NEW SUBSYSTEM FOR SHOOTER TO ALLOW SHOOTING AND LAUNCHER AT ONCE
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
+      //m_operatorController.a().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
+      //    .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves posIntake into position when using intake
+      m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
       m_operatorController.leftBumper().toggleOnTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
-      m_operatorController.rightTrigger(0.5).whileTrue(
-        new RunCommand(() -> {
-          miscSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed);
-          miscSubsystem.setIndexerSpeed(DriveConstants.indexerMotorSpeed);
-        }, miscSubsystem));
-      m_operatorController.rightTrigger(0.5).onFalse(
-        new RunCommand(() -> {
-          miscSubsystem.setLauncherSpeed(0);
-          miscSubsystem.setIndexerSpeed(0);
-        }, miscSubsystem));
-      // When operator right trigger is held, run both launcher and indexer together.
+      m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed));
+      m_operatorController.x().toggleOnTrue(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0.1)))
+          .toggleOnFalse(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0)));
+      m_operatorController.y().toggleOnTrue(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(-0.1)))
+          .toggleOnFalse(new InstantCommand(()-> posIntakeSubsystem.setPosIntakeSpeed(0)));
+      /*m_operatorController.rightTrigger(0.5).whileTrue(new InstantCommand(()-> {
+      posIntakeSubsystem.setPosition(IntakePositions.shake1);
+      new WaitCommand(0.5);
+      posIntakeSubsystem.setPosition(IntakePositions.shake2);
+      }));
+      m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)))
+          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
+      m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
+          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
+      */
+          // When operator right trigger is held, run both launcher and indexer together.
       // Previously these were two separate commands that both required the same
       // `miscSubsystem`, causing a conflict where only one would run. Use a
       // single RunCommand so both motors are commanded simultaneously.
       
-      //m_operatorController.x().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
-      //m_operatorController.y().toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-      new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
+      /*new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
       new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
       new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
       new JoystickButton(m_operatorJoystick, 5).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
-      new JoystickButton(m_operatorJoystick, 8).whileTrue(new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
-      new JoystickButton(m_operatorJoystick, 8).whileTrue(new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed)); // Send fuel to launcher **TEMP Button Config**
-      new JoystickButton(m_operatorJoystick, 1).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
-      new JoystickButton(m_operatorJoystick, 4).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low))).toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position
+      new JoystickButton(m_operatorJoystick, 8).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
+      new JoystickButton(m_operatorJoystick, 1).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)))
+          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
+      new JoystickButton(m_operatorJoystick, 4).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
+          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position*/
     } catch (Exception e) {
       // Defensive: if controller library changes or no controller connected, log and continue.
       System.out.println("[RobotContainer] Failed to bind controller CAN check: " + e);
