@@ -13,6 +13,8 @@ public class AutoAlignCommand extends Command {
   private final DriveSubsystem m_drive;
   private final String m_llName;
   private final double m_targetDist;
+  public enum Mode { ROTATION_ONLY, FULL_ALIGN }
+  private final Mode m_mode;
 
   private final double kPX = 0.8;
   private final double kPY = 1.0;
@@ -21,10 +23,21 @@ public class AutoAlignCommand extends Command {
   private final double posTol = 0.05;
   private final double angTol = Math.toRadians(3.0);
 
+  /**
+   * Default constructor: rotation-only mode (suitable for teleop where driver controls translation).
+   */
   public AutoAlignCommand(DriveSubsystem drive, double targetDistanceMeters) {
+    this(drive, targetDistanceMeters, Mode.ROTATION_ONLY);
+  }
+
+  /**
+   * Constructor with explicit mode: ROTATION_ONLY or FULL_ALIGN.
+   */
+  public AutoAlignCommand(DriveSubsystem drive, double targetDistanceMeters, Mode mode) {
     m_drive = drive;
     m_llName = "limelight";
     m_targetDist = targetDistanceMeters;
+    m_mode = mode;
     addRequirements(m_drive);
   }
 
@@ -86,11 +99,15 @@ public class AutoAlignCommand extends Command {
     double xCmd = MathUtil.clamp(kPX * forwardError, -1.0, 1.0);
     double yCmd = MathUtil.clamp(kPY * lateralError, -1.0, 1.0);
     rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
-    
-    System.out.println("Command rCmd: " + rCmd);
-    // drive robot-relative
-    //m_drive.drive(xCmd, -yCmd, rCmd, false, 0.02);
 
+    System.out.println("Command rCmd: " + rCmd);
+
+    if (m_mode == Mode.FULL_ALIGN) {
+      // In full-align mode we drive robot-relative using computed translation + rotation
+      m_drive.drive(xCmd, -yCmd, rCmd, false, 0.02);
+    } else {
+      // Rotation-only: leave translation to driver; rotation is provided via static rCmd
+    }
 
     SmartDashboard.putString("AutoAlign/status", "running");
   }
@@ -104,12 +121,21 @@ public class AutoAlignCommand extends Command {
     double fwd = pe.pose.getTranslation().getX();
     double lat = pe.pose.getTranslation().getY();
     double ang = pe.pose.getRotation().getRadians();
-    return Math.abs(fwd - m_targetDist) < posTol && Math.abs(lat) < posTol && Math.abs(ang) < angTol;
+    if (m_mode == Mode.FULL_ALIGN) {
+      return Math.abs(fwd - m_targetDist) < posTol && Math.abs(lat) < posTol && Math.abs(ang) < angTol;
+    } else {
+      return Math.abs(ang) < angTol;
+    }
   }
 
   @Override
   public void end(boolean interrupted) {
-    m_drive.drive(0, 0, 0, false, 0.02);
+    // Clear rotation command
+    rCmd = 0.0;
+    if (m_mode == Mode.FULL_ALIGN) {
+      // Stop movement if we were commanding translation
+      m_drive.drive(0, 0, 0, false, 0.02);
+    }
     SmartDashboard.putString("AutoAlign/status", interrupted ? "interrupted" : "ended");
   }
 }

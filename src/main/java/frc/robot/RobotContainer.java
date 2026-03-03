@@ -192,7 +192,7 @@ public class RobotContainer {
         // Commands that go to PathPlanner
     //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     
-  NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0).withTimeout(1)); // ALign
+  NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0, AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(1)); // ALign
   //NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed).withTimeout(1)); // Shoot
   //NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed).withTimeout(1)); // Release up to shooter
   NamedCommands.registerCommand("Intake!", new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true).withTimeout(2)); // Intake the Fuel! - Potentially remove withTimeout due to parallel deadline command.
@@ -203,6 +203,9 @@ public class RobotContainer {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+  // Driver X button: one-shot full autonomous alignment (translation + rotation)
+  // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
+  m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ Intake ------------------------------------------ \\
   m_driverController.leftBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));

@@ -25,6 +25,8 @@ This is a Java WPILib (command-based) robot project for an FRC swerve-drive robo
   - CANChecker: a Shuffleboard toggle and controller Start button can run `CANChecker.runChecks()`. There is also a `RUN_CAN_CHECKER` flag in `RobotContainer` for optional startup checks.
   - Controller bindings: code uses `CommandXboxController` with a joystick fallback. Example binding style: `m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));`.
   - PathPlanner commands: `NamedCommands.registerCommand("Align", new AutoAlignCommand(...))` — updating names affects autos in `src/main/deploy/pathplanner/autos/`.
+    - PathPlanner commands: `NamedCommands.registerCommand("Align", new AutoAlignCommand(...))` — updating names affects autos in `src/main/deploy/pathplanner/autos/`.
+      Note: in this branch the registered `"Align"` command now constructs `AutoAlignCommand` with `Mode.FULL_ALIGN`, so PathPlanner autos that run `Align` will perform full autonomous translation + rotation alignment (not rotation-only). See `AutoAlignCommand.Mode` for the available modes and `RobotContainer` for the registration site.
 
 - Where to change common things
   - Change CAN IDs or module offsets: `Constants.java` → `DriveConstants`.
