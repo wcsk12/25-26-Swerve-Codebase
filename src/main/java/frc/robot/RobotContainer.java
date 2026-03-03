@@ -169,14 +169,19 @@ public class RobotContainer {
   }
 // Shooter Command for Autos \\
   public Command getShootSequence() {
+    // ShooterCMD is a persistent command (isFinished() == false) and would block a sequence.
+    // Use InstantCommands to set/clear speeds so the sequence can progress.
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
-        new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed), new WaitCommand(0.5), // Adjust wait time for spin-up //true
-        // 2. Run feeder/release motor to fire note
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed)), // 3. Stop both (or stop via another trigger/timer)
-        new WaitCommand(1), new InstantCommand(() -> {
-          new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF); //false
-             m_OtherMotorsSubsystem.setReleaseSpeed(0);
+        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
+        new WaitCommand(0.5), // Adjust wait time for spin-up
+        // 2. Run feeder/release motor to fire
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed)),
+        new WaitCommand(1),
+        // 3. Stop both
+        new InstantCommand(() -> {
+          m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF);
+          m_OtherMotorsSubsystem.setReleaseSpeed(0);
         })
     );
 }
