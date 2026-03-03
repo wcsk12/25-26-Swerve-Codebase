@@ -171,11 +171,11 @@ public class RobotContainer {
   public Command getShootSequence() {
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
-        new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, true), new WaitCommand(0.5), // Adjust wait time for spin-up
+        new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed), new WaitCommand(0.5), // Adjust wait time for spin-up //true
         // 2. Run feeder/release motor to fire note
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed)), // 3. Stop both (or stop via another trigger/timer)
         new WaitCommand(1), new InstantCommand(() -> {
-          new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF, false);
+          new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShootMotorSpeedOFF); //false
              m_OtherMotorsSubsystem.setReleaseSpeed(0);
         })
     );
@@ -202,7 +202,7 @@ public class RobotContainer {
   m_driverController.leftBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
-  m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, false)));
+  m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed))); //false
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
   m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
@@ -215,7 +215,7 @@ public class RobotContainer {
   new JoystickButton(m_driverJoystick, 5).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - LEFT BUTTON
    new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
-  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, false)); //Shooter - RIGHT BUTTON --Shoot!
+  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)); //false //Shooter - RIGHT BUTTON --Shoot!
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   new JoystickButton(m_driverJoystick, 2).toggleOnTrue(new InstantCommand(() -> new LowerSpeedCMD(m_robotDrive, 2))); //set to two when pressed! - B Button
       // ------------------------------------------ Release ------------------------------------------ \\

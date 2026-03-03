@@ -12,14 +12,14 @@ import frc.robot.subsystems.ShooterSubsystem;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ShooterCMD extends Command {
   private final double speed;
-  private final boolean ON;
+  //private final boolean ON;
   private final ShooterSubsystem shootersubsystem;
   /** Creates a new ShooterCMD. */
-  public ShooterCMD(ShooterSubsystem m_ShooterSubsystem, double speed, boolean ON) {
+  public ShooterCMD(ShooterSubsystem m_ShooterSubsystem, double speed) { //boolean ON
     // Use addRequirements() here to declare subsystem dependencies.
     this.shootersubsystem = m_ShooterSubsystem;
     this.speed = speed;
-    this.ON = ON;
+    //this.ON = ON;
     addRequirements(m_ShooterSubsystem);
   }
 
@@ -44,12 +44,13 @@ public class ShooterCMD extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (ON == false) {
-      shootersubsystem.setShooterSpeed(0); //Used for Autos to say if the Auto is running, don't interupt speed even if the command is off.
-    }
-    else {
-      shootersubsystem.setShooterSpeed(speed);
-    }
+    shootersubsystem.setShooterSpeed(0);
+    // if (ON == false) {
+    //   shootersubsystem.setShooterSpeed(0); //Used for Autos to say if the Auto is running, don't interupt speed even if the command is off.
+    // }
+    // else {
+    //   shootersubsystem.setShooterSpeed(speed);
+    //}
   }
 
   // Returns true when the command should end.
