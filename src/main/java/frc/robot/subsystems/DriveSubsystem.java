@@ -268,9 +268,9 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, double periodSeconds) {
     // Convert joystick inputs (-1..1) into chassis speeds (m/s, rad/s)
-    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond * RobotContainer.speedMode;
-    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond * RobotContainer.speedMode;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed * RobotContainer.speedMode;
+    double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
+    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
     // Build chassis speeds in correct units and honor field-relative flag
   // Use the same gyro sign convention as odometry (odometry negates the pigeon yaw).

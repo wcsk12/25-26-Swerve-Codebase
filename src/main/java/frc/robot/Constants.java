@@ -24,7 +24,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 6.0;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     //--- Motor Speeds of other motors ---\\
@@ -32,7 +32,7 @@ public final class Constants {
     public static final double intakeMotorSpeed = 0.9;
     public static final double launcherMotorSpeed = -0.75;
     public static final double shooterMotorSpeed = 0.8;
-    public static final double posIntakeMotorSpeed = -0.1;
+    public static final double posIntakeMotorSpeed = -0.30;
 
     // Elevator Constants
     public static final double kStartPose = -44.4;

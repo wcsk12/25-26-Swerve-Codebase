@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot;
 import frc.robot.subsystems.MiscSubsystem;
 
@@ -12,11 +14,13 @@ import frc.robot.subsystems.MiscSubsystem;
 public class ShooterCMD extends Command {
   private final MiscSubsystem miscSubsystem;
   private final double speed;
+  private final CommandXboxController controller;
   
   /** Creates a new ShooterCMD. */
-  public ShooterCMD(MiscSubsystem miscSubsystem, double speed) {
+  public ShooterCMD(MiscSubsystem miscSubsystem, double speed, CommandXboxController controller) {
     this.miscSubsystem = miscSubsystem;
     this.speed = speed;
+    this.controller = controller;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
   }
@@ -36,12 +40,14 @@ public class ShooterCMD extends Command {
     else{
       miscSubsystem.setShooterSpeed(speed);
     }
+    controller.setRumble(RumbleType.kBothRumble, 1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     miscSubsystem.setShooterSpeed(0);
+    controller.setRumble(RumbleType.kBothRumble, 0);
   }
 
   // Returns true when the command should end.
