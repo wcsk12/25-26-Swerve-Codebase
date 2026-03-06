@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //Commands and Controllers\\
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
@@ -87,15 +88,16 @@ public class RobotContainer {
   CANChecker.createWidgets();
     miscSubsystem = new MiscSubsystem();
     launcherSubsystem = new LauncherSubsystem();
-    posIntakeSubsystem = new PosIntakeSubsystem();
-  // NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
-    /*NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
+    posIntakeSubsystem = new PosIntakeSubsystem();  
+    //NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
+    //NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed).withTimeout(1));
-    NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
+    NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
+    //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional()).withTimeout(1));
-    NamedCommands.registerCommand("LowerIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)));
-    NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
-    */ // These were causing the robot to not instantiate ^
+    //NamedCommands.registerCommand("LowerIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)));
+    //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
+    // These were causing the robot to not instantiate ^
     // Gets controller binding
     configureBindings();
     // Sets joystick to drive
@@ -178,6 +180,21 @@ public class RobotContainer {
       }, 0, 300, TimeUnit.MILLISECONDS);
   }
 
+  public Command getShootSequence() {
+      return Commands.sequence(
+        new InstantCommand(() -> miscSubsystem.setShooterSpeed(DriveConstants.shooterMotorSpeed)),
+        new WaitCommand(1),
+        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
+        //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
+        new WaitCommand(3),
+        new InstantCommand(() -> {
+          miscSubsystem.setShooterSpeed(0);
+          launcherSubsystem.setLauncherSpeed(0);
+        })
+        //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
+      );
+  }
+
   // Sets up controller bindings
   private void configureBindings() {
     // Initiallizyng Buttons
@@ -216,10 +233,10 @@ public class RobotContainer {
         CANChecker.runChecks();
       }));
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Moves posIntake into position when using intake
+      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5)); // Moves posIntake into position when using intake
       //m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
-      m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, 0.55));
-      m_operatorController.leftBumper().toggleOnTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
+      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, 0.55));
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
       m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed));
       m_operatorController.rightTrigger(0.5).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Jiggles posIntake when using launcher
       m_operatorController.x().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Move posIntake to bumper

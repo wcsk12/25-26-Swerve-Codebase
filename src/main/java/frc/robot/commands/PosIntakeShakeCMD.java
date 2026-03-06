@@ -36,12 +36,14 @@ public class PosIntakeShakeCMD extends Command {
       position = 1.0;
     } 
     System.out.println("ShakeCMD: " + position + " " + ((System.currentTimeMillis() / 500) % 2));
-    if (position < 0.85) { //bring posIntake up
-      posIntakeSubsystem.setPosIntakeSpeed(-1.0 * speed);
+    if (position < 0.72) { //bring posIntake up
+      posIntakeSubsystem.setPosIntakeSpeed(-4.0 * speed);
+    } else if (position > .9) {
+      posIntakeSubsystem.setPosIntakeSpeed(1.2 * speed);
     } else if ((System.currentTimeMillis() / 500) % 2 == 0) { //swap direction every half-second
-      posIntakeSubsystem.setPosIntakeSpeed(-0.5 * speed); //shake up
+      posIntakeSubsystem.setPosIntakeSpeed(-1.0 * speed); //shake up
     } else if ((System.currentTimeMillis() / 500) % 2 == 1) {
-      posIntakeSubsystem.setPosIntakeSpeed(0.8 * speed); //shake down
+      posIntakeSubsystem.setPosIntakeSpeed(0.6 * speed); //shake down
     }
   }
 

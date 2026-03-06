@@ -40,11 +40,7 @@ public class PosIntakeBumperCMD extends Command {
       distance = 0.2;
     }
     System.out.println("BumperCMD: " + position + " " + distance);
-    if (position > 0.65) { //.05 deadzone
-      posIntakeSubsystem.setPosIntakeSpeed(speed * distance);
-    } else {
-      posIntakeSubsystem.setPosIntakeSpeed(0);
-    }
+    posIntakeSubsystem.setPosIntakeSpeed(speed * distance);
   }
 
   // Called once the command ends or is interrupted.
