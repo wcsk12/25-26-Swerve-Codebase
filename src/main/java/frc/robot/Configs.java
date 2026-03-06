@@ -27,8 +27,11 @@ import org.json.simple.parser.ParseException;
 public final class Configs {
     public static final class MAXSwerveModule {
       // Initializes variables
-        public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
+  // Configs for non-swerve motors (intake, launcher, indexer, positioners)
+  public static final SparkMaxConfig generalConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
         static {
             // Use module constants to calculate conversion factors and feed forward gain.
@@ -37,9 +40,9 @@ public final class Configs {
             double turningFactor = 2 * Math.PI;
             double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
 
-            drivingConfig
-                    .idleMode(IdleMode.kBrake)
-                    .smartCurrentLimit(50);
+      drivingConfig
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(40);
             drivingConfig.encoder
                     .positionConversionFactor(drivingFactor) // meters
                     .velocityConversionFactor(drivingFactor / 60.0); // meters per second
@@ -50,9 +53,9 @@ public final class Configs {
                     .velocityFF(drivingVelocityFeedForward)
                     .outputRange(-1, 1);
 
-            turningConfig
-                    .idleMode(IdleMode.kBrake)
-                    .smartCurrentLimit(20);
+      turningConfig
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(20);
             turningConfig.absoluteEncoder
                     // Invert the turning encoder, since the output shaft rotates in the opposite
                     // direction of the steering motor in the MAXSwerve Module.
@@ -69,7 +72,11 @@ public final class Configs {
                     // to 10 degrees will go through 0 rather than the other direction which is a
                     // longer route.
                     .positionWrappingEnabled(true)
-                    .positionWrappingInputRange(0, turningFactor);
+        .positionWrappingInputRange(0, turningFactor);
+
+      // Configure general-purpose motor profiles
+      generalConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(30);
+      shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
         }
     }
 

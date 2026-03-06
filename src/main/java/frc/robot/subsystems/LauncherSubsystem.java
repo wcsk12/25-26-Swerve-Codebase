@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Configs;
 
 public class LauncherSubsystem extends SubsystemBase {
   private final SparkMax launcherMotor;
@@ -17,6 +18,12 @@ public class LauncherSubsystem extends SubsystemBase {
   public LauncherSubsystem() {
     launcherMotor = new SparkMax(DriveConstants.launcherId, MotorType.kBrushless);
     indexerMotor = new SparkMax(DriveConstants.indexerId, MotorType.kBrushless);
+
+    // Apply current limit presets
+    launcherMotor.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+        com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+    indexerMotor.configure(Configs.MAXSwerveModule.generalConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+        com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
   }
 
   public void setLauncherSpeed(double speed){

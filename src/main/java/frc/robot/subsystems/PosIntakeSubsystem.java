@@ -8,6 +8,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Configs;
 import com.revrobotics.AbsoluteEncoder;
 
 public class PosIntakeSubsystem extends SubsystemBase {
@@ -18,6 +19,10 @@ public class PosIntakeSubsystem extends SubsystemBase {
   public PosIntakeSubsystem() {
     posIntakeMotor = new SparkMax(DriveConstants.posIntakeId, MotorType.kBrushless);
     posIntakeEncoder = posIntakeMotor.getAbsoluteEncoder(); 
+
+    // Apply conservative current limit preset for the positioner
+    posIntakeMotor.configure(Configs.MAXSwerveModule.generalConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+        com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
   }
 
   public void setPosIntakeSpeed(double speed) {

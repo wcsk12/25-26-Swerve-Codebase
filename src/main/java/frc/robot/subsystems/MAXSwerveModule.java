@@ -53,6 +53,9 @@ public class MAXSwerveModule {
     m_turningSpark.configure(Configs.MAXSwerveModule.turningConfig, ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
 
+  // Note: open-loop ramping APIs vary by REV wrapper version; keep ramping in firmware or
+  // set via the hardware tool if available. Current limits are applied via the SparkMaxConfig above.
+
     m_chassisAngularOffset = chassisAngularOffset;
     m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
     m_drivingEncoder.setPosition(0);
