@@ -2,44 +2,49 @@
 Purpose: provide concise, actionable guidance for AI coding agents working on this repo.
 Keep this short (20–50 lines). Reference concrete files and patterns the agent will see.
 -->
-# Copilot instructions for 25-26-Swerve-Codebase
+## Copilot instructions for 25-26-Swerve-Codebase
 
-This is a Java WPILib (command-based) robot project for an FRC swerve-drive robot. Focus on these facts and patterns when making changes.
+This repository is a Java WPILib (command-based) robot project for an FRC swerve-drive robot. Keep guidance short and concrete — below are the most useful, repo-specific facts an AI agent needs to be productive.
 
-- Big picture
-  - Entry points: `src/main/java/frc/robot/Robot.java` (TimedRobot) and `RobotContainer.java` (wires subsystems, default commands, and bindings).
-  - Drive: `DriveSubsystem.java` uses `MAXSwerveModule` (SparkMax + encoders) and a CTRE `Pigeon2` gyro. PathPlanner is integrated via `AutoBuilder.configure` in `DriveSubsystem`.
-  - Hardware/config: CAN IDs and module offsets live in `Constants.java` (see `DriveConstants`). SparkMax PID/encoder settings live in `Configs.java` (`Configs.MAXSwerveModule`).
-  - Commands: see `src/main/java/frc/robot/commands/` for `AutoAlignCommand`, `IntakeCMD`, `ShooterCMD`, etc. `RobotContainer` registers PathPlanner `NamedCommands` and sets a default `RunCommand` for driving.
+- Big picture (what to read first)
+  - Entry points: `src/main/java/frc/robot/Robot.java` (TimedRobot) and `src/main/java/frc/robot/RobotContainer.java` (wires subsystems, default commands, and controller bindings).
+  - Drive: `src/main/java/frc/robot/subsystems/DriveSubsystem.java` builds swerve modules from `MAXSwerveModule` (REV SparkMax + encoders) and reads a CTRE `Pigeon2` gyro. PathPlanner integration is performed during auto configuration (look for `AutoBuilder.configure` usages).
+  - Config and constants: `src/main/java/frc/robot/Constants.java` (DriveConstants nested class) holds CAN IDs and module offsets. `src/main/java/frc/robot/Configs.java` contains static hardware config objects (e.g., `Configs.MAXSwerveModule`).
+  - Commands: inspect `src/main/java/frc/robot/commands/` for concrete commands like `AutoAlignCommand`, `IntakeCMD`, `ShooterCMD`. `RobotContainer` registers PathPlanner `NamedCommands` used by autos.
 
-- Developer workflows (how to build, deploy, debug)
-  - Build locally (Windows PowerShell): `.
-    \gradlew.bat build` (or run from VSCode WPILib tasks). Use `build` to catch compile problems.
-  - Deploy to roboRIO: `.
-    \gradlew.bat deploy` (WPILib gradle tasks are configured; the project deploys jar and static PathPlanner files). The repo's gradle logs indicate JRE 17 is required on the target.
-  - Logs: the project prints important runtime messages to stdout (e.g., CAN checker, controller bindings). `CommandScheduler.getInstance().run()` is already called in `Robot.robotPeriodic()`.
+- Developer workflows (concrete commands)
+  - Build (Windows PowerShell):
+    - Build: `.
+      \gradlew.bat build`
+    - Deploy to roboRIO (uploads jar and deploy folder files): `.
+      \gradlew.bat deploy`
+    - Note: the roboRIO/target requires Java 17 (project Gradle/JRE assumptions). Use VSCode WPILib tasks if preferred.
+  - Runtime checks: `CANChecker.runChecks()` can be triggered from Shuffleboard or via the controller Start button. `RobotContainer` exposes a `RUN_CAN_CHECKER` flag to control startup checks.
 
-- Project-specific conventions and gotchas
-  - Single hardware instances: subsystems are singletons created in `RobotContainer`. Avoid creating hardware objects (SparkMax/Pigeon) outside subsystems—use `RobotContainer.getDriveSubsystem()` to reuse the instance.
-  - PathPlanner settings: deployment folder `src/main/deploy/pathplanner/` contains settings, paths, and autos; PathPlanner integration uses `Configs.fromGUISettings()` — currently this method contains a hard-coded absolute path to a developer machine. Prefer `Filesystem.getDeployDirectory()` + `pathplanner/settings.json` instead of absolute paths.
-  - CANChecker: a Shuffleboard toggle and controller Start button can run `CANChecker.runChecks()`. There is also a `RUN_CAN_CHECKER` flag in `RobotContainer` for optional startup checks.
-  - Controller bindings: code uses `CommandXboxController` with a joystick fallback. Example binding style: `m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));`.
-  - PathPlanner commands: `NamedCommands.registerCommand("Align", new AutoAlignCommand(...))` — updating names affects autos in `src/main/deploy/pathplanner/autos/`.
-    - PathPlanner commands: `NamedCommands.registerCommand("Align", new AutoAlignCommand(...))` — updating names affects autos in `src/main/deploy/pathplanner/autos/`.
-      Note: in this branch the registered `"Align"` command now constructs `AutoAlignCommand` with `Mode.FULL_ALIGN`, so PathPlanner autos that run `Align` will perform full autonomous translation + rotation alignment (not rotation-only). See `AutoAlignCommand.Mode` for the available modes and `RobotContainer` for the registration site.
+- Project-specific conventions & gotchas
+  - Single hardware instances: subsystems are singletons owned by `RobotContainer`. Do not construct hardware objects (SparkMax, Pigeon) outside subsystems—use `RobotContainer.getDriveSubsystem()` to reuse the single instance.
+  - PathPlanner assets: static autos, paths, and settings live in `src/main/deploy/pathplanner/` (check `autos/` and `paths/`). Changing `NamedCommands` names in `RobotContainer` affects those `.auto` files.
+  - Hard-coded path: `Configs.fromGUISettings()` currently contains an absolute developer path. Replace with deploy-aware loading: `new File(Filesystem.getDeployDirectory(), "pathplanner/settings.json")`.
+  - Controller style: uses `CommandXboxController` with joystick fallbacks; bindings follow the `m_driverController.a().whileTrue(new AutoAlignCommand(...))` pattern.
 
-- Where to change common things
-  - Change CAN IDs or module offsets: `Constants.java` → `DriveConstants`.
-  - Adjust SparkMax PID or encoder factors: `Configs.java` → `MAXSwerveModule` static configs.
-  - Add/register PathPlanner commands: `RobotContainer.configureBindings()` (use `NamedCommands.registerCommand(...)`).
-  - Default drive behavior: `RobotContainer` sets a `RunCommand` as the default for `DriveSubsystem`.
+- Integration points & external deps
+  - Hardware libs: REV SparkMax libraries and CTRE Phoenix are used (check `tools/vendordeps/*.json`).
+  - PathPlanner integration: PathPlanner auto runner calls `NamedCommands.registerCommand(...)` from `RobotContainer`. Keep command names stable unless you update deploy `.auto` files.
+  - Deploy folder: `src/main/deploy/` is copied to the robot during `deploy` task—changes to paths/autos/settings must be placed here.
 
-- Safety and scheduler
-  - `Robot.robotPeriodic()` calls `CommandScheduler.getInstance().run()` — do not duplicate scheduling calls. When creating new commands prefer Command-based patterns (commands, sequences, parallel, onTrue/whileTrue triggers).
-  - Use `DriverStation.isDisabled()` checks around hardware-probing utilities (the repo already does this for the CAN checker).
+- Where to change common things (concrete file targets)
+  - CAN IDs/module offsets: `Constants.java` → `DriveConstants`
+  - SparkMax PID/encoder factors: `Configs.java` → `MAXSwerveModule` static configs
+  - Default drive behavior and PathPlanner registrations: `RobotContainer.configureBindings()` / `RobotContainer` constructor
+  - Add a new auto: implement a `SequentialCommandGroup` under `commands/`, then `NamedCommands.registerCommand("MyAuto", myCommand)` and add the corresponding `.auto` in `src/main/deploy/pathplanner/autos/`.
 
-- Quick examples for the agent
-  - Fix PathPlanner config loader: replace the hard-coded path in `Configs.fromGUISettings()` with `new File(Filesystem.getDeployDirectory(), "pathplanner/settings.json")`.
-  - To add a new autonomous routine: implement a Command/SequentialCommandGroup in `commands/`, then register with `NamedCommands.registerCommand("MyAuto", myCommand)` and confirm `src/main/deploy/pathplanner/autos/` contains a matching auto (.auto file).
+- Safety & scheduler
+  - `Robot.robotPeriodic()` already calls `CommandScheduler.getInstance().run()` — do not add a second scheduler loop.
+  - Wrap hardware probing utilities with `DriverStation.isDisabled()` if they run at boot.
 
-If anything in this summary is unclear or missing details you need (e.g., hardware mapping not in Constants, or how the team uses Shuffleboard), tell me which area to expand and I will iterate.
+- Quick actionable examples for edits
+  - Fix PathPlanner settings loader: replace hard-coded path in `Configs.fromGUISettings()` with `new File(Filesystem.getDeployDirectory(), "pathplanner/settings.json")` and verify `deploy/` contains the settings file.
+  - Registering a PathPlanner command example (in `RobotContainer`):
+    - `NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, AutoAlignCommand.Mode.FULL_ALIGN));`
+
+If anything is unclear or you want me to include more specific examples (e.g., exact lines to edit in `Configs.fromGUISettings()` or a small test auto), tell me which area to expand and I'll iterate.
