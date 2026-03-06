@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //Commands and Controllers\\
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -167,6 +168,9 @@ public class RobotContainer {
         }
       }, 0, 300, TimeUnit.MILLISECONDS);
   }
+
+private boolean m_isToggleOn = false;
+
 // Shooter Command for Autos \\
   public Command getShootSequence() {
     // ShooterCMD is a persistent command (isFinished() == false) and would block a sequence.
@@ -176,21 +180,44 @@ public class RobotContainer {
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
         new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
+        
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
-        new WaitCommand(3),
+        new WaitCommand(3.5),
         // 3. Stop both
         //new InstantCommand(() -> {
         new InstantCommand(() ->  m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF)),
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0)));
 }
-public Command ReleaseandShoot() {
+public Command ReleaseandShoot() { //shooter and release combined.
   return Commands.sequence(
-        // 1. Start shooter motor, wait for it to reach speed
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
-        new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
-        // 2. Run feeder/release motor to fire
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)));
-}
+          new InstantCommand(() -> {
+          m_isToggleOn = !m_isToggleOn; // Invert the state
+          if (m_isToggleOn) {
+            // Actions when turned ON
+            System.out.println("Toggle is now ON");
+             new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed));
+             new WaitCommand(0.5); // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
+             // 2. Run feeder/release motor to fire
+             new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed));
+            // Schedule the "on" command, e.g., m_exampleSubsystem.turnOnCommand()
+          } else {
+            // Actions when turned OFF
+            System.out.println("Toggle is now OFF");
+             new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF));
+             new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0));
+          }
+        }, m_OtherMotorsSubsystem, m_ShooterSubsystem) // Include the subsystem as a requirement
+    );
+  }
+      //   new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
+      //   new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
+      //   // 2. Run feeder/release motor to fire
+      //   new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed));
+      //     })
+      //   );
+      // }
+        //50/50 w way to talj lol
+        
   // Sets up controller bindings
   
   private void configureBindings() {
