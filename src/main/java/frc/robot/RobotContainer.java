@@ -183,22 +183,39 @@ public class RobotContainer {
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
         new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
-        
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
+        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed)),
         new WaitCommand(3.5),
         // 3. Stop both
-        //new InstantCommand(() -> {
+        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0)),
         new InstantCommand(() ->  m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF)),
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0)));
 }
   public Command ReleaseandShoot() { //shooter and release combined.
     // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
-    return Commands.sequence(
-        new InstantCommand(() -> System.out.println("[RobotContainer] ReleaseandShoot: starting sequence")),
+    //boolean on = false;
+    //on =! on;
+    //if (on == true) {
+      return Commands.sequence(
+        new InstantCommand(() -> System.out.println("ON")),
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
         new WaitCommand(0.5), // headstart for shooter spin-up
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem),
-        new WaitCommand(3.5),
+        new InstantCommand(() -> System.out.println("Complete"))
+      );
+  //}
+  //   else {
+  //     return Commands.sequence(
+  //       new InstantCommand(() -> System.out.println("OFF")),
+  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
+  //       new WaitCommand(0.5), // headstart for shooter spin-up
+  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+  //   );
+  // }
+}
+    
+  public Command ReleaseandShootOFF() {
+    return Commands.sequence(
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
     );
@@ -238,7 +255,8 @@ public class RobotContainer {
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-  m_operatorController.rightBumper().toggleOnTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed));
+   m_operatorController.rightBumper().toggleOnTrue(ReleaseandShoot());
+   m_operatorController.rightBumper().toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
   m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
@@ -252,7 +270,8 @@ public class RobotContainer {
    new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   // Run the combined one-shot shoot sequence when the operator presses button 6.
-  new JoystickButton(m_operatorJoystick, 6).onTrue(ReleaseandShoot()); // Shooter - RIGHT BUTTON --Shoot!
+  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShoot()); // Shooter - RIGHT BUTTON --Shoot!
+  new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle LowerSpeedCMD directly rather than constructing it inside an InstantCommand.
   new JoystickButton(m_driverJoystick, 2).toggleOnTrue(new LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! - B Button
