@@ -105,7 +105,7 @@ public class RobotContainer {
         // competition as defined by the programmer
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
             (stream) -> isCompetition
-            ? stream.filter(auto -> auto.getName().startsWith("comp"))
+            ? stream.filter(auto -> auto.getName().startsWith("BLU")) //May make autos not work
             : stream
         );
 
@@ -174,16 +174,14 @@ public class RobotContainer {
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
-        new WaitCommand(0.5), // Adjust wait time for spin-up
+        new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed)),
-        new WaitCommand(1),
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
+        new WaitCommand(3),
         // 3. Stop both
-        new InstantCommand(() -> {
-          m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF);
-          m_OtherMotorsSubsystem.setReleaseSpeed(0);
-        })
-    );
+        //new InstantCommand(() -> {
+        new InstantCommand(() ->  m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF)),
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0)));
 }
   // Sets up controller bindings
   
