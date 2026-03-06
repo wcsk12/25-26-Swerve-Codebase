@@ -36,6 +36,7 @@ import frc.robot.commands.ShooterCMD;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 //Shuffleboard
@@ -56,6 +57,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
   private final OtherMotorsSubsystem m_OtherMotorsSubsystem;
+  private final IntakeSubsystem m_IntakeSubsystem;
   private final ShooterSubsystem m_ShooterSubsystem;
   
   // Initializes the controller (Xbox)
@@ -81,6 +83,7 @@ public class RobotContainer {
     // Initializes the subsystems
     m_robotDrive = new DriveSubsystem();
     m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
+    m_IntakeSubsystem = new IntakeSubsystem();
     m_ShooterSubsystem = new ShooterSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
@@ -192,7 +195,7 @@ public Command ReleaseandShoot() { //shooter and release combined.
   return Commands.sequence(
           new InstantCommand(() -> {
           m_isToggleOn = !m_isToggleOn; // Invert the state
-          if (m_isToggleOn) {
+          if (m_isToggleOn == true) {
             // Actions when turned ON
             System.out.println("Toggle is now ON");
              new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed));
@@ -228,7 +231,7 @@ public Command ReleaseandShoot() { //shooter and release combined.
   NamedCommands.registerCommand("Align", new AutoAlignCommand(m_robotDrive, 0, AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(1)); // ALign
   //NamedCommands.registerCommand("Shoot!", new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed).withTimeout(1)); // Shoot
   //NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed).withTimeout(1)); // Release up to shooter
-  NamedCommands.registerCommand("Intake!", new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true).withTimeout(2)); // Intake the Fuel! - Potentially remove withTimeout due to parallel deadline command.
+  NamedCommands.registerCommand("Intake!", new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true).withTimeout(2)); // Intake the Fuel! - Potentially remove withTimeout due to parallel deadline command.
   NamedCommands.registerCommand("Shoot!", getShootSequence()); // Release + Shoot!
 
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
@@ -240,27 +243,27 @@ public Command ReleaseandShoot() { //shooter and release combined.
   // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
   m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ Intake ------------------------------------------ \\
-  m_driverController.leftBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
-  m_driverController.rightBumper().whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false));
+  m_driverController.leftBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
+  m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   m_operatorController.rightBumper().toggleOnTrue(new InstantCommand(() -> new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed))); //false
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
   m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
       // ------------------------------------------ Release ------------------------------------------ \\
-  m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
+  //m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6)); //Potentially just use onTrue - A BUTTON
       // ------------------------------------------ Intake ------------------------------------------ \\
-  new JoystickButton(m_driverJoystick, 5).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - LEFT BUTTON
-   new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_OtherMotorsSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
+  new JoystickButton(m_driverJoystick, 5).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - LEFT BUTTON
+   new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShoot()); //false //Shooter - RIGHT BUTTON --Shoot!
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   new JoystickButton(m_driverJoystick, 2).toggleOnTrue(new InstantCommand(() -> new LowerSpeedCMD(m_robotDrive, 2))); //set to two when pressed! - B Button
       // ------------------------------------------ Release ------------------------------------------ \\
-  new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
+  //new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
