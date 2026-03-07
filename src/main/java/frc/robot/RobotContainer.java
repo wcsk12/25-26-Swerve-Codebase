@@ -22,6 +22,7 @@ import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.LauncherCMD;
 import frc.robot.commands.PosIntakeBumperCMD;
+import frc.robot.commands.PosIntakeMoveToPositionCMD;
 import frc.robot.commands.PosIntakeShakeCMD;
 import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
@@ -199,7 +200,8 @@ public class RobotContainer {
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.65)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
-        new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
+  // Move posIntake until encoder reaches target (normalize wrap-around in the command)
+  new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, DriveConstants.posIntakeMotorSpeed, 1.5),
         new WaitCommand(3),
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
