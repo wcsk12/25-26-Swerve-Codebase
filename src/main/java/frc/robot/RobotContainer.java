@@ -95,7 +95,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
-    //NamedCommands.registerCommand("LowerIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)));
+    NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
+    NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
     //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
     // These were causing the robot to not instantiate ^
     // Gets controller binding
@@ -182,7 +183,7 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.55)),
+        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.65)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
         //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
@@ -190,6 +191,19 @@ public class RobotContainer {
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
+      );
+  }
+
+  public Command getShootShakeCommand() {
+    return Commands.sequence(
+        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.65)),
+        new WaitCommand(1),
+        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
+        new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
+        new WaitCommand(3),
+        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
+        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
+        new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
   }
 
@@ -231,9 +245,9 @@ public class RobotContainer {
         CANChecker.runChecks();
       }));
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5)); // Moves posIntake into position when using intake
+      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.5)); // Moves posIntake into position when using intake
       //m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
-      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, 0.55, m_operatorController));
+      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, 0.65, m_operatorController));
       m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed, m_operatorController)); // Use if limelight starts to fail
       m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed));
       m_operatorController.rightTrigger(0.5).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Jiggles posIntake when using launcher
