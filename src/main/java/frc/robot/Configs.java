@@ -75,8 +75,8 @@ public final class Configs {
         .positionWrappingInputRange(0, turningFactor);
 
       // Configure general-purpose motor profiles
-      generalConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(30);
-      shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(40);
+      generalConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(100);
+      shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(200);
         }
     }
 

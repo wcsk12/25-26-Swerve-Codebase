@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 2.665,
-        "y": 5.302
+        "x": 2.875,
+        "y": 4.989
       },
       "prevControl": {
-        "x": 1.2698205128205133,
-        "y": 7.535089743589744
+        "x": 1.4798205128205133,
+        "y": 7.222089743589744
       },
       "nextControl": null,
       "isLocked": false,
@@ -87,10 +87,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 137.74276654998636
+    "rotation": 148.627
   },
   "reversed": false,
-  "folder": null,
+  "folder": "CompLeftPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -88.831

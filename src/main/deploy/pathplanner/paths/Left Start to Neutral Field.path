@@ -3,13 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5373205128205143,
-        "y": 7.430435897435898
+        "x": 4.50246153846154,
+        "y": 7.604858974358974
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.037384615384616,
-        "y": 7.604858974358974
+        "x": 5.502487179487181,
+        "y": 7.418807692307692
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.839705128205129,
+        "y": 7.325782051282051
+      },
+      "prevControl": {
+        "x": 5.589705128205127,
+        "y": 7.325782051282051
+      },
+      "nextControl": {
+        "x": 6.089705128205129,
+        "y": 7.325782051282051
       },
       "isLocked": false,
       "linkedName": null
@@ -20,15 +36,20 @@
         "y": 5.884
       },
       "prevControl": {
-        "x": 8.025935897435897,
-        "y": 7.0003076923076915
+        "x": 7.967666666666666,
+        "y": 7.244384615384615
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.067644661776682,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,7 +66,7 @@
     "rotation": -88.831
   },
   "reversed": false,
-  "folder": null,
+  "folder": "CompLeftPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

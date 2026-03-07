@@ -50,7 +50,7 @@
     "rotation": 139.6
   },
   "reversed": false,
-  "folder": null,
+  "folder": "CompMiddlePaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
