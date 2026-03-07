@@ -41,7 +41,7 @@ public class PosIntakeZeroCMD extends Command {
     }
     System.out.println("ZeroCMD: " + position + " " + distance);
     if (position < .95) { //.05 deadzone
-      posIntakeSubsystem.setPosIntakeSpeed(-1.0 * speed * distance);
+      posIntakeSubsystem.setPosIntakeSpeed(speed * distance);
     } else {
       posIntakeSubsystem.setPosIntakeSpeed(0);
     }

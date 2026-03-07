@@ -31,8 +31,10 @@ public final class Constants {
     public static final double indexerMotorSpeed = 0.75;
     public static final double intakeMotorSpeed = 0.9;
     public static final double launcherMotorSpeed = -0.75;
-    public static final double shooterMotorSpeed = 0.8;
-    public static final double posIntakeMotorSpeed = -0.30;
+    public static final double softShooterMotorSpeed = 0.7;
+    public static final double hardShooterMotorSpeed = 0.8;
+    public static final double posIntakeMotorSpeed = -0.10;
+    public static final double posIntakeZeroMotorSpeed = 0.20;
 
     // Elevator Constants
     public static final double kStartPose = -44.4;

@@ -35,12 +35,13 @@ public class PosIntakeBumperCMD extends Command {
     if (position < 0.05) {
       position = 1.0;
     }
-    distance = 0.6 + position - 0.9; //destination + position - an offset
-    if (distance < 0.2) { //prevent extremely low and negative values
-      distance = 0.2;
+    System.out.println("BumperCMD: " + position);
+    if (position > .65) {
+      posIntakeSubsystem.setPosIntakeSpeed(speed);
+    } else {
+      posIntakeSubsystem.setPosIntakeSpeed(speed * 0.2);
     }
-    System.out.println("BumperCMD: " + position + " " + distance);
-    posIntakeSubsystem.setPosIntakeSpeed(speed * distance);
+    
   }
 
   // Called once the command ends or is interrupted.
