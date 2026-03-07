@@ -36,7 +36,7 @@ public class PosIntakeShakeCMD extends Command {
       position = 1.0;
     } 
     System.out.println("ShakeCMD: " + position + " " + ((System.currentTimeMillis() / 500) % 2));
-    if (position < 0.75) { //bring posIntake up
+    if (position < 0.85) { //bring posIntake up
       posIntakeSubsystem.setPosIntakeSpeed(speed);
     } else {
       posIntakeSubsystem.setPosIntakeSpeed(0);
