@@ -231,7 +231,7 @@ public class RobotContainer {
         CANChecker.runChecks();
       }));
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5)); // Moves posIntake into position when using intake
+      m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.5)); // Moves posIntake into position when using intake
       //m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
       m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, 0.55, m_operatorController));
       m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed, m_operatorController)); // Use if limelight starts to fail
