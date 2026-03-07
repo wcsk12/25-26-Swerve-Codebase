@@ -197,6 +197,13 @@ public class DriveSubsystem extends SubsystemBase {
   SmartDashboard.putNumber("limelight_ty", nt.getEntry("ty").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ta", nt.getEntry("ta").getDouble(0.0));
     
+  // Publish alliance/mirroring info for PathPlanner debugging
+  var alliance = DriverStation.getAlliance();
+  String allianceName = alliance.isPresent() ? alliance.get().toString() : "Unknown";
+  SmartDashboard.putString("DriverStation/Alliance", allianceName);
+  boolean mirrorForRed = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+  SmartDashboard.putBoolean("PathPlanner/MirrorForRed", mirrorForRed);
+  
   }
 
   /**
