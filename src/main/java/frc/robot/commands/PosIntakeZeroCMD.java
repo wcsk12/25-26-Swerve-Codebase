@@ -30,13 +30,18 @@ public class PosIntakeZeroCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    position = posIntakeSubsystem.getPosIntakePosition(); //position is 1.0 (0.0) at starting position, 
-      //counts down from .999 to about .600 where .600 is resting on the bumper
-    if (position < 0.05) {
-      position = 1.0;
+    position = posIntakeSubsystem.getPosIntakePosition();
+    if (Double.isNaN(position)) {
+      System.out.println("ZeroCMD: encoder invalid, using fallback position");
+      // fallback: assume partially extended so command will attempt to move toward zero
+      position = 0.7;
+    } else {
+      if (position < 0.05) {
+        position += 1.0; // normalize wrap-around
+      }
     }
-    distance = 1.0 - position + 0.7; //destination - position + an offset to prevent distance multiplying speed to essentially 0
-    if (distance < 0.2) { //prevent extremely low and negative values
+    distance = 1.0 - position + 0.7; // destination - position + offset to avoid tiny speeds
+    if (distance < 0.2) { // prevent extremely low and negative values
       distance = 0.2;
     }
     System.out.println("ZeroCMD: " + position + " " + distance);

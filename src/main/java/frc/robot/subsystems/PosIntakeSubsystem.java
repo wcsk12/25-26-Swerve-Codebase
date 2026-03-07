@@ -30,7 +30,13 @@ public class PosIntakeSubsystem extends SubsystemBase {
   }
 
   public double getPosIntakePosition() {
-    return posIntakeEncoder.getPosition();
+    double pos = posIntakeEncoder.getPosition();
+    // Defensive: if the encoder is not returning a finite value, return NaN so callers
+    // can differentiate a bad reading from a legitimate zero/wrap value.
+    if (!Double.isFinite(pos)) {
+      return Double.NaN;
+    }
+    return pos;
   }
 
   @Override

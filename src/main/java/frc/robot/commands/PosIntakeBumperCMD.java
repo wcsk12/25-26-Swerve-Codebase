@@ -30,10 +30,14 @@ public class PosIntakeBumperCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    position = posIntakeSubsystem.getPosIntakePosition(); //position is 0 at starting position, 
-      //counts down from .999 to about .600 where .600 is resting on the bumper
-    if (position < 0.05) {
-      position = 1.0;
+    position = posIntakeSubsystem.getPosIntakePosition();
+    if (Double.isNaN(position)) {
+      System.out.println("BumperCMD: encoder invalid, using fallback position");
+      position = 0.7;
+    } else {
+      if (position < 0.05) {
+        position += 1.0; // normalize wrap-around
+      }
     }
     System.out.println("BumperCMD: " + position);
     if (position > .65) {

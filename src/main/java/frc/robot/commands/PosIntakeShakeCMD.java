@@ -30,13 +30,23 @@ public class PosIntakeShakeCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    position = posIntakeSubsystem.getPosIntakePosition(); //position is 0 at starting position, 
-      //counts down from .999 to about .600 where .600 is resting on the bumper
-    if (position < 0.05) {
-      position = 1.0;
-    } 
+    position = posIntakeSubsystem.getPosIntakePosition();
+    // position normally ranges ~0.6..1.0 (wrap near 0). If the encoder is invalid,
+    // getPosIntakePosition() returns NaN — treat that as 'unknown' and continue moving
+    // so the command can still perform the shake behavior instead of immediately
+    // thinking it's at the top.
+    if (Double.isNaN(position)) {
+      System.out.println("ShakeCMD: encoder invalid, forcing movement");
+      // choose a safe working default that causes the command to attempt movement
+      position = 0.7;
+    } else {
+      // handle wrap-around: small values near zero actually represent values near 1.0
+      if (position < 0.05) {
+        position += 1.0; // normalize wrap-around
+      }
+    }
     System.out.println("ShakeCMD: " + position + " " + ((System.currentTimeMillis() / 500) % 2));
-    if (position < 0.85) { //bring posIntake up
+    if (position < 0.85) { // bring posIntake up
       posIntakeSubsystem.setPosIntakeSpeed(speed);
     } else {
       posIntakeSubsystem.setPosIntakeSpeed(0);

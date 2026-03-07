@@ -92,11 +92,11 @@ public class RobotContainer {
     //NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     //NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", getIntakeCommand());
-    NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
+    //NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
-    //NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
+    NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
     //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
     // These were causing the robot to not instantiate ^
     // Gets controller binding
@@ -181,7 +181,7 @@ public class RobotContainer {
       }, 0, 300, TimeUnit.MILLISECONDS);
   }
 
-  public Command getShootSequence() {
+  /*public Command getShootSequence() {
       return Commands.sequence(
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(DriveConstants.softShooterMotorSpeed)),
         new WaitCommand(1),
@@ -192,9 +192,9 @@ public class RobotContainer {
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
-  }
+  } */
 
-  /*public Command getShootShakeCommand() {
+  public Command getShootShakeCommand() {
     return Commands.sequence(
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.65)),
         new WaitCommand(1),
@@ -203,9 +203,12 @@ public class RobotContainer {
         new WaitCommand(3),
         new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
-        new PosIntakeShakeCMD(posIntakeSubsystem, 0)
+        // Ensure we stop the posIntake and finish the sequence instead of scheduling
+        // another PosIntakeShakeCMD (which never finishes). Use an InstantCommand to
+        // explicitly stop the motor so the NamedCommand completes reliably.
+        new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
       );
-  }*/
+  }
 
   public Command getIntakeCommand() {
     return Commands.sequence(
