@@ -29,7 +29,7 @@ public final class Constants {
 
     //--- Motor Speeds of other motors ---\\
     public static final double indexerMotorSpeed = 0.75;
-    public static final double intakeMotorSpeed = 0.9;
+    public static final double intakeMotorSpeed = 1.0;
     public static final double launcherMotorSpeed = -0.75;
     public static final double shooterMotorSpeed = 0.78;
     public static final double posIntakeMotorSpeed = -0.30;
