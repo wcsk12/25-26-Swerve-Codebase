@@ -13,6 +13,37 @@ public class LED_command extends Command {
     private final LEDSubsystem ledSubsystem;
     private final Motor3_SUB_HAO motorSubsystem;
     //Lower threshold so small alignment outputs are dectected. We'll also 
-    //
+    //log the observed power for diagnostics.
+    private final double threshold= 0.02;// Threshold to determine if the motor is running
+
+    public LED_command(LEDSubsystem ledSubsystem, Motor3_SUB_HAO motorSubsystem) {
+        this.ledSubsystem = ledSubsystem;
+        this.motorSubsystem = motorSubsystem;
+        addRequirements(ledSubsystem); // Declare subsystem dependencies
+    }
     
+    @Override
+    public void execute() {
+        double power = Math.abs(motorSubsystem.getMotorPower()); // read from the motor subsystem
+        // Diagnostic log to observe motor output during Limelight alignment
+        System.out.println("[LED_command] motor power=" + power);
+        if (power > threshold) {
+            // Motor is running, set green
+            ledSubsystem.setPattern(0.71); // green
+        } else {
+            // Motor stopped, set red
+            ledSubsystem.setPattern(0.59); // red
+        }
+
+     }
+    
+     @Override
+    public void end(boolean interrupted) {
+          // Optionally set a safe/default color when the command ends
+        // ledSubsystem.setBlue();
+    }
+     @Override
+    public boolean isFinished() {
+        return false; // run until interrupted
+    }
 }
