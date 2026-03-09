@@ -15,7 +15,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {}
   public static SparkMax ClimberMotor = new SparkMax(OtherMotors.ClimberMotorID, MotorType.kBrushless);
 
-  public void setClimberSpeed(double speed){
+  public void SetClimberSpeed(double speed){
     ClimberMotor.set(speed);
     }
   @Override

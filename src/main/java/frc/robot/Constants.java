@@ -24,14 +24,15 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static double kMaxSpeedMetersPerSecond = 5.5; //Originally 4.8
+    public static double kMaxSpeedMetersPerSecond = 5.0; //Originally 4.8
     public static final double kMaxAngularSpeed = 1.8 * Math.PI; // radians per second //originally 2
 
-    // Motor Speeds of other motors
+    // Motor Speeds of additional motors
     public static final double IntakeMotorSpeed = 0.7; //Intake
     public static final double ShooterMotorSpeed = 0.8;
     public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
     public static final double ReleaseMotorSpeed = -0.75; //negative to spin the correct way.
+    public static final double ClimberSpeed = 0.3;
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot

@@ -86,7 +86,7 @@
     "rotation": 79.1596945456692
   },
   "reversed": false,
-  "folder": null,
+  "folder": "CompPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

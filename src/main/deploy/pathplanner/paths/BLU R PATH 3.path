@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 6.73642321379688,
-        "y": 1.2584345286978762
+        "y": 1.258434528697876
       },
       "isLocked": false,
       "linkedName": null
@@ -66,7 +66,7 @@
     "rotation": 34.50852298766842
   },
   "reversed": false,
-  "folder": null,
+  "folder": "CompPaths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 84.60514164619462

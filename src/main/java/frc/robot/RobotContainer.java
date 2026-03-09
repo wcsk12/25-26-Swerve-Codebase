@@ -29,11 +29,13 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 //Commands
 import frc.robot.commands.AutoAlignCommand;
+import frc.robot.commands.ClimberCMD;
 import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.LowerSpeedCMD;
 import frc.robot.commands.ReleaseCMD;
 import frc.robot.commands.ShooterCMD;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -59,6 +61,7 @@ public class RobotContainer {
   private final OtherMotorsSubsystem m_OtherMotorsSubsystem;
   private final IntakeSubsystem m_IntakeSubsystem;
   private final ShooterSubsystem m_ShooterSubsystem;
+  private final ClimberSubsystem m_ClimberSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController = //Operator Controller
@@ -85,6 +88,7 @@ public class RobotContainer {
     m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
     m_IntakeSubsystem = new IntakeSubsystem();
     m_ShooterSubsystem = new ShooterSubsystem();
+    m_ClimberSubsystem = new ClimberSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
@@ -109,7 +113,7 @@ public class RobotContainer {
         // competition as defined by the programmer
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
             (stream) -> isCompetition
-            ? stream.filter(auto -> auto.getName().startsWith("BLU")) //May make autos not work
+            ? stream.filter(auto -> auto.getName().startsWith("BLU"))
             : stream
         );
 
@@ -259,6 +263,8 @@ public class RobotContainer {
    m_operatorController.rightBumper().toggleOnFalse(ReleaseandShootOFF());
     m_operatorController.leftBumper().toggleOnTrue(ReleaseandShoot(-1));
    m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
+      // ------------------------------------------ Climber ------------------------------------------ \\
+      m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
   m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
@@ -274,11 +280,14 @@ public class RobotContainer {
   // Run the combined one-shot shoot sequence when the operator presses button 6.
   new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShoot(1)); // Shooter - RIGHT BUTTON --Shoot!
   new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
+  new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShoot(-1));
+  new JoystickButton(m_operatorJoystick, 5).toggleOnFalse(ReleaseandShootOFF());
+      // ------------------------------------------ Climber ------------------------------------------ \\
+      //Climber button binding goes here.
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle LowerSpeedCMD directly rather than constructing it inside an InstantCommand.
   new JoystickButton(m_driverJoystick, 2).toggleOnTrue(new LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! - B Button
-      // ------------------------------------------ Release ------------------------------------------ \\
-  //new JoystickButton(m_operatorJoystick, 5).whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed)); //Release - LEFT BUTTON --Go Up to Shooter!
+
     } catch (Exception e) {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
