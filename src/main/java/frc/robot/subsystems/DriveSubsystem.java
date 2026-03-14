@@ -61,19 +61,20 @@ public class DriveSubsystem extends SubsystemBase {
 
   // The gyro sensor
   private static final Pigeon2 m_Pigeon2 = new Pigeon2(12);
+  
+  /**
+   * Return the gyro yaw in degrees using the project's convention. Centralize
+   * inversion here so all odometry and PathPlanner consumers use the same value.
+   * Change the sign here if you need to flip convention.
+   */
+  private double getGyroYawDegrees() {
+    return -m_Pigeon2.getYaw().getValueAsDouble();
+  }
   // 2d Field in SmartDashboard
   private final Field2d m_field = new Field2d(); 
 
   // Odometry class for tracking robot pose -- Odometry means position
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-      DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()),
-      new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_rearLeft.getPosition(),
-          m_rearRight.getPosition()
-      });
+  SwerveDriveOdometry m_odometry;
   // Initializing kinematics
   SwerveDriveKinematics m_kinematics;
   // Sets up exception messages
@@ -103,9 +104,20 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Change the camera pose relative to robot center (x forward, y left, z up, degrees) <-- Not sure this is in the right place.
     
-    // -------------- PathPlanner Code -------------- \\
-    // Configure AutoBuilder last
-    AutoBuilder.configure(
+  // Initialize odometry here so gyro conversion is centralized
+  m_odometry = new SwerveDriveOdometry(
+    DriveConstants.kDriveKinematics,
+    Rotation2d.fromDegrees(getGyroYawDegrees()),
+    new SwerveModulePosition[] {
+      m_frontLeft.getPosition(),
+      m_frontRight.getPosition(),
+      m_rearLeft.getPosition(),
+      m_rearRight.getPosition()
+    });
+
+  // -------------- PathPlanner Code -------------- \\
+  // Configure AutoBuilder last
+  AutoBuilder.configure(
       this::getPose, // Robot pose supplier
       this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
       this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -135,8 +147,8 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     
-    m_odometry.update(
-        Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()),
+  m_odometry.update(
+    Rotation2d.fromDegrees(getGyroYawDegrees()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -197,6 +209,13 @@ public class DriveSubsystem extends SubsystemBase {
   SmartDashboard.putNumber("limelight_ty", nt.getEntry("ty").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ta", nt.getEntry("ta").getDouble(0.0));
     
+  // Publish alliance/mirroring info for PathPlanner debugging
+  var alliance = DriverStation.getAlliance();
+  String allianceName = alliance.isPresent() ? alliance.get().toString() : "Unknown";
+  SmartDashboard.putString("DriverStation/Alliance", allianceName);
+  boolean mirrorForRed = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+  SmartDashboard.putBoolean("PathPlanner/MirrorForRed", mirrorForRed);
+  
   }
 
   /**
@@ -220,15 +239,15 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetPose(Pose2d pose) {
     
-    m_odometry.resetPosition(
-        Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()),
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        },
-        pose);
+  m_odometry.resetPosition(
+    Rotation2d.fromDegrees(getGyroYawDegrees()),
+    new SwerveModulePosition[] {
+      m_frontLeft.getPosition(),
+      m_frontRight.getPosition(),
+      m_rearLeft.getPosition(),
+      m_rearRight.getPosition()
+    },
+    pose);
       }
 /* 
     m_PoseEstimator.resetPosition(
