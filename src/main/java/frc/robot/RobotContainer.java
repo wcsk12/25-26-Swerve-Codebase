@@ -35,8 +35,8 @@ import frc.robot.commands.LowerSpeedCMD;
 import frc.robot.commands.ReleaseCMD;
 import frc.robot.commands.ShooterCMD;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.subsystems.ClimberSubsystem;
 //Subsystems
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
@@ -193,31 +193,37 @@ public class RobotContainer {
         // 3. Stop both
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0)),
         new InstantCommand(() ->  m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF)),
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0)));
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
+        );
 }
-  public Command ReleaseandShoot(int Negative) { //shooter and release combined.
+  public Command ReleaseandShootWithLimelight() { //shooter and release combined.
     // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
-    //boolean on = false;
-    //on = !on;
-    //if (on == true) {
       return Commands.sequence(
-        new InstantCommand(() -> System.out.println("ON")),
+        new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)
+        // if (Robot.limelight_id() == 10 || Robot.limelight_id() == 25){
+        //   double ty = Robot.limelight_range_proportional();
+        //   if (1.0 > Math.abs(ty) && ty != 0)  {
+        //     new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Math.abs(1/ty)));
+        //     System.out.println("Ty : " + ty);
+        //     //shootersubsystem.setShooterSpeed(Math.pow(0.1, ty)); //set shooter's speed to ty by the power of 0.1
+        //     //shootersubsystem.setShooterSpeed(speed);
+        // }}
+        // else {
+        //     new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Math.abs(1/DriveConstants.ShooterMotorSpeed)));
+        //     System.out.println("Ty : " + ty)
+        
+        //   }
+        );
+      }
+
+    
+  public Command ReleaseandShootWithoutLimelight(int Negative) {
+    return Commands.sequence( 
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Negative * DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
         new WaitCommand(0.5), // headstart for shooter spin-up
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem),
-        new InstantCommand(() -> System.out.println("Complete"))
-      );
-  //}
-  //   else {
-  //     return Commands.sequence(
-  //       new InstantCommand(() -> System.out.println("OFF")),
-  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-  //       new WaitCommand(0.5), // headstart for shooter spin-up
-  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-  //   );
-  // }
-}
-    
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+        );
+  }
   public Command ReleaseandShootOFF() {
     return Commands.sequence(
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
@@ -259,10 +265,13 @@ public class RobotContainer {
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-   m_operatorController.rightBumper().toggleOnTrue(ReleaseandShoot(1));
-   m_operatorController.rightBumper().toggleOnFalse(ReleaseandShootOFF());
-    m_operatorController.leftBumper().toggleOnTrue(ReleaseandShoot(-1));
+   m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
+   m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
+    m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
    m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
+   // LIMELIGHT SHOOTER \\
+   m_operatorController.a().toggleOnTrue((ReleaseandShootWithLimelight()));
+   m_operatorController.a().toggleOnFalse((ReleaseandShootOFF()));
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
@@ -278,10 +287,11 @@ public class RobotContainer {
    new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   // Run the combined one-shot shoot sequence when the operator presses button 6.
-  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShoot(1)); // Shooter - RIGHT BUTTON --Shoot!
+  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShootWithoutLimelight(1)); // Shooter - RIGHT BUTTON --Shoot!
   new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
-  new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShoot(-1));
+  new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
   new JoystickButton(m_operatorJoystick, 5).toggleOnFalse(ReleaseandShootOFF());
+
       // ------------------------------------------ Climber ------------------------------------------ \\
       //Climber button binding goes here.
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\

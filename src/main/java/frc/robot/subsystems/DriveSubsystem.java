@@ -11,7 +11,6 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 //Limelight Imports
-import edu.wpi.first.math.VecBuilder; 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 // Math Imports
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,7 +34,6 @@ import frc.robot.Configs;
 import frc.robot.Constants;
 import frc.robot.pathConfig;
 import frc.robot.Constants.DriveConstants;
-import pabeles.concurrency.IntOperatorTask.Max;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -81,7 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
     try{
         config = pathConfig.fromGUISettings();
       } catch (Exception e) {
-        e.printStackTrace();
+        e.printStackTrace();  
       }
     }
 
