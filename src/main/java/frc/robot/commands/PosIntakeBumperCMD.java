@@ -35,15 +35,13 @@ public class PosIntakeBumperCMD extends Command {
       System.out.println("BumperCMD: encoder invalid, using fallback position");
       position = 0.7;
     } else {
-      if (position < 0.05) {
-        position += 1.0; // normalize wrap-around
+      if (position > 0.95) {
+        position = 0.0; // normalize wrap-around
       }
     }
     System.out.println("BumperCMD: " + position);
-    if (position > .65) {
+    if (position < .4) {
       posIntakeSubsystem.setPosIntakeSpeed(speed);
-    } else {
-      posIntakeSubsystem.setPosIntakeSpeed(speed * 0.2);
     }
     
   }

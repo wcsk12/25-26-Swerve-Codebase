@@ -1,4 +1,6 @@
 package frc.robot;
+import com.revrobotics.spark.SparkMax;
+
 // Math Imports 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -28,13 +30,28 @@ public final class Constants {
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     //--- Motor Speeds of other motors ---\\
-    public static final double indexerMotorSpeed = 0.75;
+    //public static final double indexerMotorSpeed = 0.75; indexer uses launcherMotorSpeed
     public static final double intakeMotorSpeed = 1.0;
-    public static final double launcherMotorSpeed = -0.75;
-    public static final double softShooterMotorSpeed = 0.7;
-    public static final double hardShooterMotorSpeed = 0.8;
-    public static final double posIntakeMotorSpeed = -0.10;
-    public static final double posIntakeZeroMotorSpeed = 0.20;
+    public static final double launcherMotorSpeed = 0.75;
+    public static final double softShooterTargetRPM = 3200;
+    public static final double hardShooterTargetRPM = 3600;
+    public static final double shooterRPMDeadzone = 100;
+    public static final double posIntakeMotorSpeed = -0.30;
+    public static final double posIntakeZeroMotorSpeed = 0.40;
+
+    // Current Regulation Constants
+    public static final boolean regulateShooter = false;
+    public static final boolean regulateIntake = true;
+    public static final boolean regulatePosIntake = true;
+    public static final boolean regulateIndexer = true;
+    public static final boolean regulateLauncher = true;
+    // Default SparkMax current limit is 80A
+    // Recommended current limit for NEO motors is 40-60A
+    public static final int shooterMaxCurrent = 60;
+    public static final int intakeMaxCurrent = 40;
+    public static final int posIntakeMaxCurrent = 40;
+    public static final int indexerMaxCurrent = 40;
+    public static final int launcherMaxCurrent = 40;
 
     // Elevator Constants
     public static final double kStartPose = -44.4;

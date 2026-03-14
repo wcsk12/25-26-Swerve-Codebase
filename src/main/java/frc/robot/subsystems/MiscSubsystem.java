@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -15,20 +16,22 @@ public class MiscSubsystem extends SubsystemBase {
   private final SparkMax intakeMotor;
   private final SparkMax shooterMotor1;
   private final SparkMax shooterMotor2;
+  private final RelativeEncoder shooterRPMEncoder;
 
   /** Creates a new ExampleSubsystem. */
   public MiscSubsystem() {
-  intakeMotor = new SparkMax(DriveConstants.intakeId, MotorType.kBrushless);
-  shooterMotor1 = new SparkMax(DriveConstants.shooter1Id, MotorType.kBrushless);
-  shooterMotor2 = new SparkMax(DriveConstants.shooter2Id, MotorType.kBrushless);
+    intakeMotor = new SparkMax(DriveConstants.intakeId, MotorType.kBrushless);
+    shooterMotor1 = new SparkMax(DriveConstants.shooter1Id, MotorType.kBrushless);
+    shooterMotor2 = new SparkMax(DriveConstants.shooter2Id, MotorType.kBrushless);
+    shooterRPMEncoder = shooterMotor2.getEncoder(); //shooterMotor1's encoder appears to be broken?
 
-  // Apply conservative current limits to reduce brownout risk during matches.
-  intakeMotor.configure(Configs.MAXSwerveModule.generalConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
-    com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
-  shooterMotor1.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
-    com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
-  shooterMotor2.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
-    com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+    // Apply conservative current limits to reduce brownout risk during matches.
+    intakeMotor.configure(Configs.MAXSwerveModule.intakeConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+      com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+    shooterMotor1.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+      com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+    shooterMotor2.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+      com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
   }
 
   public void setIntakeSpeed(double speed){
@@ -38,6 +41,10 @@ public class MiscSubsystem extends SubsystemBase {
   public void setShooterSpeed(double speed){
     shooterMotor1.set(-speed);
     shooterMotor2.set(speed);
+  }
+
+  public double getShooterRPM() {
+    return shooterRPMEncoder.getVelocity();
   }
 
   @Override

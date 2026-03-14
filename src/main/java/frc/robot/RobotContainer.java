@@ -93,7 +93,7 @@ public class RobotContainer {
     //NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     //NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", getIntakeCommand());
-    //NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
+    NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
@@ -182,9 +182,9 @@ public class RobotContainer {
       }, 0, 300, TimeUnit.MILLISECONDS);
   }
 
-  /*public Command getShootSequence() {
+  public Command getShootSequence() {
       return Commands.sequence(
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(DriveConstants.softShooterMotorSpeed)),
+        new InstantCommand(() -> miscSubsystem.setShooterSpeed(DriveConstants.hardShooterTargetRPM)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
         //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
@@ -193,7 +193,7 @@ public class RobotContainer {
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
-  } */
+  } 
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
@@ -214,15 +214,15 @@ public class RobotContainer {
 
   public Command getIntakeCommand() {
     return Commands.sequence(
-      new InstantCommand(() -> miscSubsystem.setIntakeSpeed(DriveConstants.indexerMotorSpeed))
+      new InstantCommand(() -> miscSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed))
       //new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.5)
     );
   }
 
   // Sets up controller bindings
   private void configureBindings() {
-    // Initiallizyng Buttons
-        // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
+    // Initializing Buttons
+      // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed " + speedMode)));
@@ -246,7 +246,10 @@ public class RobotContainer {
     // Bind the operator controller Start button as a fallback to run the CAN checker
     // while the robot is disabled. This is useful when Shuffleboard widgets are not
     // allowing writes from the client.
-    try {
+    // HAVING BOTH XBOX AND BUTTON BOARD CODE UNCOMMENTED CAN LEAD TO ISSUES, RECOMMENDED TO
+    // COMMENT OUT WHICHEVER ONE YOU AREN'T USING
+    
+    /*try {
       m_operatorController.start().onTrue(new InstantCommand(() -> {
         if (!DriverStation.isDisabled()) {
           System.out.println("[RobotContainer] Controller-triggered CAN check aborted: robot must be disabled");
@@ -259,32 +262,32 @@ public class RobotContainer {
       m_operatorController.a().whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
       m_operatorController.a().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.0)); // Moves posIntake into position when using intake
       //m_operatorController.leftTrigger(0.5).toggleOnTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets the speed of shooter based on distance of apriltag
-      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.softShooterMotorSpeed, m_operatorController));
-      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.hardShooterMotorSpeed, m_operatorController)); // Use if limelight starts to fail
+      m_operatorController.leftTrigger(0.5).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.softShooterTargetRPM, m_operatorController));
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.hardShooterTargetRPM, m_operatorController)); // Use if limelight starts to fail
+      // When operator right trigger is held, run both launcher and indexer together.
+      // Previously these were two separate commands that both required the same
+      // `miscSubsystem`, causing a conflict where only one would run. Use a
+      // single RunCommand so both motors are commanded simultaneously.
       m_operatorController.rightTrigger(0.5).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed));
       m_operatorController.rightTrigger(0.5).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
       m_operatorController.x().whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // Move posIntake to bumper
       m_operatorController.y().whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Move posIntake to zero
-      
-          // When operator right trigger is held, run both launcher and indexer together.
-      // Previously these were two separate commands that both required the same
-      // `miscSubsystem`, causing a conflict where only one would run. Use a
-      // single RunCommand so both motors are commanded simultaneously.
-      
-      // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-      /*new JoystickButton(m_operatorJoystick, 2).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Takes in fuel
-      new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, -DriveConstants.intakeMotorSpeed)); // Shoots out fuel
-      new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional())); // Sets speed of shooter based on distance of apriltag
-      new JoystickButton(m_operatorJoystick, 5).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.shooterMotorSpeed)); // Use if limelight starts to fail
-      new JoystickButton(m_operatorJoystick, 8).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Send fuel to shooter
-      new JoystickButton(m_operatorJoystick, 1).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)))
-          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Retracts Intake
-      new JoystickButton(m_operatorJoystick, 4).toggleOnTrue(new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.low)))
-          .toggleOnFalse(new InstantCommand(() -> posIntakeSubsystem.stopPosIntake())); // Moves Intake into position*/
     } catch (Exception e) {
       // Defensive: if controller library changes or no controller connected, log and continue.
       System.out.println("[RobotContainer] Failed to bind controller CAN check: " + e);
     }
+    */
+
+    // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
+    new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
+    new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.hardShooterTargetRPM)); // Hard shooter
+    new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
+    new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
+    new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
+    new JoystickButton(m_operatorJoystick, 4).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
+    //new JoystickButton(m_operatorJoystick, 4).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake while agitating
+    new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
+    new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
   }
 
   /**

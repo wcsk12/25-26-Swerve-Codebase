@@ -21,7 +21,7 @@ public class PosIntakeSubsystem extends SubsystemBase {
     posIntakeEncoder = posIntakeMotor.getAbsoluteEncoder(); 
 
     // Apply conservative current limit preset for the positioner
-    posIntakeMotor.configure(Configs.MAXSwerveModule.generalConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+    posIntakeMotor.configure(Configs.MAXSwerveModule.posIntakeConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
         com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
   }
 

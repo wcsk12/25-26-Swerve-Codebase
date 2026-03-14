@@ -13,7 +13,6 @@ public class PosIntakeZeroCMD extends Command {
   private final PosIntakeSubsystem posIntakeSubsystem;
   private final double speed;
   private double position;
-  private double distance;
 
   /** Creates a new PosIntakeCMD. */
   public PosIntakeZeroCMD(PosIntakeSubsystem posIntakeSubsystem, double speed) {
@@ -36,17 +35,13 @@ public class PosIntakeZeroCMD extends Command {
       // fallback: assume partially extended so command will attempt to move toward zero
       position = 0.7;
     } else {
-      if (position < 0.05) {
-        position += 1.0; // normalize wrap-around
+      if (position > 0.95) {
+        position = 0.0; // normalize wrap-around
       }
     }
-    distance = 1.0 - position + 0.7; // destination - position + offset to avoid tiny speeds
-    if (distance < 0.2) { // prevent extremely low and negative values
-      distance = 0.2;
-    }
-    System.out.println("ZeroCMD: " + position + " " + distance);
-    if (position < .95) { //.05 deadzone
-      posIntakeSubsystem.setPosIntakeSpeed(speed * distance);
+    
+    if (position > .05) { //.05 deadzone
+      posIntakeSubsystem.setPosIntakeSpeed(speed);
     } else {
       posIntakeSubsystem.setPosIntakeSpeed(0);
     }

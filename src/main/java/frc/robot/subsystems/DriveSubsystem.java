@@ -273,11 +273,11 @@ public class DriveSubsystem extends SubsystemBase {
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
     // Build chassis speeds in correct units and honor field-relative flag
-  // Use the same gyro sign convention as odometry (odometry negates the pigeon yaw).
-  var robotRotation = Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble());
-  ChassisSpeeds chassisSpeeds = fieldRelative
-    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, robotRotation)
-    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
+    // Use the same gyro sign convention as odometry (odometry negates the pigeon yaw).
+    var robotRotation = Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble());
+    ChassisSpeeds chassisSpeeds = fieldRelative
+      ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, robotRotation)
+      : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
         ChassisSpeeds.discretize(chassisSpeeds, periodSeconds));

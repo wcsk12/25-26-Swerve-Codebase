@@ -20,16 +20,15 @@ public class LauncherSubsystem extends SubsystemBase {
     indexerMotor = new SparkMax(DriveConstants.indexerId, MotorType.kBrushless);
 
     // Apply current limit presets
-    launcherMotor.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+    launcherMotor.configure(Configs.MAXSwerveModule.launcherConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
         com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
-    indexerMotor.configure(Configs.MAXSwerveModule.generalConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
+    indexerMotor.configure(Configs.MAXSwerveModule.indexerConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
         com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
   }
 
   public void setLauncherSpeed(double speed){
-    // Invert launcher direction here so callers can pass a positive logical speed.
-    launcherMotor.set(-speed);
-    indexerMotor.set(-speed);
+    launcherMotor.set(speed);
+    indexerMotor.set(speed);
   }
 
   @Override

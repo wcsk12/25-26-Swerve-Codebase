@@ -13,7 +13,7 @@ public class PosIntakeShakeCMD extends Command {
   private final PosIntakeSubsystem posIntakeSubsystem;
   private final double speed;
   private double position;
-  private double distance;
+  private double timer;
 
   /** Creates a new PosIntakeCMD. */
   public PosIntakeShakeCMD(PosIntakeSubsystem posIntakeSubsystem, double speed) {
@@ -25,7 +25,9 @@ public class PosIntakeShakeCMD extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    timer = System.currentTimeMillis() + 2000;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -41,15 +43,18 @@ public class PosIntakeShakeCMD extends Command {
       position = 0.7;
     } else {
       // handle wrap-around: small values near zero actually represent values near 1.0
-      if (position < 0.05) {
-        position += 1.0; // normalize wrap-around
+      if (position > 0.95) {
+        position = 0.0; // normalize wrap-around
       }
     }
-    System.out.println("ShakeCMD: " + position + " " + ((System.currentTimeMillis() / 500) % 2));
-    if (position < 0.85) { // bring posIntake up
-      posIntakeSubsystem.setPosIntakeSpeed(speed);
-    } else {
-      posIntakeSubsystem.setPosIntakeSpeed(0);
+    if (System.currentTimeMillis() > timer) {
+      if (position > 0.2) { // bring posIntake up
+        posIntakeSubsystem.setPosIntakeSpeed(speed);
+      } else if (Math.floor(System.currentTimeMillis() / 1000) % 2 == 0) {
+        posIntakeSubsystem.setPosIntakeSpeed(0.2 * speed);
+      } else {
+        posIntakeSubsystem.setPosIntakeSpeed(-0.2 * speed);
+      }
     }
   }
 
