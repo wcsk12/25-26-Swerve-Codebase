@@ -17,7 +17,7 @@ public class ShooterCMD extends Command {
   private final double targetRPM;
   private final CommandXboxController controller;
   private double realRPM;
-  private double speed = 0.7; //default speed
+  private double speed = 0.67; //default speed
   private final double deadzone = DriveConstants.shooterRPMDeadzone;
   private double startTimer;
   private double timer1;
@@ -71,8 +71,8 @@ public class ShooterCMD extends Command {
     if (timer2 - timer1 > 333) { // If a third of a second has passed since last change, allow speed to change
       if (realRPM < targetRPM - deadzone) { 
         speed += 0.01; // Raise power if rpm is lower than target
-      } else if (realRPM > targetRPM + deadzone) {
-        speed -= 0.01; // Lower power if rpm is higher than target
+      } else if (realRPM > targetRPM + (deadzone * 0.75)) { // Works better when it slightly favors slowing down
+        speed -= 0.012; // Lower power if rpm is higher than target
       }
       timer1 = System.currentTimeMillis(); // Reset timer1
     }

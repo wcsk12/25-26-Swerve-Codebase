@@ -33,9 +33,9 @@ public final class Constants {
     //public static final double indexerMotorSpeed = 0.75; indexer uses launcherMotorSpeed
     public static final double intakeMotorSpeed = 1.0;
     public static final double launcherMotorSpeed = 0.75;
-    public static final double softShooterTargetRPM = 3200;
-    public static final double hardShooterTargetRPM = 3600;
-    public static final double shooterRPMDeadzone = 100;
+    public static final double softShooterTargetRPM = 3100;
+    public static final double hardShooterTargetRPM = 5200;
+    public static final double shooterRPMDeadzone = 150;
     public static final double posIntakeMotorSpeed = -0.30;
     public static final double posIntakeZeroMotorSpeed = 0.40;
 
