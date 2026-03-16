@@ -15,6 +15,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 // Math Imports
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -36,6 +38,7 @@ import frc.robot.Constants;
 import frc.robot.pathConfig;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotContainer;
+import frc.robot.LimelightHelpers;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -211,6 +214,28 @@ public class DriveSubsystem extends SubsystemBase {
   SmartDashboard.putNumber("limelight_tx", nt.getEntry("tx").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ty", nt.getEntry("ty").getDouble(0.0));
   SmartDashboard.putNumber("limelight_ta", nt.getEntry("ta").getDouble(0.0));
+    
+  // Compute distance to first detected AprilTag using Limelight's target->camera pose (camera space)
+  try {
+    var raw = LimelightHelpers.getRawFiducials("limelight");
+    if (raw != null && raw.length > 0) {
+      Pose3d targetCam = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+      if (targetCam != null) {
+        Translation3d tr = targetCam.getTranslation();
+        double dist = Math.sqrt(tr.getX() * tr.getX() + tr.getY() * tr.getY() + tr.getZ() * tr.getZ());
+        SmartDashboard.putNumber("Limelight/TagDistance_m", dist);
+        SmartDashboard.putString("Limelight/TagPoseCam", String.format("x=%.2fm y=%.2fm z=%.2fm rot=%.1fdeg", tr.getX(), tr.getY(), tr.getZ(), targetCam.getRotation().getZ()));
+      } else {
+        SmartDashboard.putNumber("Limelight/TagDistance_m", Double.NaN);
+        SmartDashboard.putString("Limelight/TagPoseCam", "no_pose");
+      }
+    } else {
+      SmartDashboard.putNumber("Limelight/TagDistance_m", Double.NaN);
+      SmartDashboard.putString("Limelight/TagPoseCam", "none");
+    }
+  } catch (Exception ex) {
+    SmartDashboard.putString("Limelight/TagPoseCam", "error: " + ex.toString());
+  }
     
   // Publish alliance/mirroring info for PathPlanner debugging
   var alliance = DriverStation.getAlliance();
