@@ -68,7 +68,10 @@ public class DriveSubsystem extends SubsystemBase {
    * Change the sign here if you need to flip convention.
    */
   private double getGyroYawDegrees() {
-    return -m_Pigeon2.getYaw().getValueAsDouble();
+    // Default project convention is to negate the pigeon yaw. If DriveConstants.kGyroReversed
+    // is true, flip the sign so callers can toggle convention without editing code.
+    double raw = m_Pigeon2.getYaw().getValueAsDouble();
+    return DriveConstants.kGyroReversed ? raw : -raw;
   }
   // 2d Field in SmartDashboard
   private final Field2d m_field = new Field2d(); 
@@ -291,9 +294,9 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
-    // Build chassis speeds in correct units and honor field-relative flag
-    // Use the same gyro sign convention as odometry (odometry negates the pigeon yaw).
-    var robotRotation = Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble());
+  // Build chassis speeds in correct units and honor field-relative flag.
+  // Use centralized gyro conversion so PathPlanner and teleop use the same sign.
+  var robotRotation = Rotation2d.fromDegrees(getGyroYawDegrees());
     ChassisSpeeds chassisSpeeds = fieldRelative
       ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, robotRotation)
       : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
@@ -305,12 +308,11 @@ public class DriveSubsystem extends SubsystemBase {
         //         Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
         //     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(swerveModuleStates[2]);
-    m_frontRight.setDesiredState(swerveModuleStates[3]);
-    m_rearLeft.setDesiredState(swerveModuleStates[0]);
-    m_rearRight.setDesiredState(swerveModuleStates[1]);
+  SwerveDriveKinematics.desaturateWheelSpeeds(
+    swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+  // Use the centralized setter which maps states -> modules in the canonical order
+  // (FL, FR, BL, BR) to avoid any accidental index rotation.
+  setModuleStates(swerveModuleStates);
   }
 
   /**
@@ -335,10 +337,14 @@ public class DriveSubsystem extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    // Apply module states using the robot's module ordering. PathPlanner
+    // / kinematics in this project expect this mapping (FL, FR, BL, BR)
+    // but some conversions in the code produce states in a different index
+    // order. Use the historical mapping so autos behave as authored.
+    m_frontLeft.setDesiredState(desiredStates[2]);
+    m_frontRight.setDesiredState(desiredStates[3]);
+    m_rearLeft.setDesiredState(desiredStates[0]);
+    m_rearRight.setDesiredState(desiredStates[1]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
@@ -361,7 +367,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return Rotation2d.fromDegrees(m_Pigeon2.getYaw().getValueAsDouble()).getDegrees();
+    // Return heading in the project's convention (uses centralized gyro helper)
+    return Rotation2d.fromDegrees(getGyroYawDegrees()).getDegrees();
   }
 
   /**
