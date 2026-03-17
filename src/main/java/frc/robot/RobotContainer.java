@@ -20,6 +20,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.IntakeCMD;
+import frc.robot.commands.LED_command;
 import frc.robot.commands.LauncherCMD;
 import frc.robot.commands.PosIntakeBumperCMD;
 import frc.robot.commands.PosIntakeMoveToPositionCMD;
@@ -28,6 +29,7 @@ import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,6 +57,8 @@ public class RobotContainer {
   private final MiscSubsystem miscSubsystem;
   private final LauncherSubsystem launcherSubsystem;
   private final PosIntakeSubsystem posIntakeSubsystem;
+
+  final LEDSubsystem ledSubsystem = new LEDSubsystem(1);
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController =
@@ -180,6 +184,9 @@ public class RobotContainer {
           System.out.println("[RobotContainer] Error polling manual CAN entry: " + e);
         }
       }, 0, 300, TimeUnit.MILLISECONDS);
+
+      // Changes LED depending on distance
+      ledSubsystem.setDefaultCommand(new LED_command(ledSubsystem));
   }
 
   public Command getShootSequence() {

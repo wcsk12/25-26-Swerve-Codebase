@@ -223,14 +223,14 @@ public class DriveSubsystem extends SubsystemBase {
       if (targetCam != null) {
         Translation3d tr = targetCam.getTranslation();
         double dist = Math.sqrt(tr.getX() * tr.getX() + tr.getY() * tr.getY() + tr.getZ() * tr.getZ());
-        SmartDashboard.putNumber("Limelight/TagDistance_m", dist);
+        SmartDashboard.putNumber("Limelight/TagDistance_in", dist * 39.37);
         SmartDashboard.putString("Limelight/TagPoseCam", String.format("x=%.2fm y=%.2fm z=%.2fm rot=%.1fdeg", tr.getX(), tr.getY(), tr.getZ(), targetCam.getRotation().getZ()));
       } else {
-        SmartDashboard.putNumber("Limelight/TagDistance_m", Double.NaN);
+        SmartDashboard.putNumber("Limelight/TagDistance_in", Double.NaN);
         SmartDashboard.putString("Limelight/TagPoseCam", "no_pose");
       }
     } else {
-      SmartDashboard.putNumber("Limelight/TagDistance_m", Double.NaN);
+      SmartDashboard.putNumber("Limelight/TagDistance_in", Double.NaN);
       SmartDashboard.putString("Limelight/TagPoseCam", "none");
     }
   } catch (Exception ex) {

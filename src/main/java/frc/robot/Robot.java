@@ -10,6 +10,8 @@ import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.commands.AutoAlignCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.LimelightHelpers;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -124,6 +126,18 @@ public class Robot extends TimedRobot {
     targetingForwardSpeed *= 0.1;
     targetingForwardSpeed *= -1.0;
     return targetingForwardSpeed;
+  }
+
+  public static double limelight_distance_proportional()
+  {
+    double dist = 0;
+
+    Pose3d targetCam = LimelightHelpers.getTargetPose3d_CameraSpace("limelight");
+      if (targetCam != null) {
+        Translation3d tr = targetCam.getTranslation();
+        dist = Math.sqrt(tr.getX() * tr.getX() + tr.getY() * tr.getY() + tr.getZ() * tr.getZ());
+      }
+    return dist;
   }
 
   public static int limelight_id() {

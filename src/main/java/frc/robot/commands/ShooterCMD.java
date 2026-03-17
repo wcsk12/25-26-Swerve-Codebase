@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,9 +21,17 @@ public class ShooterCMD extends Command {
   private double realRPM;
   private double speed = 0.67; //default speed
   private final double deadzone = DriveConstants.shooterRPMDeadzone;
+  private final double kP;  
+  private final double kI; 
+  private final double kD; 
+  private final double kMinOutput;
+  private final double kMaxOutput;
+
   private double startTimer;
   private double timer1;
   private double timer2;
+
+  SparkMaxConfig config = new SparkMaxConfig();
   
   /** Creates a new ShooterCMD. */
   public ShooterCMD(MiscSubsystem miscSubsystem, double targetRPM, CommandXboxController controller) {
@@ -29,9 +39,20 @@ public class ShooterCMD extends Command {
     this.targetRPM = targetRPM;
     this.controller = controller;
     this.timer1 = 0.0;
+    this.kP = 0.0; // Proportianal \\ "Speed"
+    this.kI = 0.00; // Integral DON'T Change \\
+    this.kD = 0.00; // Differential \\ "Dampening"
+    this.kMinOutput = 0.00;
+    this.kMaxOutput = 0.00;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
   }
+
+  config.closedLoop
+      .p(kP)
+      .i(kI)
+      .d(kD)
+      .outputRange(kMinOutput, kMaxOutput);
 
   // Non-Xbox constructor
   public ShooterCMD(MiscSubsystem miscSubsystem, double targetRPM) {
