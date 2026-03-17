@@ -44,15 +44,15 @@ public class ShooterCMD extends Command {
     this.kD = 0.00; // Differential \\ "Dampening"
     this.kMinOutput = 0.00;
     this.kMaxOutput = 0.00;
+    // Configure closed-loop values for SparkMax (if used). Do this after finals are set.
+    config.closedLoop
+        .p(kP)
+        .i(kI)
+        .d(kD)
+        .outputRange(kMinOutput, kMaxOutput);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
   }
-
-  config.closedLoop
-      .p(kP)
-      .i(kI)
-      .d(kD)
-      .outputRange(kMinOutput, kMaxOutput);
 
   // Non-Xbox constructor
   public ShooterCMD(MiscSubsystem miscSubsystem, double targetRPM) {
@@ -60,6 +60,17 @@ public class ShooterCMD extends Command {
     this.targetRPM = targetRPM;
     this.controller = null;
     this.timer1 = 0.0;
+    this.kP = 0.0; // Proportianal \\ "Speed"
+    this.kI = 0.00; // Integral DON'T Change \\\
+    this.kD = 0.00; // Differential \\ "Dampening"
+    this.kMinOutput = 0.00;
+    this.kMaxOutput = 0.00;
+    // Configure closed-loop values for SparkMax (if used)
+    config.closedLoop
+        .p(kP)
+        .i(kI)
+        .d(kD)
+        .outputRange(kMinOutput, kMaxOutput);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
   }
