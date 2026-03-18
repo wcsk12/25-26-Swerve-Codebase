@@ -196,23 +196,13 @@ public class RobotContainer {
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
         );
 }
+// Limelight Release and shoot simultaneously \\
   public Command ReleaseandShootWithLimelight() { //shooter and release combined.
     // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
       return Commands.sequence(
-        new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed)
-        // if (Robot.limelight_id() == 10 || Robot.limelight_id() == 25){
-        //   double ty = Robot.limelight_range_proportional();
-        //   if (1.0 > Math.abs(ty) && ty != 0)  {
-        //     new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Math.abs(1/ty)));
-        //     System.out.println("Ty : " + ty);
-        //     //shootersubsystem.setShooterSpeed(Math.pow(0.1, ty)); //set shooter's speed to ty by the power of 0.1
-        //     //shootersubsystem.setShooterSpeed(speed);
-        // }}
-        // else {
-        //     new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Math.abs(1/DriveConstants.ShooterMotorSpeed)));
-        //     System.out.println("Ty : " + ty)
-        
-        //   }
+        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
+        new WaitCommand(0.5), // headstart for shooter spin-up
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
         );
       }
 
@@ -226,6 +216,7 @@ public class RobotContainer {
   }
   public Command ReleaseandShootOFF() {
     return Commands.sequence(
+        
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
     );
@@ -270,8 +261,9 @@ public class RobotContainer {
     m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
    m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
    // LIMELIGHT SHOOTER \\
-   m_operatorController.a().toggleOnTrue((ReleaseandShootWithLimelight()));
-   m_operatorController.a().toggleOnFalse((ReleaseandShootOFF()));
+   m_operatorController.a().whileTrue((ReleaseandShootWithLimelight()));
+   m_operatorController.a().whileFalse((ReleaseandShootOFF()));
+      //m_operatorController.a().whileFalse((ShooterCMD.cancel()));
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
