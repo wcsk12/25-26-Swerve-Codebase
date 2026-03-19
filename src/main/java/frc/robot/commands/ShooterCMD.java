@@ -11,66 +11,35 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.subsystems.MiscSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ShooterCMD extends Command {
-  private final MiscSubsystem miscSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
   private final double targetRPM;
   private final CommandXboxController controller;
   private double realRPM;
   private double speed = 0.67; //default speed
   private final double deadzone = DriveConstants.shooterRPMDeadzone;
-  private final double kP;  
-  private final double kI; 
-  private final double kD; 
-  private final double kMinOutput;
-  private final double kMaxOutput;
 
   private double startTimer;
   private double timer1;
   private double timer2;
-
-  SparkMaxConfig config = new SparkMaxConfig();
   
   /** Creates a new ShooterCMD. */
-  public ShooterCMD(MiscSubsystem miscSubsystem, double targetRPM, CommandXboxController controller) {
-    this.miscSubsystem = miscSubsystem;
+  public ShooterCMD(ShooterSubsystem shooterSubsystem, double targetRPM, CommandXboxController controller) {
+    this.shooterSubsystem = shooterSubsystem;
     this.targetRPM = targetRPM;
     this.controller = controller;
     this.timer1 = 0.0;
-    this.kP = 0.0; // Proportianal \\ "Speed"
-    this.kI = 0.00; // Integral DON'T Change \\
-    this.kD = 0.00; // Differential \\ "Dampening"
-    this.kMinOutput = 0.00;
-    this.kMaxOutput = 0.00;
-    // Configure closed-loop values for SparkMax (if used). Do this after finals are set.
-    config.closedLoop
-        .p(kP)
-        .i(kI)
-        .d(kD)
-        .outputRange(kMinOutput, kMaxOutput);
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(miscSubsystem);
   }
 
   // Non-Xbox constructor
-  public ShooterCMD(MiscSubsystem miscSubsystem, double targetRPM) {
-    this.miscSubsystem = miscSubsystem;
+  public ShooterCMD(ShooterSubsystem miscSubsystem, double targetRPM) {
+    this.shooterSubsystem = miscSubsystem;
     this.targetRPM = targetRPM;
     this.controller = null;
     this.timer1 = 0.0;
-    this.kP = 0.0; // Proportianal \\ "Speed"
-    this.kI = 0.00; // Integral DON'T Change \\\
-    this.kD = 0.00; // Differential \\ "Dampening"
-    this.kMinOutput = 0.00;
-    this.kMaxOutput = 0.00;
-    // Configure closed-loop values for SparkMax (if used)
-    config.closedLoop
-        .p(kP)
-        .i(kI)
-        .d(kD)
-        .outputRange(kMinOutput, kMaxOutput);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
   }
@@ -94,7 +63,7 @@ public class ShooterCMD extends Command {
     else{
       miscSubsystem.setShooterSpeed(speed);
     }*/
-    realRPM = Math.abs(miscSubsystem.getShooterRPM());
+    realRPM = Math.abs(shooterSubsystem.getShooterRPM());
     /* timer1 resets after every change to lower the number of times the shooter's speed can change every 
        second. timer2 is the real current time. When initializing timer1 it is given an extra delay to
        allow the shooter to speed up before having the speed variable be changed.
@@ -114,7 +83,7 @@ public class ShooterCMD extends Command {
       speed = 0;
     }
     System.out.println("rpm: " + realRPM + " power: " + speed);
-    miscSubsystem.setShooterSpeed(speed);
+    shooterSubsystem.setShooterSpeed(speed);
     if (controller != null) {
       controller.setRumble(RumbleType.kBothRumble, 1);
     }
@@ -123,7 +92,7 @@ public class ShooterCMD extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    miscSubsystem.setShooterSpeed(0);
+    shooterSubsystem.setShooterSpeed(0);
     if (controller != null) {
       controller.setRumble(RumbleType.kBothRumble, 0);
     }

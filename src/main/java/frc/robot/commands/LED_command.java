@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
-import frc.robot.subsystems.MiscSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /**
  * Command that updates the LED pattern based on a motor's power.
@@ -15,7 +15,8 @@ public class LED_command extends Command {
     private final LEDSubsystem ledSubsystem;
     // Lower threshold so small alignment outputs are detected. We'll also
     // log the observed power for diagnostics.
-    private final double threshold = 37.50; // Threshold to determine if the motor is running
+    private final double threshold = 2.9; // Threshold to determine if the motor is running
+    private final double offset = .2;
 
     public LED_command(LEDSubsystem ledSubsystem) {
         this.ledSubsystem = ledSubsystem;
@@ -28,10 +29,10 @@ public class LED_command extends Command {
         double power = Math.abs(Robot.limelight_distance_proportional()); // read from the motor subsystem
         // Diagnostic log to observe motor output during Limelight alignment
         System.out.println("[LED_command] motor power=" + power);
-        if (power > threshold) {
+        if (power > threshold + offset) {
             // Motor is running, set red (It is too far)
             ledSubsystem.setPattern(0.59); // red
-        } else if (power < threshold){
+        } else if (power < threshold - offset){
             // Motor is running, set blue (It is too close)
             ledSubsystem.setPattern(-0.15); // blue
         } else {

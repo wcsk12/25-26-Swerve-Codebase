@@ -85,7 +85,7 @@ public class AutoAlignCommand extends Command {
 
     double xCmd = MathUtil.clamp(kPX * forwardError, -1.0, 1.0);
     double yCmd = MathUtil.clamp(kPY * lateralError, -1.0, 1.0);
-    rCmd = MathUtil.clamp(kPA * angError, -1.0, 1.0);
+    rCmd = -MathUtil.clamp(kPA * angError, -1.0, 1.0);
     
     System.out.println("Command rCmd: " + rCmd);
     // drive robot-relative

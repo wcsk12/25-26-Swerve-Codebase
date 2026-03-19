@@ -161,7 +161,7 @@ public class Robot extends TimedRobot {
 
     // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
 
-    m_swerve.drive(xSpeed, ySpeed, AutoAlignCommand.rCmd, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
+    m_swerve.drive(xSpeed * RobotContainer.speedMode, ySpeed * RobotContainer.speedMode, AutoAlignCommand.rCmd, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
   }
 
   @Override

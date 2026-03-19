@@ -29,6 +29,7 @@ import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 /**
@@ -37,7 +38,9 @@ import frc.robot.subsystems.LauncherSubsystem;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-import frc.robot.subsystems.MiscSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.ShooterSetSpeed;
+import frc.robot.subsystems.ShooterSubsystem.ShooterSetSpeed;
 import frc.robot.subsystems.PosIntakeSubsystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -54,9 +57,10 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem m_robotDrive;
-  private final MiscSubsystem miscSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
   private final LauncherSubsystem launcherSubsystem;
   private final PosIntakeSubsystem posIntakeSubsystem;
+  private final IntakeSubsystem intakeSubsystem;
 
   final LEDSubsystem ledSubsystem = new LEDSubsystem(1);
   
@@ -91,15 +95,16 @@ public class RobotContainer {
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
   CANChecker.createWidgets();
-    miscSubsystem = new MiscSubsystem();
+    shooterSubsystem = new ShooterSubsystem();
     launcherSubsystem = new LauncherSubsystem();
-    posIntakeSubsystem = new PosIntakeSubsystem();  
+    posIntakeSubsystem = new PosIntakeSubsystem(); 
+    intakeSubsystem = new IntakeSubsystem(); 
     //NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     //NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", getIntakeCommand());
     NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
-    NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(miscSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
+    NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(shooterSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
     //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
@@ -191,12 +196,12 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(DriveConstants.hardShooterTargetRPM)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(DriveConstants.hardShooterTargetRPM)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
         //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
         new WaitCommand(3),
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
@@ -204,13 +209,13 @@ public class RobotContainer {
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0.65)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0.65)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
   new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, DriveConstants.posIntakeMotorSpeed, 1.5),
         new WaitCommand(3),
-        new InstantCommand(() -> miscSubsystem.setShooterSpeed(0)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
         // Ensure we stop the posIntake and finish the sequence instead of scheduling
         // another PosIntakeShakeCMD (which never finishes). Use an InstantCommand to
@@ -221,7 +226,7 @@ public class RobotContainer {
 
   public Command getIntakeCommand() {
     return Commands.sequence(
-      new InstantCommand(() -> miscSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed))
+      new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed))
       //new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.5)
     );
   }
@@ -286,15 +291,17 @@ public class RobotContainer {
     */
 
     // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-    new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
-    new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(miscSubsystem, DriveConstants.hardShooterTargetRPM)); // Hard shooter
-    new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
+    new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
+    new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.hardShooterTargetRPM)); // Hard shooter
+    new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
     //new JoystickButton(m_operatorJoystick, 4).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake while agitating
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
+    new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
+    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
   }
 
   /**
