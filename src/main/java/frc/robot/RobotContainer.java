@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -104,7 +105,26 @@ public class RobotContainer {
     NamedCommands.registerCommand("IntakeCMD", getIntakeCommand());
     NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
-    NamedCommands.registerCommand("ShooterCMD", new ShooterCMD(shooterSubsystem, Robot.limelight_range_proportional(), m_operatorController).withTimeout(1));
+    // Register Shooter as a StartEndCommand so PathPlanner will start it when scheduled and
+    // guarantee it is stopped when cancelled/finished. We also add lightweight logging so
+    // we can observe start/end events during autos (helps diagnose motors not stopping).
+    NamedCommands.registerCommand(
+      "ShooterCMD",
+      new edu.wpi.first.wpilibj2.command.StartEndCommand(
+        () -> {
+          System.out.println("[ShooterCMD] start (named command)");
+          // Use open-loop power here to keep behavior simple and ensure stop on end.
+          // If you prefer closed-loop RPM control, we can change this to call
+          // shooterSubsystem.setSpeed(ShooterSubsystem.ShooterSetSpeed.SlowSpeed) or similar.
+          shooterSubsystem.setShooterSpeed(0.65);
+        },
+        () -> {
+          System.out.println("[ShooterCMD] end (named command)");
+          shooterSubsystem.setShooterSpeed(0);
+        },
+        shooterSubsystem
+      ).withTimeout(1)
+    );
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
     //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
@@ -225,9 +245,21 @@ public class RobotContainer {
   }
 
   public Command getIntakeCommand() {
-    return Commands.sequence(
-      new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed))
-      //new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.5)
+    // Use StartEndCommand so the intake motor is started when the named command
+    // is scheduled and stopped automatically when the command ends (for example
+    // when the PathPlanner path finishes and interrupts the deadline group).
+    return new StartEndCommand(
+      () -> {
+        System.out.println("[IntakeCMD] start (named command)");
+        SmartDashboard.putBoolean("Intake/Running", true);
+        intakeSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed);
+      },
+      () -> {
+        System.out.println("[IntakeCMD] end (named command)");
+        SmartDashboard.putBoolean("Intake/Running", false);
+        intakeSubsystem.setIntakeSpeed(0);
+      },
+      intakeSubsystem
     );
   }
 
