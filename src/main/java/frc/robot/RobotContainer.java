@@ -28,6 +28,7 @@ import frc.robot.commands.PosIntakeMoveToPositionCMD;
 import frc.robot.commands.PosIntakeShakeCMD;
 import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
+import frc.robot.commands.ShooterTunerCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -112,21 +113,46 @@ public class RobotContainer {
       "ShooterCMD",
       new edu.wpi.first.wpilibj2.command.StartEndCommand(
         () -> {
-          System.out.println("[ShooterCMD] start (named command)");
-          // Use open-loop power here to keep behavior simple and ensure stop on end.
-          // If you prefer closed-loop RPM control, we can change this to call
-          // shooterSubsystem.setSpeed(ShooterSubsystem.ShooterSetSpeed.SlowSpeed) or similar.
-          shooterSubsystem.setShooterSpeed(0.65);
+          System.out.println("[ShooterCMD] start (named command) - switching to closed-loop RPM");
+          // Use closed-loop RPM target so the tuned gains are used when PathPlanner triggers this named command.
+          shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM);
         },
         () -> {
-          System.out.println("[ShooterCMD] end (named command)");
-          shooterSubsystem.setShooterSpeed(0);
+          System.out.println("[ShooterCMD] end (named command) - stopping closed-loop target");
+          shooterSubsystem.setClosedLoopTargetRPM(0);
         },
         shooterSubsystem
       ).withTimeout(1)
     );
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
+  // Register the shooter tuner so it can be triggered from PathPlanner/NamedCommands
+  NamedCommands.registerCommand("ShooterTuner", new ShooterTunerCommand(shooterSubsystem, 0.5, 1.5, DriveConstants.softShooterTargetRPM, 4.0).withTimeout(30));
+    // Register a small helper to reload persisted shooter gains from the roboRIO filesystem
+    NamedCommands.registerCommand(
+      "ReloadShooterGains",
+      new InstantCommand(() -> {
+        try {
+          java.io.File f = new java.io.File("/home/lvuser/shooter_gains.properties");
+          if (f.exists()) {
+            java.util.Properties p = new java.util.Properties();
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
+              p.load(fis);
+            }
+            double pGain = Double.parseDouble(p.getProperty("p", "0"));
+            double iGain = Double.parseDouble(p.getProperty("i", "0"));
+            double dGain = Double.parseDouble(p.getProperty("d", "0"));
+            double ff = Double.parseDouble(p.getProperty("ff", "0"));
+            System.out.println(String.format("[RobotContainer] Reloaded shooter gains p=%.8f i=%.8f d=%.8f ff=%.8f", pGain, iGain, dGain, ff));
+            shooterSubsystem.applyClosedLoopGains(pGain, iGain, dGain, ff);
+          } else {
+            System.out.println("[RobotContainer] No persisted gains file found at /home/lvuser/shooter_gains.properties");
+          }
+        } catch (Exception e) {
+          System.out.println("[RobotContainer] Failed to reload shooter gains: " + e);
+        }
+      }, shooterSubsystem)
+    );
     //NamedCommands.registerCommand("RaiseIntake", new InstantCommand(() -> posIntakeSubsystem.setPosition(IntakePositions.zero)));
     // These were causing the robot to not instantiate ^
     // Gets controller binding
@@ -212,6 +238,63 @@ public class RobotContainer {
 
       // Changes LED depending on distance
       ledSubsystem.setDefaultCommand(new LED_command(ledSubsystem));
+
+    // ---------------- Shooter tuner Shuffleboard widget ----------------
+    var tuneTab = Shuffleboard.getTab("Tuning");
+
+    // Ensure both toggles are always visible and enabled
+    // Run Shooter Tuner toggle
+    var tuneEntry = tuneTab.add("Run Shooter Tuner", false)
+      .withWidget(BuiltInWidgets.kToggleButton)
+      .withPosition(8, 0)
+      .withSize(1, 1)
+      .getEntry();
+
+    // Reload Shooter Gains toggle
+    var reloadEntry = tuneTab.add("Reload Shooter Gains", false)
+      .withWidget(BuiltInWidgets.kToggleButton)
+      .withPosition(9, 0)
+      .withSize(1, 1)
+      .getEntry();
+
+    // When the Run Shooter Tuner toggle becomes true, start the tuner (only if robot enabled)
+    new Trigger(() -> tuneEntry.getBoolean(false)).onTrue(new InstantCommand(() -> {
+      boolean disabled = DriverStation.isDisabled();
+      if (disabled) {
+        System.out.println("[RobotContainer] Shooter tuner requested while robot disabled — enable robot and press the toggle again.");
+        tuneEntry.setBoolean(false);
+        return;
+      }
+      System.out.println("[RobotContainer] Scheduling ShooterTuner from Shuffleboard");
+      new ShooterTunerCommand(shooterSubsystem, 0.5, 1.5, DriveConstants.softShooterTargetRPM, 4.0).schedule();
+      tuneEntry.setBoolean(false);
+    }));
+
+    // When the Reload Shooter Gains toggle becomes true, reload gains from file and apply
+    new Trigger(() -> reloadEntry.getBoolean(false)).onTrue(new InstantCommand(() -> {
+      System.out.println("[RobotContainer] Reload shooter gains requested from Shuffleboard");
+      try {
+        java.io.File f = new java.io.File("/home/lvuser/shooter_gains.properties");
+        if (f.exists()) {
+          java.util.Properties p = new java.util.Properties();
+          try (java.io.FileInputStream fis = new java.io.FileInputStream(f)) {
+            p.load(fis);
+          }
+          double pGain = Double.parseDouble(p.getProperty("p", "0"));
+          double iGain = Double.parseDouble(p.getProperty("i", "0"));
+          double dGain = Double.parseDouble(p.getProperty("d", "0"));
+          double ff = Double.parseDouble(p.getProperty("ff", "0"));
+          System.out.println(String.format("[RobotContainer] Reloaded shooter gains p=%.8f i=%.8f d=%.8f ff=%.8f", pGain, iGain, dGain, ff));
+          shooterSubsystem.applyClosedLoopGains(pGain, iGain, dGain, ff);
+        } else {
+          System.out.println("[RobotContainer] No persisted gains file found at /home/lvuser/shooter_gains.properties");
+        }
+      } catch (Exception e) {
+        System.out.println("[RobotContainer] Failed to reload shooter gains from Shuffleboard: " + e);
+      }
+      reloadEntry.setBoolean(false);
+    }));
+
   }
 
   public Command getShootSequence() {
@@ -285,6 +368,13 @@ public class RobotContainer {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
 
+      // Bind L3 (left stick press) to run the shooter tuner for quick tuning runs.
+      try {
+        m_driverController.leftStick().onTrue(new ShooterTunerCommand(shooterSubsystem, 0.5, 1.5, DriveConstants.softShooterTargetRPM, 4.0).withTimeout(30));
+      } catch (Exception e) {
+        System.out.println("[RobotContainer] Failed to bind ShooterTuner to L3: " + e);
+      }
+
     //m_operatorController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
     //m_operatorController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
     // Bind the operator controller Start button as a fallback to run the CAN checker
@@ -323,8 +413,9 @@ public class RobotContainer {
     */
 
     // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-    new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
-    new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.hardShooterTargetRPM)); // Hard shooter
+  new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
+  // Make B (button 2) use the same softShooterTargetRPM as the L3 tuner so its ramp behavior matches
+  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Tuned soft shooter on B
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter

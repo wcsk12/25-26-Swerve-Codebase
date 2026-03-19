@@ -25,6 +25,7 @@ public class ShooterCMD extends Command {
   private double startTimer;
   private double timer1;
   private double timer2;
+  private final boolean useClosedLoop;
   
   /** Creates a new ShooterCMD. */
   public ShooterCMD(ShooterSubsystem shooterSubsystem, double targetRPM, CommandXboxController controller) {
@@ -32,6 +33,7 @@ public class ShooterCMD extends Command {
     this.targetRPM = targetRPM;
     this.controller = controller;
     this.timer1 = 0.0;
+    this.useClosedLoop = targetRPM > 500; // treat >500 as an RPM target -> use closed-loop
   }
 
   // Non-Xbox constructor
@@ -42,60 +44,65 @@ public class ShooterCMD extends Command {
     this.timer1 = 0.0;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(miscSubsystem);
+    this.useClosedLoop = targetRPM > 500;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("shooting started, target RPM: " + targetRPM);
+    System.out.println("shooting started, target RPM: " + targetRPM + " useClosedLoop=" + useClosedLoop);
     timer1 = System.currentTimeMillis() + 1500; // Add 1500 ms delay after shooting is started before
       //beginning to allow the shooting speed to be changed
+    if (useClosedLoop) {
+      // Command closed-loop controller to the desired RPM. The tuner should have
+      // updated the closed-loop gains already; this will use those gains.
+      shooterSubsystem.setClosedLoopTargetRPM(targetRPM);
+      // allow the normal execute loop to monitor RPM and rumble
+      return;
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    /*if (Robot.limelight_id() == 10 || Robot.limelight_id() == 25){
-      if (1.0 > Math.abs(speed)){
-      miscSubsystem.setShooterSpeed(Math.pow(0.1, speed));
+    if (useClosedLoop) {
+      realRPM = Math.abs(shooterSubsystem.getMeasuredRPM());
+      System.out.println("rpm: " + realRPM + " target: " + targetRPM);
+      // give operator a rumble when near target
+      if (controller != null) {
+        double error = Math.abs(targetRPM - realRPM);
+        if (error < 150) controller.setRumble(RumbleType.kBothRumble, 1);
+        else controller.setRumble(RumbleType.kBothRumble, 0);
       }
+      return;
     }
-    else{
-      miscSubsystem.setShooterSpeed(speed);
-    }*/
+    // fallback to legacy open-loop incremental control
     realRPM = Math.abs(shooterSubsystem.getShooterRPM());
-    /* timer1 resets after every change to lower the number of times the shooter's speed can change every 
-       second. timer2 is the real current time. When initializing timer1 it is given an extra delay to
-       allow the shooter to speed up before having the speed variable be changed.
-    */
     timer2 = System.currentTimeMillis();
-    if (timer2 - timer1 > 333) { // If a third of a second has passed since last change, allow speed to change
-      if (realRPM < targetRPM - deadzone) { 
-        speed += 0.01; // Raise power if rpm is lower than target
-      } else if (realRPM > targetRPM + (deadzone * 0.75)) { // Works better when it slightly favors slowing down
-        speed -= 0.012; // Lower power if rpm is higher than target
+    if (timer2 - timer1 > 333) {
+      if (realRPM < targetRPM - deadzone) {
+        speed += 0.01;
+      } else if (realRPM > targetRPM + (deadzone * 0.75)) {
+        speed -= 0.012;
       }
-      timer1 = System.currentTimeMillis(); // Reset timer1
+      timer1 = System.currentTimeMillis();
     }
-    if (speed > 1.0) { // Normalize speed values
-      speed = 1.0;
-    } else if (speed < 0) { // We don't want our shooter to move backwards
-      speed = 0;
-    }
+    if (speed > 1.0) speed = 1.0;
+    else if (speed < 0) speed = 0;
     System.out.println("rpm: " + realRPM + " power: " + speed);
     shooterSubsystem.setShooterSpeed(speed);
-    if (controller != null) {
-      controller.setRumble(RumbleType.kBothRumble, 1);
-    }
+    if (controller != null) controller.setRumble(RumbleType.kBothRumble, 1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooterSubsystem.setShooterSpeed(0);
-    if (controller != null) {
-      controller.setRumble(RumbleType.kBothRumble, 0);
+    if (useClosedLoop) {
+      shooterSubsystem.setClosedLoopTargetRPM(0);
+    } else {
+      shooterSubsystem.setShooterSpeed(0);
     }
+    if (controller != null) controller.setRumble(RumbleType.kBothRumble, 0);
   }
 
   // Returns true when the command should end.
