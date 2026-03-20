@@ -28,6 +28,7 @@ import frc.robot.commands.PosIntakeMoveToPositionCMD;
 import frc.robot.commands.PosIntakeShakeCMD;
 import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
+import frc.robot.commands.ShooterSpinupWithPersistedGainsCommand;
 import frc.robot.commands.ShooterTunerCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
@@ -412,10 +413,11 @@ public class RobotContainer {
     }
     */
 
-    // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
-  new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
-  // Make B (button 2) use the same softShooterTargetRPM as the L3 tuner so its ramp behavior matches
-  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Tuned soft shooter on B
+    // Also bind raw joystick buttons as a fallback for non-Xbox controllers
+    new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
+  // B (button 2): diagnostic path that reapplies persisted gains immediately before spinning up
+  // so we can compare directly against the L3 tuner behavior.
+  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterSpinupWithPersistedGainsCommand(shooterSubsystem));
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter

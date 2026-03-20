@@ -62,6 +62,11 @@ public class ShooterSubsystem extends SubsystemBase {
       com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
     shooterMotor2.configure(Configs.MAXSwerveModule.shooterConfig, com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
       com.revrobotics.spark.SparkBase.PersistMode.kPersistParameters);
+    // Configure shooterMotor1 to follow shooterMotor2 (inverted) so closed-loop control on motor2
+    // drives the full shooter pair consistently. We keep motor2 as the master with the encoder.
+    SparkMaxConfig followerConfig = new SparkMaxConfig();
+    followerConfig.apply(Configs.MAXSwerveModule.shooterConfig);
+    followerConfig.follow(shooterMotor2, true);
     // PID Config - set conservative defaults near the first P candidate used by the L3 tuner
     // The tuner computes ff = openLoopOutput / avgRPM and startP = ff * 3.0. The first
     // candidate tested is startP * 0.25. Using the expected soft target RPM and the
@@ -80,9 +85,9 @@ public class ShooterSubsystem extends SubsystemBase {
         .velocityFF(0.00017857)
         .outputRange(kMinOutput, kMaxOutput);
 
-        shooterMotor1.configure(config,
-      com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         shooterMotor2.configure(config,
+      com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        shooterMotor1.configure(followerConfig,
       com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         shooterRPMEncoder.setPosition(0);
@@ -118,10 +123,13 @@ public class ShooterSubsystem extends SubsystemBase {
         .velocityFF(velocityFF)
         .outputRange(kMinOutput, kMaxOutput);
 
-    shooterMotor1.configure(config,
+    shooterMotor2.configure(config,
       com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
-    shooterMotor2.configure(config,
+    SparkMaxConfig followerConfig = new SparkMaxConfig();
+    followerConfig.apply(Configs.MAXSwerveModule.shooterConfig);
+    followerConfig.follow(shooterMotor2, true);
+    shooterMotor1.configure(followerConfig,
       com.revrobotics.spark.SparkBase.ResetMode.kResetSafeParameters,
       PersistMode.kPersistParameters);
   }
