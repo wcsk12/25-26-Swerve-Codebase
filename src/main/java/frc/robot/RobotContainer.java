@@ -28,7 +28,7 @@ import frc.robot.commands.PosIntakeMoveToPositionCMD;
 import frc.robot.commands.PosIntakeShakeCMD;
 import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
-import frc.robot.commands.ShooterSpinupWithPersistedGainsCommand;
+import frc.robot.commands.ShootWhenReadyCommand;
 import frc.robot.commands.ShooterTunerCommand;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
@@ -369,13 +369,6 @@ public class RobotContainer {
       System.out.println("[RobotContainer] Failed to bind AutoAlignCommand to A button: " + e);
     }
 
-      // Bind L3 (left stick press) to run the shooter tuner for quick tuning runs.
-      try {
-        m_driverController.leftStick().onTrue(new ShooterTunerCommand(shooterSubsystem, 0.5, 1.5, DriveConstants.softShooterTargetRPM, 4.0).withTimeout(30));
-      } catch (Exception e) {
-        System.out.println("[RobotContainer] Failed to bind ShooterTuner to L3: " + e);
-      }
-
     //m_operatorController.a().whileTrue(new ExampleCommand(exampleSubsystem, 0.5));
     //m_operatorController.leftTrigger(0.5).whileTrue(new ExampleCommand(exampleSubsystem, 0.3));
     // Bind the operator controller Start button as a fallback to run the CAN checker
@@ -415,9 +408,8 @@ public class RobotContainer {
 
     // Also bind raw joystick buttons as a fallback for non-Xbox controllers
     new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
-  // B (button 2): diagnostic path that reapplies persisted gains immediately before spinning up
-  // so we can compare directly against the L3 tuner behavior.
-  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShooterSpinupWithPersistedGainsCommand(shooterSubsystem));
+  // B (button 2): normal shooting behavior — spin up to softShooterTargetRPM and fire once at speed.
+  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShootWhenReadyCommand(shooterSubsystem, launcherSubsystem));
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
