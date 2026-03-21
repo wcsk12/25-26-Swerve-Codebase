@@ -125,6 +125,8 @@ public class RobotContainer {
         shooterSubsystem
       ).withTimeout(1)
     );
+    NamedCommands.registerCommand("LimelightOff", setLimelightOff());
+    NamedCommands.registerCommand("LimelightOn", setLimelightOn());
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
   // Register the shooter tuner so it can be triggered from PathPlanner/NamedCommands
@@ -309,7 +311,19 @@ public class RobotContainer {
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
-  } 
+  }
+  
+  public Command setLimelightOff(){
+    return Commands.sequence(
+      new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOff("limelight"))
+    );
+  }
+
+  public Command setLimelightOn(){
+    return Commands.sequence(
+      new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight"))
+    );
+  }
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
@@ -318,7 +332,7 @@ public class RobotContainer {
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
   new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, DriveConstants.posIntakeMotorSpeed, 1.5),
-        new WaitCommand(3),
+        new WaitCommand(2),
         new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
         // Ensure we stop the posIntake and finish the sequence instead of scheduling

@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "LimelightOff"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "LowerIntake"
           }
         },
@@ -46,6 +52,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LimelightOn"
           }
         },
         {
