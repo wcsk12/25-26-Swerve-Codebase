@@ -184,7 +184,7 @@ public class RobotContainer {
     // Use InstantCommands to set/clear speeds so the sequence can progress.
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed*0.5)),
+        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
         new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
