@@ -256,7 +256,7 @@ public class RobotContainer {
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-      m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed));
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));
   //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
   //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
   //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));

@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -14,11 +16,13 @@ public class ShooterCMD extends Command {
   private final double speed;
   //private final boolean ON;
   private final ShooterSubsystem shootersubsystem;
+  private final CommandXboxController controller;
   /** Creates a new ShooterCMD. */
-  public ShooterCMD(ShooterSubsystem m_ShooterSubsystem, double speed) { //boolean ON
+  public ShooterCMD(ShooterSubsystem m_ShooterSubsystem, double speed, CommandXboxController controller) { //boolean ON
     // Use addRequirements() here to declare subsystem dependencies.
     this.shootersubsystem = m_ShooterSubsystem;
     this.speed = speed;
+    this.controller = controller;
     //this.ON = ON;
     addRequirements(m_ShooterSubsystem);
   }
@@ -31,6 +35,7 @@ public class ShooterCMD extends Command {
   @Override
   public void execute() { //If an apriltag is seen: 10-25 (Hub Tags), then, the motor speed is set to ty by the power of 0.1, else: it is set to 0.2.
     shootersubsystem.setShooterSpeed(speed);
+    controller.setRumble(RumbleType.kBothRumble, 0.8);
     // if (Robot.limelight_id() == 10 || Robot.limelight_id() == 26){
     // double ty = Robot.limelight_range_proportional();
     // if (0.95 > Math.abs((ty+20.5)/41) && ty != 0)  {
@@ -51,6 +56,7 @@ public class ShooterCMD extends Command {
   @Override
   public void end(boolean interrupted) {
     shootersubsystem.setShooterSpeed(0);
+    controller.setRumble(RumbleType.kBothRumble, 0);
   }
 
   // Returns true when the command should end.
