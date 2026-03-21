@@ -29,7 +29,7 @@ public final class Constants {
 
     // Motor Speeds of additional motors
     public static final double IntakeMotorSpeed = 0.7; //Intake
-    public static final double ShooterMotorSpeed = 0.8;
+    public static final double ShooterMotorSpeed = 0.6;
     public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
     public static final double ReleaseMotorSpeed = -0.75; //negative to spin the correct way.
     public static final double ClimberSpeed = 0.3;
