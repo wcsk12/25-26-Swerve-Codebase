@@ -185,7 +185,7 @@ public class RobotContainer {
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
-        new WaitCommand(0.4), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
+        new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed)),
@@ -201,7 +201,7 @@ public class RobotContainer {
     // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
       return Commands.sequence(
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-        new WaitCommand(0.5), // headstart for shooter spin-up
+        new WaitCommand(1.1), // headstart for shooter spin-up
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
         );
       }
@@ -210,7 +210,7 @@ public class RobotContainer {
   public Command ReleaseandShootWithoutLimelight(int Negative) {
     return Commands.sequence( 
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Negative * DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-        new WaitCommand(0.5), // headstart for shooter spin-up
+        new WaitCommand(1.1), // headstart for shooter spin-up
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
         );
   }
@@ -263,7 +263,6 @@ public class RobotContainer {
    // LIMELIGHT SHOOTER \\
    m_operatorController.a().whileTrue((ReleaseandShootWithLimelight()));
    m_operatorController.a().whileFalse((ReleaseandShootOFF()));
-      //m_operatorController.a().whileFalse((ShooterCMD.cancel()));
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
@@ -283,7 +282,9 @@ public class RobotContainer {
   new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
   new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
   new JoystickButton(m_operatorJoystick, 5).toggleOnFalse(ReleaseandShootOFF());
-
+       // LIMELIGHT SHOOTER \\
+   new JoystickButton(m_operatorJoystick, 1).whileTrue((ReleaseandShootWithLimelight()));
+   new JoystickButton(m_operatorJoystick, 1).whileFalse((ReleaseandShootOFF()));
       // ------------------------------------------ Climber ------------------------------------------ \\
       //Climber button binding goes here.
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
