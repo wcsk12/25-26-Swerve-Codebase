@@ -317,7 +317,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Convert joystick inputs (-1..1) into chassis speeds (m/s, rad/s)
     double xSpeedDelivered = xSpeed * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeed * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+    double rotDelivered = -rot * DriveConstants.kMaxAngularSpeed;
 
   // Build chassis speeds in correct units and honor field-relative flag.
   // Use centralized gyro conversion so PathPlanner and teleop use the same sign.
@@ -366,10 +366,13 @@ public class DriveSubsystem extends SubsystemBase {
     // / kinematics in this project expect this mapping (FL, FR, BL, BR)
     // but some conversions in the code produce states in a different index
     // order. Use the historical mapping so autos behave as authored.
-    m_frontLeft.setDesiredState(desiredStates[2]);
-    m_frontRight.setDesiredState(desiredStates[3]);
-    m_rearLeft.setDesiredState(desiredStates[0]);
-    m_rearRight.setDesiredState(desiredStates[1]);
+    // Canonical mapping: desiredStates are produced in the (FL, FR, BL, BR)
+    // order by SwerveDriveKinematics. Apply them to the modules in the
+    // corresponding robot module variables so left/right are not swapped.
+    m_frontLeft.setDesiredState(desiredStates[0]);
+    m_frontRight.setDesiredState(desiredStates[1]);
+    m_rearLeft.setDesiredState(desiredStates[2]);
+    m_rearRight.setDesiredState(desiredStates[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
@@ -411,5 +414,22 @@ public class DriveSubsystem extends SubsystemBase {
   public Field2d getField() {
     return m_field;
   }
+
+  // Expose raw absolute encoder angles (radians) for each module to aid calibration
+  public double getFrontLeftAbsoluteAngle() { return m_frontLeft.getAbsoluteAngleRadians(); }
+  public double getFrontRightAbsoluteAngle() { return m_frontRight.getAbsoluteAngleRadians(); }
+  public double getRearLeftAbsoluteAngle() { return m_rearLeft.getAbsoluteAngleRadians(); }
+  public double getRearRightAbsoluteAngle() { return m_rearRight.getAbsoluteAngleRadians(); }
+
+  public double getFrontLeftOffset() { return m_frontLeft.getChassisAngularOffset(); }
+  public double getFrontRightOffset() { return m_frontRight.getChassisAngularOffset(); }
+  public double getRearLeftOffset() { return m_rearLeft.getChassisAngularOffset(); }
+  public double getRearRightOffset() { return m_rearRight.getChassisAngularOffset(); }
+
+  // Expose the chassis-relative module angles (radians) read from each module.
+  public double getFrontLeftChassisAngle() { return m_frontLeft.getState().angle.getRadians(); }
+  public double getFrontRightChassisAngle() { return m_frontRight.getState().angle.getRadians(); }
+  public double getRearLeftChassisAngle() { return m_rearLeft.getState().angle.getRadians(); }
+  public double getRearRightChassisAngle() { return m_rearRight.getState().angle.getRadians(); }
 
 }

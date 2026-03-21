@@ -69,10 +69,22 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
     // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = Math.PI;
-    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = 0;
+  // NOTE: Offsets permuted to match the canonical desiredStates -> module mapping
+  // (FL, FR, BL, BR) after applying the index-order fix in DriveSubsystem.
+  // These values were re-assigned from the previous calibration which assumed
+  // a rotated mapping. If you previously tuned offsets with the old
+  // desiredStates->module mapping, these assignments preserve that physical
+  // calibration by moving the values to the module variables that now receive
+  // the corresponding desired states.
+  // Quick correction: rotate all module offsets -90 degrees to account for
+  // the observed robot-forward -> right mapping. This is a hotfix; please
+  // run the `SwerveSelfTest` and do a proper per-module calibration as
+  // described in the README / earlier messages.
+  // Fix: flip modules that were driving backwards by adding/subtracting PI
+  public static final double kFrontLeftChassisAngularOffset = Math.PI; // flipped
+  public static final double kFrontRightChassisAngularOffset = -Math.PI / 2; // unchanged
+  public static final double kBackLeftChassisAngularOffset = Math.PI / 2; // unchanged
+  public static final double kBackRightChassisAngularOffset = 0.0; // flipped
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors

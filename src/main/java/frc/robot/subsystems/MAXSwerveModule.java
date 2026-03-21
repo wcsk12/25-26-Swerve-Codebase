@@ -66,6 +66,21 @@ public class MAXSwerveModule {
   }
 
   /**
+   * Returns the raw absolute encoder position (radians) from the turning encoder.
+   * This is useful for calibrating the chassis angular offsets in Constants.
+   */
+  public double getAbsoluteAngleRadians() {
+    return m_turningEncoder.getPosition();
+  }
+
+  /**
+   * Returns the chassis angular offset (radians) currently configured for this module.
+   */
+  public double getChassisAngularOffset() {
+    return m_chassisAngularOffset;
+  }
+
+  /**
    * Returns the current state of the module.
    *
    * @return The current state of the module.

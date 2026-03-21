@@ -30,6 +30,7 @@ import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
 import frc.robot.commands.ShootWhenReadyCommand;
 import frc.robot.commands.ShooterTunerCommand;
+import frc.robot.commands.SwerveModuleSelfTestCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -105,7 +106,13 @@ public class RobotContainer {
     //NamedCommand for Auto \\  //NamedCommands.registerCommand("[Pathplanner Name]", [Command to run]);
     //NamedCommands.registerCommand("IndexerCMD", new IndexerCMD(miscSubsystem, DriveConstants.indexerMotorSpeed).withTimeout(1));
     NamedCommands.registerCommand("IntakeCMD", getIntakeCommand());
+  NamedCommands.registerCommand("SwerveSelfTest", new SwerveModuleSelfTestCMD(m_robotDrive).withTimeout(3));
+    NamedCommands.registerCommand("SwerveRotationDiag", new frc.robot.commands.SwerveRotationDiagCMD(m_robotDrive, -1.0, 3.0).withTimeout(3));
     NamedCommands.registerCommand("ShootAndLaunch", getShootSequence());
+  // Temporary: schedule rotation diagnostic once at startup so we can capture outputs
+  // (remove or gate this for normal operation). This requests a clockwise/right
+  // rotation (-1.0 rad/s) for 3 seconds.
+  new frc.robot.commands.SwerveRotationDiagCMD(m_robotDrive, -1.0, 3.0).schedule();
     //NamedCommands.registerCommand("LauncherCMD", new LauncherCMD(miscSubsystem, DriveConstants.launcherMotorSpeed).withTimeout(1));
     // Register Shooter as a StartEndCommand so PathPlanner will start it when scheduled and
     // guarantee it is stopped when cancelled/finished. We also add lightweight logging so
@@ -294,6 +301,28 @@ public class RobotContainer {
         System.out.println("[RobotContainer] Failed to reload shooter gains from Shuffleboard: " + e);
       }
       reloadEntry.setBoolean(false);
+    }));
+
+    // Swerve self-test toggle: run the short module-angle self-test (requires robot disabled)
+    var swerveTestEntry = tuneTab.add("Run Swerve SelfTest", false)
+      .withWidget(BuiltInWidgets.kToggleButton)
+      .withPosition(0, 2)
+      .withSize(1, 1)
+      .getEntry();
+
+    new Trigger(() -> swerveTestEntry.getBoolean(false)).onTrue(new InstantCommand(() -> {
+      boolean disabled = DriverStation.isDisabled();
+      if (!disabled) {
+        System.out.println("[RobotContainer] Swerve self-test requested while robot enabled — aborting. Disable robot and press the toggle again.");
+        SmartDashboard.putString("SelfTest/Request", "Abort: robot must be disabled");
+        swerveTestEntry.setBoolean(false);
+        return;
+      }
+      System.out.println("[RobotContainer] Scheduling SwerveSelfTest from Shuffleboard");
+      SmartDashboard.putString("SelfTest/Request", "Scheduled");
+      SmartDashboard.putNumber("SelfTest/RequestedAt", System.currentTimeMillis());
+      new SwerveModuleSelfTestCMD(m_robotDrive).schedule();
+      swerveTestEntry.setBoolean(false);
     }));
 
   }
