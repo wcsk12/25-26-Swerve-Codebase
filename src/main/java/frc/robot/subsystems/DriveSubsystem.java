@@ -262,7 +262,15 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    // Auto-only strafe flip: PathPlanner feeds robot-relative speeds through this
+    // method, while teleop joystick driving uses drive(...). Invert Y here so
+    // autonomous left/right can be corrected without changing teleop behavior.
+    ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        -robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond);
+
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(correctedSpeeds, 0.02);
 
     SwerveModuleState[] targetStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(targetSpeeds);
     setModuleStates(targetStates);
