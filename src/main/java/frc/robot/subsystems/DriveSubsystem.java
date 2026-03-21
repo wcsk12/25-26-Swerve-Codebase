@@ -300,7 +300,7 @@ public class DriveSubsystem extends SubsystemBase {
     // field rather than the robot.
     ChassisSpeeds chassisSpeeds = fieldRelative
         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-            m_Pigeon2.getRotation2d())
+            Rotation2d.fromDegrees(-m_Pigeon2.getYaw().getValueAsDouble()))
         : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
 
     ChassisSpeeds discretized = ChassisSpeeds.discretize(chassisSpeeds, periodSeconds);
@@ -356,7 +356,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   /** Zeroes the heading of the robot. */
   public void zeroHeading() {
-    //m_gyro.reset();
     m_Pigeon2.reset();
   }
 

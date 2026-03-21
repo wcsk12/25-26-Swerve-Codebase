@@ -184,7 +184,7 @@ public class RobotContainer {
     // Use InstantCommands to set/clear speeds so the sequence can progress.
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
+        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed*0.5)),
         new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
@@ -197,30 +197,30 @@ public class RobotContainer {
         );
 }
 // Limelight Release and shoot simultaneously \\
-  public Command ReleaseandShootWithLimelight() { //shooter and release combined.
-    // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
-      return Commands.sequence(
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-        new WaitCommand(1.1), // headstart for shooter spin-up
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-        );
-      }
+  // public Command ReleaseandShootWithLimelight() { //shooter and release combined.
+  //   // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
+  //     return Commands.sequence(
+  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
+  //       new WaitCommand(1.1), // headstart for shooter spin-up
+  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+  //       );
+  //     }
 
     
-  public Command ReleaseandShootWithoutLimelight(int Negative) {
-    return Commands.sequence( 
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Negative * DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-        new WaitCommand(1.1), // headstart for shooter spin-up
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-        );
-  }
-  public Command ReleaseandShootOFF() {
-    return Commands.sequence(
+  // public Command ReleaseandShootWithoutLimelight(int Negative) {
+  //   return Commands.sequence( 
+  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Negative * DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
+  //       new WaitCommand(1.1), // headstart for shooter spin-up
+  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+  //       );
+  // }
+  // public Command ReleaseandShootOFF() {
+  //   return Commands.sequence(
         
-        new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
-    );
-  }
+  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
+  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
+  //   );
+  // }
       //   new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
       //   new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
       //   // 2. Run feeder/release motor to fire
@@ -256,20 +256,26 @@ public class RobotContainer {
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-   m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
-   m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
-    m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
-   m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
+      m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed));
+  //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
+  //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
+  //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
+  //  m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
    // LIMELIGHT SHOOTER \\
-   m_operatorController.a().whileTrue((ReleaseandShootWithLimelight()));
-   m_operatorController.a().whileFalse((ReleaseandShootOFF()));
+   //m_operatorController.b().whileTrue((ReleaseandShootWithLimelight()));
+   //m_operatorController.b().whileFalse((ReleaseandShootOFF()));
+      // ------------------------------------------ Release ------------------------------------------ \\
+      m_operatorController.rightBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
   // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
   m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
-      // ------------------------------------------ Release ------------------------------------------ \\
-  //m_operatorController.leftBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
+      // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
+      m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
+
+      //Back up Buttons! (Regular Controller) \\
+
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6)); //Potentially just use onTrue - A BUTTON
@@ -278,13 +284,13 @@ public class RobotContainer {
    new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   // Run the combined one-shot shoot sequence when the operator presses button 6.
-  new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShootWithoutLimelight(1)); // Shooter - RIGHT BUTTON --Shoot!
-  new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
-  new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
-  new JoystickButton(m_operatorJoystick, 5).toggleOnFalse(ReleaseandShootOFF());
+  // new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShootWithoutLimelight(1)); // Shooter - RIGHT BUTTON --Shoot!
+  // new JoystickButton(m_operatorJoystick, 6).toggleOnFalse(ReleaseandShootOFF());
+  // new JoystickButton(m_operatorJoystick, 5).toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
+  // new JoystickButton(m_operatorJoystick, 5).toggleOnFalse(ReleaseandShootOFF());
        // LIMELIGHT SHOOTER \\
-   new JoystickButton(m_operatorJoystick, 1).whileTrue((ReleaseandShootWithLimelight()));
-   new JoystickButton(m_operatorJoystick, 1).whileFalse((ReleaseandShootOFF()));
+   //new JoystickButton(m_operatorJoystick, 1).whileTrue((ReleaseandShootWithLimelight()));
+   //new JoystickButton(m_operatorJoystick, 1).whileFalse((ReleaseandShootOFF()));
       // ------------------------------------------ Climber ------------------------------------------ \\
       //Climber button binding goes here.
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\

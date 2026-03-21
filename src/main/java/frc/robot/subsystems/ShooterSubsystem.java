@@ -29,7 +29,6 @@ public class ShooterSubsystem extends SubsystemBase {
       }
       else {
         speed = DriveConstants.ShooterMotorSpeed;
-        System.out.println("Ty : " + ty);
       }
     }
     ShooterMotor.set(speed);

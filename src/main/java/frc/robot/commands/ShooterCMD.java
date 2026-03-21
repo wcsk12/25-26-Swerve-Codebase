@@ -30,6 +30,7 @@ public class ShooterCMD extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() { //If an apriltag is seen: 10-25 (Hub Tags), then, the motor speed is set to ty by the power of 0.1, else: it is set to 0.2.
+    shootersubsystem.setShooterSpeed(speed);
     // if (Robot.limelight_id() == 10 || Robot.limelight_id() == 26){
     // double ty = Robot.limelight_range_proportional();
     // if (0.95 > Math.abs((ty+20.5)/41) && ty != 0)  {
@@ -49,7 +50,7 @@ public class ShooterCMD extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //shootersubsystem.setShooterSpeed(0);
+    shootersubsystem.setShooterSpeed(0);
   }
 
   // Returns true when the command should end.
