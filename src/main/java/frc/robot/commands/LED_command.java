@@ -15,8 +15,8 @@ public class LED_command extends Command {
     private final LEDSubsystem ledSubsystem;
     // Lower threshold so small alignment outputs are detected. We'll also
     // log the observed power for diagnostics.
-    private final double threshold = 2.9; // Threshold to determine if the motor is running
-    private final double offset = .2;
+    private final double threshold = 2.0; // Threshold to determine if the motor is running
+    private final double offset = .1;
 
     public LED_command(LEDSubsystem ledSubsystem) {
         this.ledSubsystem = ledSubsystem;
