@@ -369,10 +369,10 @@ public class DriveSubsystem extends SubsystemBase {
     // Canonical mapping: desiredStates are produced in the (FL, FR, BL, BR)
     // order by SwerveDriveKinematics. Apply them to the modules in the
     // corresponding robot module variables so left/right are not swapped.
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    m_frontLeft.setDesiredState(desiredStates[2]);
+    m_frontRight.setDesiredState(desiredStates[3]);
+    m_rearLeft.setDesiredState(desiredStates[0]);
+    m_rearRight.setDesiredState(desiredStates[1]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

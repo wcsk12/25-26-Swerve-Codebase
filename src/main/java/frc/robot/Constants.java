@@ -81,8 +81,8 @@ public final class Constants {
   // run the `SwerveSelfTest` and do a proper per-module calibration as
   // described in the README / earlier messages.
   // Fix: flip modules that were driving backwards by adding/subtracting PI
-  public static final double kFrontLeftChassisAngularOffset = Math.PI; // flipped
-  public static final double kFrontRightChassisAngularOffset = -Math.PI / 2; // unchanged
+  public static final double kFrontLeftChassisAngularOffset = Math.PI ; // flipped
+  public static final double kFrontRightChassisAngularOffset = -Math.PI / 2 ; // unchanged
   public static final double kBackLeftChassisAngularOffset = Math.PI / 2; // unchanged
   public static final double kBackRightChassisAngularOffset = 0.0; // flipped
 
