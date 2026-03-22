@@ -26,7 +26,7 @@ public class PosIntakeShakeCMD extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timer = System.currentTimeMillis() + 1500;
+    timer = System.currentTimeMillis() + 1000;
   }
 
   // Called every time the scheduler runs while the command is scheduled.

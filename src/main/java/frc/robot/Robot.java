@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    drive(false);
+    //drive(false);
     m_swerve.periodic();
   }
 

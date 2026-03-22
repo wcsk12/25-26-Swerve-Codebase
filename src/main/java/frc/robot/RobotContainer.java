@@ -30,6 +30,7 @@ import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
 import frc.robot.commands.ShootWhenReadyCommand;
 import frc.robot.commands.ShooterTunerCommand;
+import frc.robot.commands.DriveXCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -125,8 +126,7 @@ public class RobotContainer {
         shooterSubsystem
       ).withTimeout(1)
     );
-    NamedCommands.registerCommand("LimelightOff", setLimelightOff());
-    NamedCommands.registerCommand("LimelightOn", setLimelightOn());
+
     NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
   // Register the shooter tuner so it can be triggered from PathPlanner/NamedCommands
@@ -302,7 +302,7 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(DriveConstants.hardShooterTargetRPM)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(.6)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
         //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
@@ -311,18 +311,6 @@ public class RobotContainer {
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
-  }
-  
-  public Command setLimelightOff(){
-    return Commands.sequence(
-      new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOff("limelight"))
-    );
-  }
-
-  public Command setLimelightOn(){
-    return Commands.sequence(
-      new InstantCommand(() -> LimelightHelpers.setLEDMode_ForceOn("limelight"))
-    );
   }
 
   public Command getShootShakeCommand() {
@@ -369,6 +357,7 @@ public class RobotContainer {
       // Debug: log when A is pressed
       m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed " + speedMode)));
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+      m_driverController.x().whileTrue(new DriveXCMD(m_robotDrive));
       //.5 speed mode
       m_driverController.leftBumper().onTrue(new InstantCommand(() -> speedMode = .5));
       m_driverController.leftBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
@@ -432,7 +421,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
     new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
-    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.FastSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
   }
 
   /**

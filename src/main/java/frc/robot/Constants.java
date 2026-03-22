@@ -26,7 +26,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 6.0;
+    public static final double kMaxSpeedMetersPerSecond = 7.5;
     public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
 
     //--- Motor Speeds of other motors ---\\
@@ -34,7 +34,7 @@ public final class Constants {
     public static final double intakeMotorSpeed = 1.0;
     public static final double launcherMotorSpeed = 0.75;
     public static final double softShooterTargetRPM = 2800;
-    public static final double hardShooterTargetRPM = 3200;
+    public static final double hardShooterTargetRPM = 3800;
     public static final double shooterRPMDeadzone = 150;
     public static final double posIntakeMotorSpeed = -0.30;
     public static final double posIntakeZeroMotorSpeed = 0.40;
