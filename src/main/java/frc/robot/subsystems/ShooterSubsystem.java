@@ -20,17 +20,17 @@ public class ShooterSubsystem extends SubsystemBase {
     public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
 
     public void setShooterSpeed(double speed){
-      if (Robot.limelight_id() == 10 || Robot.limelight_id() == 26){
-        double ty = Robot.limelight_range_proportional();
-        if (0.95 > Math.abs((ty+20.5)/41) && ty != 0)  {
-        speed = (ty*10);
-        System.out.println("Works");
-        System.out.println("Ty : " + ty);
-      }
-      else {
-        speed = DriveConstants.ShooterMotorSpeed;
-      }
-    }
+    //   if (Robot.limelight_id() == 10 || Robot.limelight_id() == 26){
+    //     double ty = Robot.limelight_range_proportional();
+    //     if (0.95 > Math.abs((ty+20.5)/41) && ty != 0)  {
+    //     speed = (ty*10);
+    //     System.out.println("Works");
+    //     System.out.println("Ty : " + ty);
+    //   }
+    //   else {
+    speed = DriveConstants.ShooterMotorSpeed;
+      //}
+    //}
     ShooterMotor.set(speed);
     }
     @Override
