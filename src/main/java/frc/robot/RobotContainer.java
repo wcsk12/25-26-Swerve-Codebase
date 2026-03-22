@@ -127,7 +127,7 @@ public class RobotContainer {
       ).withTimeout(1)
     );
 
-    NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 2.5).withTimeout(1.5));
+    NamedCommands.registerCommand("LowerIntake", new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed * 1.2).withTimeout(1.5));
     NamedCommands.registerCommand("ShootAndLaunchwithShake", getShootShakeCommand());
   // Register the shooter tuner so it can be triggered from PathPlanner/NamedCommands
   NamedCommands.registerCommand("ShooterTuner", new ShooterTunerCommand(shooterSubsystem, 0.5, 1.5, DriveConstants.softShooterTargetRPM, 4.0).withTimeout(30));
@@ -319,7 +319,7 @@ public class RobotContainer {
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
-  new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, DriveConstants.posIntakeMotorSpeed, 1.5),
+  new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, -DriveConstants.posIntakeMotorSpeed, 1.5),
         new WaitCommand(2),
         new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
