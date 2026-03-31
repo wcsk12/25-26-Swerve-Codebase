@@ -315,7 +315,7 @@ public class RobotContainer {
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0.65)),
+        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0.80)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
