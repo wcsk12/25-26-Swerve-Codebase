@@ -302,12 +302,13 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(.6)),
+        // Use closed-loop RPM target for consistent speed during autos
+        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
         //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
         new WaitCommand(3),
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
+        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
         //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
@@ -315,13 +316,15 @@ public class RobotContainer {
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0.80)),
+  // Use a midpoint RPM for the "shake" auto variant so shots feed faster than
+  // the soft target but slower than the hard target.
+  new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
   new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, -DriveConstants.posIntakeMotorSpeed, 1.5),
         new WaitCommand(2),
-        new InstantCommand(() -> shooterSubsystem.setShooterSpeed(0)),
+    new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
         // Ensure we stop the posIntake and finish the sequence instead of scheduling
         // another PosIntakeShakeCMD (which never finishes). Use an InstantCommand to
