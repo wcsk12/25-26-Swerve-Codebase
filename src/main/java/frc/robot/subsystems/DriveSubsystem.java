@@ -81,6 +81,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   // Odometry class for tracking robot pose -- Odometry means position
   SwerveDriveOdometry m_odometry;
+  // Pose estimator that fuses gyro/wheel odometry with vision
+  SwerveDrivePoseEstimator m_poseEstimator;
   // Initializing kinematics
   SwerveDriveKinematics m_kinematics;
   // Sets up exception messages
@@ -99,6 +101,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Places the field in SmartDashboard
     SmartDashboard.putData("Field", m_field);
+  // Toggle to enable/disable vision fusion at runtime (useful for testing)
+  SmartDashboard.putBoolean("VisionFusion/Enabled", true);
     // Calls zero heading
     zeroHeading();
     // Set up robot's kinematics
@@ -120,6 +124,22 @@ public class DriveSubsystem extends SubsystemBase {
       m_rearLeft.getPosition(),
       m_rearRight.getPosition()
     });
+
+  // Initialize the pose estimator with conservative state std-devs so vision
+  // corrections don't aggressively override odometry until validated.
+  m_poseEstimator = new SwerveDrivePoseEstimator(
+    DriveConstants.kDriveKinematics,
+    Rotation2d.fromDegrees(getGyroYawDegrees()),
+    new SwerveModulePosition[] {
+      m_frontLeft.getPosition(),
+      m_frontRight.getPosition(),
+      m_rearLeft.getPosition(),
+      m_rearRight.getPosition()
+    },
+    m_odometry.getPoseMeters(),
+    VecBuilder.fill(0.05, 0.05, Math.toRadians(5)), // state std-devs: x, y, theta
+    VecBuilder.fill(0.5, 0.5, Math.toRadians(20))  // vision measurement std-devs
+  );
 
   // -------------- PathPlanner Code -------------- \\
   // Configure AutoBuilder last
@@ -153,39 +173,66 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
 
-    m_odometry.update(
+    // Update the estimator using wheel odometry + gyro
+    if (m_poseEstimator != null) {
+    m_poseEstimator.update(
       Rotation2d.fromDegrees(getGyroYawDegrees()),
-          new SwerveModulePosition[] {
-              m_frontLeft.getPosition(),
-              m_frontRight.getPosition(),
-              m_rearLeft.getPosition(),
-              m_rearRight.getPosition()
-          });
+      new SwerveModulePosition[] {
+        m_frontLeft.getPosition(),
+        m_frontRight.getPosition(),
+        m_rearLeft.getPosition(),
+        m_rearRight.getPosition()
+      });
 
-    // Vision fusion (conservative): if Limelight reports a reliable multi-tag pose,
-    // reset the odometry to that pose so PathPlanner and odometry stay aligned.
-    // We avoid constructing a full SwerveDrivePoseEstimator here to keep the change
-    // small and robust — a reset is simpler and less error-prone for now.
-    try {
-      var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-      if (limelightMeasurement != null && limelightMeasurement.tagCount >= 2) {
-        // Use the limelight-provided pose (field-relative, blue-origin) to correct odometry.
-        Pose2d visionPose = limelightMeasurement.pose;
-        m_odometry.resetPosition(
-            Rotation2d.fromDegrees(getGyroYawDegrees()),
+      // Fuse vision when Limelight reports a reliable multi-tag pose.
+      try {
+        var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        // Publish raw limelight pose for inspection (if present)
+        if (limelightMeasurement != null) {
+          SmartDashboard.putNumber("Limelight/RawPoseX", limelightMeasurement.pose.getX());
+          SmartDashboard.putNumber("Limelight/RawPoseY", limelightMeasurement.pose.getY());
+          SmartDashboard.putNumber("Limelight/RawPoseRotDeg", limelightMeasurement.pose.getRotation().getDegrees());
+          SmartDashboard.putNumber("Limelight/TagCount", limelightMeasurement.tagCount);
+        } else {
+          SmartDashboard.putNumber("Limelight/TagCount", 0);
+        }
+
+        boolean fusionEnabled = SmartDashboard.getBoolean("VisionFusion/Enabled", true);
+        if (fusionEnabled && limelightMeasurement != null && limelightMeasurement.tagCount >= 2) {
+          Pose2d visionPose = limelightMeasurement.pose;
+          // Provide the limelight timestamp so the estimator can account for latency.
+          m_poseEstimator.addVisionMeasurement(visionPose, limelightMeasurement.timestampSeconds);
+          SmartDashboard.putString("Limelight/LastVisionUpdate", String.format("t=%.3f", limelightMeasurement.timestampSeconds));
+          SmartDashboard.putBoolean("VisionFusion/Applied", true);
+        } else {
+          SmartDashboard.putBoolean("VisionFusion/Applied", false);
+        }
+      } catch (Exception ex) {
+        SmartDashboard.putString("Limelight/LastVisionUpdate", "error: " + ex.toString());
+        SmartDashboard.putBoolean("VisionFusion/Applied", false);
+      }
+
+  // Publish fused pose for visualization and diagnostics
+  Pose2d fused = m_poseEstimator.getEstimatedPosition();
+  m_field.setRobotPose(fused);
+  SmartDashboard.putNumber("Estimator/PoseX", fused.getX());
+  SmartDashboard.putNumber("Estimator/PoseY", fused.getY());
+  SmartDashboard.putNumber("Estimator/PoseRotDeg", fused.getRotation().getDegrees());
+  // Also publish raw odometry for comparison
+  Pose2d odo = m_odometry.getPoseMeters();
+  SmartDashboard.putNumber("Odometry/PoseX", odo.getX());
+  SmartDashboard.putNumber("Odometry/PoseY", odo.getY());
+  SmartDashboard.putNumber("Odometry/PoseRotDeg", odo.getRotation().getDegrees());
+    } else {
+      // Fallback to simple odometry update
+      m_odometry.update(
+        Rotation2d.fromDegrees(getGyroYawDegrees()),
             new SwerveModulePosition[] {
                 m_frontLeft.getPosition(),
                 m_frontRight.getPosition(),
                 m_rearLeft.getPosition(),
                 m_rearRight.getPosition()
-            },
-            visionPose);
-        m_field.setRobotPose(m_odometry.getPoseMeters());
-        SmartDashboard.putString("Limelight/LastVisionUpdate", String.format("t=%.3f", limelightMeasurement.timestampSeconds));
-      }
-    } catch (Exception ex) {
-      // Don't let vision failures affect the rest of periodic updates.
-      SmartDashboard.putString("Limelight/LastVisionUpdate", "error: " + ex.toString());
+            });
     }
   
 
@@ -263,6 +310,10 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
+    // Prefer the estimator's fused pose if available (fuses vision + odometry)
+    if (m_poseEstimator != null) {
+      return m_poseEstimator.getEstimatedPosition();
+    }
     return m_odometry.getPoseMeters();
     //return m_PoseEstimator.getEstimatedPosition();
   }
