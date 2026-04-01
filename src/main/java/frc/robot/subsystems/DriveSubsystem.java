@@ -152,30 +152,41 @@ public class DriveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // Update the odometry in the periodic block
-    
-  m_odometry.update(
-    Rotation2d.fromDegrees(getGyroYawDegrees()),
-        new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
-        });
-/* Limelight Code
-    if (DriverStation.isAutonomous()){
-      LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-      if (limelightMeasurement.tagCount >= 2) {  // Only trust measurement if we see multiple tags
-        m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
-        m_PoseEstimator.addVisionMeasurement(
-          limelightMeasurement.pose,
-          limelightMeasurement.timestampSeconds
-      );
 
-        m_field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
-    
+    m_odometry.update(
+      Rotation2d.fromDegrees(getGyroYawDegrees()),
+          new SwerveModulePosition[] {
+              m_frontLeft.getPosition(),
+              m_frontRight.getPosition(),
+              m_rearLeft.getPosition(),
+              m_rearRight.getPosition()
+          });
+
+    // Vision fusion (conservative): if Limelight reports a reliable multi-tag pose,
+    // reset the odometry to that pose so PathPlanner and odometry stay aligned.
+    // We avoid constructing a full SwerveDrivePoseEstimator here to keep the change
+    // small and robust — a reset is simpler and less error-prone for now.
+    try {
+      var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+      if (limelightMeasurement != null && limelightMeasurement.tagCount >= 2) {
+        // Use the limelight-provided pose (field-relative, blue-origin) to correct odometry.
+        Pose2d visionPose = limelightMeasurement.pose;
+        m_odometry.resetPosition(
+            Rotation2d.fromDegrees(getGyroYawDegrees()),
+            new SwerveModulePosition[] {
+                m_frontLeft.getPosition(),
+                m_frontRight.getPosition(),
+                m_rearLeft.getPosition(),
+                m_rearRight.getPosition()
+            },
+            visionPose);
+        m_field.setRobotPose(m_odometry.getPoseMeters());
+        SmartDashboard.putString("Limelight/LastVisionUpdate", String.format("t=%.3f", limelightMeasurement.timestampSeconds));
       }
-      }
-    */
+    } catch (Exception ex) {
+      // Don't let vision failures affect the rest of periodic updates.
+      SmartDashboard.putString("Limelight/LastVisionUpdate", "error: " + ex.toString());
+    }
   
 
   // Publish common telemetry to SmartDashboard / Shuffleboard
