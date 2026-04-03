@@ -35,7 +35,8 @@ public class ShooterSubsystem extends SubsystemBase {
             ZeroSpeed(0),
             SlowSpeed(3000),
             TrenchSpeed(3030),
-            FarSpeed(3450);
+            FarSpeed(3450),
+            UnjamSpeed(-1000);
     
             private final double value;
             
@@ -166,7 +167,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void setSpeed(ShooterSetSpeed position){
-            m_ShooterPID.setReference(position.getValue(), ControlType.kVelocity);
+    m_ShooterPID.setReference(position.getValue(), ControlType.kVelocity);
   }
 
 

@@ -320,7 +320,7 @@ public class RobotContainer {
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
-  new PosIntakeMoveToPositionCMD(posIntakeSubsystem, 0.85, -DriveConstants.posIntakeMotorSpeed, 1.5),
+  new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed),
         new WaitCommand(2),
     new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
@@ -428,6 +428,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
     new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
     new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.TrenchSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+    new JoystickButton(m_operatorJoystick, 9).whileTrue(new LauncherCMD(launcherSubsystem, -0.3)); //  (for unjamming)
   }
 
   /**

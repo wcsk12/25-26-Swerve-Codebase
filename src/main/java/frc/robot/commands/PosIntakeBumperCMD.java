@@ -42,6 +42,8 @@ public class PosIntakeBumperCMD extends Command {
     System.out.println("BumperCMD: " + position);
     if (position < .4) {
       posIntakeSubsystem.setPosIntakeSpeed(speed);
+    } else {
+      posIntakeSubsystem.setPosIntakeSpeed(0);
     }
     
   }

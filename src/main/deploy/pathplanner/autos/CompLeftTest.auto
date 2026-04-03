@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "LowerIntake"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -18,6 +12,12 @@
                 "type": "path",
                 "data": {
                   "pathName": "Left Start to Neutral Field"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerIntake"
                 }
               },
               {
@@ -37,6 +37,12 @@
                 "type": "path",
                 "data": {
                   "pathName": "Neutral Field to Left Scoring Position"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerIntake"
                 }
               },
               {
