@@ -1,25 +1,36 @@
 package frc.robot;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 //Pathplanner Imports\\
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
 //Math Imports\\
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 //SmartDashboard Imports\\
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //Commands and Controllers\\
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 //Constants Imports\\
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AutoAlignCommand;
+import frc.robot.commands.DriveXCMD;
 import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.LED_command;
 import frc.robot.commands.LauncherCMD;
@@ -28,14 +39,13 @@ import frc.robot.commands.PosIntakeMoveToPositionCMD;
 import frc.robot.commands.PosIntakeShakeCMD;
 import frc.robot.commands.PosIntakeZeroCMD;
 import frc.robot.commands.ShooterCMD;
-import frc.robot.commands.ShootWhenReadyCommand;
 import frc.robot.commands.ShooterTunerCommand;
-import frc.robot.commands.DriveXCMD;
 //Subsystems
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
+import frc.robot.subsystems.PosIntakeSubsystem;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -44,18 +54,6 @@ import frc.robot.subsystems.LauncherSubsystem;
  */
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShooterSetSpeed;
-import frc.robot.subsystems.ShooterSubsystem.ShooterSetSpeed;
-import frc.robot.subsystems.PosIntakeSubsystem;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 public class RobotContainer {
   //Intialize the Autochooser for selecting autos in SmartDashboard\\
   private final SendableChooser<Command> autoChooser;
@@ -342,14 +340,19 @@ public class RobotContainer {
         System.out.println("[IntakeCMD] start (named command)");
         SmartDashboard.putBoolean("Intake/Running", true);
         intakeSubsystem.setIntakeSpeed(DriveConstants.intakeMotorSpeed);
+        // if (posIntakeSubsystem.getPosIntakePosition() < .4) {
+        //   posIntakeSubsystem.setPosIntakeSpeed(-0.3);
+        // } else {
+        //   posIntakeSubsystem.setPosIntakeSpeed(0);
+        // }
       },
       () -> {
         System.out.println("[IntakeCMD] end (named command)");
         SmartDashboard.putBoolean("Intake/Running", false);
         intakeSubsystem.setIntakeSpeed(0);
+        //posIntakeSubsystem.setPosIntakeSpeed(0);
       },
-      intakeSubsystem
-    );
+      intakeSubsystem/* , posIntakeSubsystem*/);
   }
 
   // Sets up controller bindings
@@ -415,7 +418,7 @@ public class RobotContainer {
     // Also bind raw joystick buttons as a fallback for non-Xbox controllers
     new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
   // B (button 2): normal shooting behavior — spin up to softShooterTargetRPM and fire once at speed.
-  new JoystickButton(m_operatorJoystick, 2).whileTrue(new ShootWhenReadyCommand(shooterSubsystem, launcherSubsystem));
+  new JoystickButton(m_operatorJoystick, 2).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.FarSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
@@ -424,7 +427,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
     new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
-    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.FastSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.TrenchSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
   }
 
   /**

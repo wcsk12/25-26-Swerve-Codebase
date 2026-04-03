@@ -16,7 +16,7 @@ public class ShootWhenReadyCommand extends Command {
   private final double rpmTolerance;
 
   public ShootWhenReadyCommand(ShooterSubsystem shooter, LauncherSubsystem launcher) {
-    this(shooter, launcher, DriveConstants.softShooterTargetRPM, 0.05); // 5% tolerance
+    this(shooter, launcher, DriveConstants.midShooterTargetRPM, 0.05); // 5% tolerance
   }
 
   public ShootWhenReadyCommand(ShooterSubsystem shooter, LauncherSubsystem launcher, double targetRpm, double toleranceFraction) {

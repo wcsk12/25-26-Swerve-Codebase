@@ -103,7 +103,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
     if (m_driverController.getAButton()) {
-      drive(true);
+      //if (limelight_id() == 18 || limelight_id() == 26 || limelight_id() == 24){
+        drive(true);
+      //}
     }
   }
 
