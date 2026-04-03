@@ -86,10 +86,10 @@ public class RobotContainer {
 
     // Initializes the subsystems
     m_robotDrive = new DriveSubsystem();
-    m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
     m_IntakeSubsystem = new IntakeSubsystem();
     m_ShooterSubsystem = new ShooterSubsystem();
     m_ClimberSubsystem = new ClimberSubsystem();
+    m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
@@ -188,13 +188,13 @@ public class RobotContainer {
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
         new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed, m_ShooterSubsystem)),
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed)),
         new WaitCommand(6),
         // 3. Stop both
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0)),
-        new InstantCommand(() ->  m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF)),
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
+        new InstantCommand(() ->  m_ShooterSubsystem.stopShooter()), //(DriveConstants.ShootMotorSpeedOFF)),
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0, m_ShooterSubsystem))
         );
 }
 // Limelight Release and shoot simultaneously \\
@@ -208,20 +208,20 @@ public class RobotContainer {
   //     }
 
     
-  // public Command ReleaseandShootWithoutLimelight(int Negative) {
-  //   return Commands.sequence( 
-  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(Negative * DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-  //       new WaitCommand(1.1), // headstart for shooter spin-up
-  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(Negative * -DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-  //       );
-  // }
-  // public Command ReleaseandShootOFF() {
-  //   return Commands.sequence(
+   public Command ReleaseandShootWithoutLimelight() {
+      return Commands.sequence( 
+         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
+         new WaitCommand(0.5), // headstart for shooter spin-up
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed, m_ShooterSubsystem), m_OtherMotorsSubsystem)
+         );
+   }
+   public Command ReleaseandShootOFF() {
+     return Commands.sequence(
         
-  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
-  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
-  //   );
-  // }
+         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0,m_ShooterSubsystem), m_OtherMotorsSubsystem)
+     );
+   }
       //   new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
       //   new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
       //   // 2. Run feeder/release motor to fire
@@ -258,8 +258,10 @@ public class RobotContainer {
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
       //m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));
-      //EXPERIMENTAL
+    
       m_operatorController.leftBumper().toggleOnTrue(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed)));
+
+      m_operatorController.x().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
   //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
   //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
   //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
@@ -272,8 +274,8 @@ public class RobotContainer {
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
-  // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
-  m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
+      // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
+      m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
       // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
       m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
 

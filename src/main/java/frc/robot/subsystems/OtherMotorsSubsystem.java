@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OtherMotors;
 
 public class OtherMotorsSubsystem extends SubsystemBase {
-
    //Create a new OtherMotorsSubsystem
     public OtherMotorsSubsystem() {
       // Ensure motors start stopped. Defensive: guarantee shooter/intake/release
@@ -27,8 +26,11 @@ public class OtherMotorsSubsystem extends SubsystemBase {
   // public void setShooterSpeed(double speed){
   //   ShooterMotor.set(speed);
   // }
-   public void setReleaseSpeed(double speed){
-    ReleaseMotor.set(-speed);
+   public void setReleaseSpeed(double speed, ShooterSubsystem m_shooterSubsystem){
+    double RPMValue = m_shooterSubsystem.getShooterRPM();
+    if (RPMValue == 3420) {
+      ReleaseMotor.set(-speed);
+    }
   }
   
   @Override
