@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -188,13 +189,13 @@ public class RobotContainer {
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
         new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed, m_ShooterSubsystem)),
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed)),
         new WaitCommand(6),
         // 3. Stop both
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0)),
         new InstantCommand(() ->  m_ShooterSubsystem.stopShooter()), //(DriveConstants.ShootMotorSpeedOFF)),
-        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0, m_ShooterSubsystem))
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
         );
 }
 // Limelight Release and shoot simultaneously \\
@@ -210,16 +211,16 @@ public class RobotContainer {
     
    public Command ReleaseandShootWithoutLimelight() {
       return Commands.sequence( 
-         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-         new WaitCommand(0.5), // headstart for shooter spin-up
-         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed, m_ShooterSubsystem), m_OtherMotorsSubsystem)
+         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
+         new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
          );
    }
    public Command ReleaseandShootOFF() {
      return Commands.sequence(
         
-         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShootMotorSpeedOFF), m_ShooterSubsystem),
-         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0,m_ShooterSubsystem), m_OtherMotorsSubsystem)
+         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed), m_ShooterSubsystem),
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
      );
    }
       //   new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),

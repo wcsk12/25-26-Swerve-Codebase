@@ -26,12 +26,9 @@ public class OtherMotorsSubsystem extends SubsystemBase {
   // public void setShooterSpeed(double speed){
   //   ShooterMotor.set(speed);
   // }
-   public void setReleaseSpeed(double speed, ShooterSubsystem m_shooterSubsystem){
-    double RPMValue = m_shooterSubsystem.getShooterRPM();
-    if (RPMValue == 3420) {
+   public void setReleaseSpeed(double speed){
       ReleaseMotor.set(-speed);
     }
-  }
   
   @Override
   public void periodic() {
