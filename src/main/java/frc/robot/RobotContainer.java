@@ -41,6 +41,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.SetShooterSpeed;
 //Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -256,7 +257,9 @@ public class RobotContainer {
   m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-      m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));
+      //m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));
+      //EXPERIMENTAL
+      m_operatorController.leftBumper().toggleOnTrue(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed)));
   //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
   //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
   //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));

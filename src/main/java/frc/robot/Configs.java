@@ -29,6 +29,7 @@ public final class Configs {
       // Initializes variables
         public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
         public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
         static {
             // Use module constants to calculate conversion factors and feed forward gain.
@@ -70,6 +71,8 @@ public final class Configs {
                     // longer route.
                     .positionWrappingEnabled(true)
                     .positionWrappingInputRange(0, turningFactor);
+
+          shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(0);
         }
     }
 
