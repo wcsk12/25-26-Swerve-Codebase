@@ -234,7 +234,6 @@ private double SetShooterSpeedLimelight() {
           double RPM = m_ShooterSubsystem.getShooterRPM();
           return (RPM == SetShooterSpeedLimelight());
         }),
-       
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
       );
   }
@@ -293,7 +292,7 @@ private double SetShooterSpeedLimelight() {
     
       m_operatorController.leftBumper().toggleOnTrue(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed)));
 
-      m_operatorController.x().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
+      m_operatorController.x().toggleOnTrue(ReleaseandShootWithLimelight()).toggleOnFalse(ReleaseandShootOFF());
   //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
   //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
   //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
