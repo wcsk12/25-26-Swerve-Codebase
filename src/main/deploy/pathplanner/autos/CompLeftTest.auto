@@ -59,6 +59,31 @@
           "data": {
             "name": "ShootAndLaunchwithShake"
           }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Shooting Position to Neutral Field"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCMD"
+                }
+              }
+            ]
+          }
         }
       ]
     }
