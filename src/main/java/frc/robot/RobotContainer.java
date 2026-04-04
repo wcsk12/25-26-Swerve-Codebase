@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -320,8 +321,8 @@ public class RobotContainer {
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
   // Move posIntake until encoder reaches target (normalize wrap-around in the command)
-  new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed),
-        new WaitCommand(2),
+  new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed).withTimeout(2),
+        new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(2)),
     new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
         // Ensure we stop the posIntake and finish the sequence instead of scheduling

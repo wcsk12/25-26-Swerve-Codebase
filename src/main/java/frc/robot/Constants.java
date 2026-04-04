@@ -38,8 +38,8 @@ public final class Constants {
   // Midpoint target for auto "shake" behavior (between soft and hard)
   public static final double midShooterTargetRPM = 3100;
     public static final double shooterRPMDeadzone = 150;
-    public static final double posIntakeMotorSpeed = -0.30;
-    public static final double posIntakeZeroMotorSpeed = 0.40;
+    public static final double posIntakeMotorSpeed = 0.30;
+    public static final double posIntakeZeroMotorSpeed = -0.40;
 
     // Current Regulation Constants
     public static final boolean regulateShooter = false;

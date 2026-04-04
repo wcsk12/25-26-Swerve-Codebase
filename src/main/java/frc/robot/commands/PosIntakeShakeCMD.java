@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PosIntakeSubsystem;
 
@@ -14,6 +15,7 @@ public class PosIntakeShakeCMD extends Command {
   private final double speed;
   private double position;
   private double timer;
+  public final static Timer autoTimer = new Timer();
 
   /** Creates a new PosIntakeCMD. */
   public PosIntakeShakeCMD(PosIntakeSubsystem posIntakeSubsystem, double speed) {
@@ -27,6 +29,8 @@ public class PosIntakeShakeCMD extends Command {
   @Override
   public void initialize() {
     timer = System.currentTimeMillis() + 1000;
+    autoTimer.reset();
+    autoTimer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -62,6 +66,7 @@ public class PosIntakeShakeCMD extends Command {
   @Override
   public void end(boolean interrupted) {
     posIntakeSubsystem.setPosIntakeSpeed(0);
+    autoTimer.stop();
   }
 
   // Returns true when the command should end.
