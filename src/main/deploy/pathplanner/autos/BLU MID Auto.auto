@@ -36,12 +36,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "BLU M PATH 3"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Shoot!"

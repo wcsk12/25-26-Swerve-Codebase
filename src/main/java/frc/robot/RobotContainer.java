@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -198,21 +200,50 @@ public class RobotContainer {
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
         );
 }
+
+public double minValue = 2500;
+public double maxValue = 3900;
+
+private boolean isLimelightInRange() {
+  double ty = Robot.limelight_range_proportional();
+  return (ty != 0) && (Math.abs((ty + 20.5) / 41) < 0.95);
+}
+
+private double getTY() {
+  double ty = Robot.limelight_range_proportional();
+  return ty;
+}
+
+private double SetShooterSpeedLimelight() {
+  double RPMToSet = (getTY() * 34.1463414634) + 2500;
+  return RPMToSet;
+}
+
 // Limelight Release and shoot simultaneously \\
-  // public Command ReleaseandShootWithLimelight() { //shooter and release combined.
-  //   // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
-  //     return Commands.sequence(
-  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-  //       new WaitCommand(1.1), // headstart for shooter spin-up
-  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-  //       );
-  //     }
+  public Command ReleaseandShootWithLimelight() { //shooter and release combined.
+    // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
+    
+    //estimated min RPM: 2500 estimated max RPM: 3900.
+    //34.1463414634 (Value to increase by)
+      return Commands.sequence(
+        new WaitUntilCommand(() -> Robot.limelight_id() == 10 || Robot.limelight_id() == 26), // Check for correct AprilTag IDs 
+        new WaitUntilCommand(() -> isLimelightInRange() == true), //Method that checks if the limelight is in the range we want
+        new InstantCommand(() -> m_ShooterSubsystem.setSlowRPM((SetShooterSpeedLimelight())), m_ShooterSubsystem),
+        new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
+        new WaitUntilCommand(() -> {
+          double RPM = m_ShooterSubsystem.getShooterRPM();
+          return (RPM == SetShooterSpeedLimelight());
+        }),
+       
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+      );
+  }
 
     
    public Command ReleaseandShootWithoutLimelight() {
       return Commands.sequence( 
          new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
-         new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
+         new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3150).withTimeout(5), // wait unti shooter reaches 3100 RPM
          new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
          );
    }

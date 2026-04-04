@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -34,19 +36,30 @@ public class ShooterSubsystem extends SubsystemBase {
   SparkMaxConfig config = new SparkMaxConfig();
 
   public enum SetShooterSpeed {
-    ZeroSpeed(0),
-    SlowSpeed(3420),
-    FarSpeed(3900);
-
-    private final double value;
-
-    SetShooterSpeed(double value) {
-      this.value = value;
-    }
-    public double getValue() {
-      return value;
-    }
+    ZeroSpeed, SlowSpeed, FarSpeed; //Modes - Really probably don't even need to exists (with the exception of ZERO and one other speed)
   }
+    private volatile double slowRPM = 3420.0; // Default value, can be updated at runtime
+    private volatile double farRPM = 3900.0; // Default value, can be updated at runtime
+
+    //private final double value;
+
+    //SetShooterSpeed(double value) {
+    //  this.value = value;
+    //}
+
+    
+    // public double getValue() {
+    //   return value;
+    // }
+
+    public void setSlowRPM(double rpm) {
+    slowRPM = rpm;
+    //SmartDashboard.putNumber("Shooter/slowRPM", slowRPM);
+    }
+    public void setFarRPM(double rpm) {
+    farRPM = rpm;
+    //SmartDashboard.putNumber("Shooter/farRPM", farRPM);
+    }
   public ShooterSubsystem() {
     ShooterRPMEncoder = ShooterMotor.getEncoder();
     m_ShooterPID = ShooterMotor.getClosedLoopController();
@@ -86,17 +99,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static SparkMax ShooterMotor = new SparkMax(OtherMotors.ShooterMotorId, MotorType.kBrushless);
 
     public void setShooterSpeed(double speed){
-      // if (Robot.limelight_id() == 10 || Robot.limelight_id() == 26){
-      //   double ty = Robot.limelight_range_proportional();
-      //   if (0.95 > Math.abs((ty+20.5)/41) && ty != 0)  {
-      //   speed = (ty*10);
-      //   System.out.println("Works");
-      //   System.out.println("Ty : " + ty);
-      // }
-      //else {
         speed = DriveConstants.ShooterMotorSpeed;
-      //}
-    //}
     ShooterMotor.set(speed);
     }
     public void stopShooter() {
@@ -107,8 +110,21 @@ public class ShooterSubsystem extends SubsystemBase {
       return ShooterRPMEncoder.getVelocity();
     }
 
-    public void setSpeed(SetShooterSpeed position) {
-      m_ShooterPID.setReference(position.getValue(), ControlType.kVelocity);
+    public void setSpeed(SetShooterSpeed mode) {
+      double target;
+      switch (mode) {
+        case SlowSpeed:
+          target = slowRPM;
+          break;
+        case FarSpeed:
+          target = farRPM;
+          break;
+        case ZeroSpeed:
+        default:
+          target = 0.0; //Zero Speed
+          break;
+      }
+      m_ShooterPID.setReference(target, ControlType.kVelocity);
     }
 
     @Override
