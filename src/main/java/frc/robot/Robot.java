@@ -85,8 +85,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    drive(false);
-    m_swerve.periodic();
+    // Autonomous motion is owned by scheduled auto commands and the command scheduler.
+    // Do not manually command the drivetrain here, or it will fight PathPlanner outputs.
   }
 
   @Override

@@ -255,14 +255,28 @@ public class DriveSubsystem extends SubsystemBase {
 */
 
   public ChassisSpeeds getRobotRelativeSpeeds(){
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_frontLeft.getState(),
-                                                           m_frontRight.getState(),
-                                                           m_rearLeft.getState(),
-                                                           m_rearRight.getState());
+    ChassisSpeeds measured = DriveConstants.kDriveKinematics.toChassisSpeeds(
+        m_frontLeft.getState(),
+        m_frontRight.getState(),
+        m_rearLeft.getState(),
+        m_rearRight.getState());
+    // PathPlanner expects +Y to be robot-left. This drivetrain currently reports
+    // the opposite sign, so invert vy for auto feedback consistency.
+    return new ChassisSpeeds(
+        measured.vxMetersPerSecond,
+        -measured.vyMetersPerSecond,
+        measured.omegaRadiansPerSecond);
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    // Match the sign convention used in getRobotRelativeSpeeds() so PathPlanner
+    // commanded +Y (left) produces the correct physical module states.
+    ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        -robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond);
+
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(correctedSpeeds, 0.02);
 
     SwerveModuleState[] targetStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(targetSpeeds);
     setModuleStates(targetStates);
@@ -311,11 +325,8 @@ public class DriveSubsystem extends SubsystemBase {
     // Ensure wheel speeds are within the configured maximum
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
 
-    // Assign states in the canonical order: [0]=FL, [1]=FR, [2]=BL, [3]=BR
-    m_frontLeft.setDesiredState(swerveModuleStates[2]);
-    m_frontRight.setDesiredState(swerveModuleStates[3]);
-    m_rearLeft.setDesiredState(swerveModuleStates[0]);
-    m_rearRight.setDesiredState(swerveModuleStates[1]);
+    // Apply via centralized canonical mapping (FL, FR, BL, BR)
+    setModuleStates(swerveModuleStates);
   }
 
   /**
