@@ -340,10 +340,12 @@ public class DriveSubsystem extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[2]);
-    m_frontRight.setDesiredState(desiredStates[3]);
-    m_rearLeft.setDesiredState(desiredStates[0]);
-    m_rearRight.setDesiredState(desiredStates[1]);
+    // Apply module states in canonical WPILib/kinematics order:
+    // Front Left, Front Right, Back Left, Back Right.
+    m_frontLeft.setDesiredState(desiredStates[0]);
+    m_frontRight.setDesiredState(desiredStates[1]);
+    m_rearLeft.setDesiredState(desiredStates[2]);
+    m_rearRight.setDesiredState(desiredStates[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

@@ -43,11 +43,13 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
-    // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = Math.PI;
-    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = 0;
+  // Angular offsets of the modules relative to the chassis in radians.
+  // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.
+  // These are intentionally neutral for re-zero/calibration on the real robot.
+  public static final double kFrontLeftChassisAngularOffset = 0.21946135; // ID 1
+  public static final double kFrontRightChassisAngularOffset = 0.194 + Math.PI / 2; // ID 3: nudged -90 deg from field test
+  public static final double kBackLeftChassisAngularOffset = 0.19213657 - Math.PI / 2; // ID 5
+  public static final double kBackRightChassisAngularOffset = 0.230 - Math.PI / 2;  // ID 7: nudged -90 deg from field test
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
