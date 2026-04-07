@@ -260,23 +260,13 @@ public class DriveSubsystem extends SubsystemBase {
         m_frontRight.getState(),
         m_rearLeft.getState(),
         m_rearRight.getState());
-    // PathPlanner expects +Y to be robot-left. This drivetrain currently reports
-    // the opposite sign, so invert vy for auto feedback consistency.
-    return new ChassisSpeeds(
-        measured.vxMetersPerSecond,
-        -measured.vyMetersPerSecond,
-        measured.omegaRadiansPerSecond);
+    // Return speeds directly - module swap in setModuleStates handles coordinate mapping
+    return measured;
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    // Match the sign convention used in getRobotRelativeSpeeds() so PathPlanner
-    // commanded +Y (left) produces the correct physical module states.
-    ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
-        robotRelativeSpeeds.vxMetersPerSecond,
-        -robotRelativeSpeeds.vyMetersPerSecond,
-        robotRelativeSpeeds.omegaRadiansPerSecond);
-
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(correctedSpeeds, 0.02);
+    // Pass through directly - module swap in setModuleStates handles coordinate mapping
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
 
     SwerveModuleState[] targetStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(targetSpeeds);
     setModuleStates(targetStates);
