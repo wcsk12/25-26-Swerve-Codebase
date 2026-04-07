@@ -10,8 +10,6 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import frc.robot.Constants.DriveConstants;
 // Constant Imports
 import frc.robot.Constants.ModuleConstants;
 // Miscellaneous
@@ -27,27 +25,22 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public final class Configs {
-  public static final class MAXSwerveModule {
-    // Initialize variables
-    public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
-    // Configs for non-swerve motors (intake, launcher, indexer, positioners)
-    public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig intakeConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig posIntakeConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig indexerConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig launcherConfig = new SparkMaxConfig();
+    public static final class MAXSwerveModule {
+      // Initializes variables
+        public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
+        public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
 
-    static {
-      // Use module constants to calculate conversion factors and feed forward gain.
-      double drivingFactor = ModuleConstants.kWheelDiameterMeters * Math.PI
-        / ModuleConstants.kDrivingMotorReduction;
-      double turningFactor = 2 * Math.PI;
-      double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
+        static {
+            // Use module constants to calculate conversion factors and feed forward gain.
+            double drivingFactor = ModuleConstants.kWheelDiameterMeters * Math.PI
+                    / ModuleConstants.kDrivingMotorReduction;
+            double turningFactor = 2 * Math.PI;
+            double drivingVelocityFeedForward = 1 / ModuleConstants.kDriveWheelFreeSpeedRps;
 
-      drivingConfig
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(40);
+            drivingConfig
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(50);
             drivingConfig.encoder
                     .positionConversionFactor(drivingFactor) // meters
                     .velocityConversionFactor(drivingFactor / 60.0); // meters per second
@@ -58,9 +51,9 @@ public final class Configs {
                     .velocityFF(drivingVelocityFeedForward)
                     .outputRange(-1, 1);
 
-      turningConfig
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(20);
+            turningConfig
+                    .idleMode(IdleMode.kBrake)
+                    .smartCurrentLimit(20);
             turningConfig.absoluteEncoder
                     // Invert the turning encoder, since the output shaft rotates in the opposite
                     // direction of the steering motor in the MAXSwerve Module.
@@ -77,17 +70,11 @@ public final class Configs {
                     // to 10 degrees will go through 0 rather than the other direction which is a
                     // longer route.
                     .positionWrappingEnabled(true)
-        .positionWrappingInputRange(0, turningFactor);
+                    .positionWrappingInputRange(0, turningFactor);
 
-      // Configure general-purpose motor profiles, default SparkMax current limit is 80A
-      // Recommended current limit for NEO motors is 40-60A
-      shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DriveConstants.regulateShooter ? DriveConstants.shooterMaxCurrent : 80);
-      intakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DriveConstants.regulateIntake ? DriveConstants.intakeMaxCurrent : 80);
-      posIntakeConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DriveConstants.regulatePosIntake ? DriveConstants.posIntakeMaxCurrent : 80);
-      indexerConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DriveConstants.regulateIndexer ? DriveConstants.indexerMaxCurrent : 80);
-      launcherConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(DriveConstants.regulateLauncher ? DriveConstants.launcherMaxCurrent : 80);
+          shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(0);
+        }
     }
-  }
 
     /**
    * Load the robot config from the shared settings file created by the GUI

@@ -1,6 +1,4 @@
 package frc.robot;
-import com.revrobotics.spark.SparkMax;
-
 // Math Imports 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -26,55 +24,32 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 6.0;
-    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+    public static double kMaxSpeedMetersPerSecond = 5.0; //Originally 4.8
+    public static final double kMaxAngularSpeed = 1.8 * Math.PI; // radians per second //originally 2
 
-    //--- Motor Speeds of other motors ---\\
-    //public static final double indexerMotorSpeed = 0.75; indexer uses launcherMotorSpeed
-    public static final double intakeMotorSpeed = 1.0;
-    public static final double launcherMotorSpeed = 0.75;
-    public static final double softShooterTargetRPM = 2800;
-    public static final double hardShooterTargetRPM = 3800;
-  // Midpoint target for auto "shake" behavior (between soft and hard)
-  public static final double midShooterTargetRPM = 3100;
-    public static final double shooterRPMDeadzone = 150;
-    public static final double posIntakeMotorSpeed = 0.30;
-    public static final double posIntakeZeroMotorSpeed = -0.40;
-
-    // Current Regulation Constants
-    public static final boolean regulateShooter = false;
-    public static final boolean regulateIntake = true;
-    public static final boolean regulatePosIntake = true;
-    public static final boolean regulateIndexer = true;
-    public static final boolean regulateLauncher = true;
-    // Default SparkMax current limit is 80A
-    // Recommended current limit for NEO motors is 40-60A
-    public static final int shooterMaxCurrent = 60;
-    public static final int intakeMaxCurrent = 40;
-    public static final int posIntakeMaxCurrent = 40;
-    public static final int indexerMaxCurrent = 40;
-    public static final int launcherMaxCurrent = 40;
-
-    // Elevator Constants
-    public static final double kStartPose = -44.4;
-    public static double h = 0;// Elevator Encoder Value
-    // Distance Sensor Constants
-    public static final double endEffectorDist = 0.08;
+    // Motor Speeds of additional motors
+    public static final double IntakeMotorSpeed = 0.7; //Intake
+    public static final double ShooterMotorSpeed = 0.62;
+    public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
+    public static final double ReleaseMotorSpeed = -0.75; //negative to spin the correct way.
+    public static final double ClimberSpeed = 0.3;
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FL at +x, -y
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FR at +x, +y
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  // BL at -x, -y
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR at -x, +y
 
-    // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = Math.PI;
-    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = 0;
+  // Angular offsets of the modules relative to the chassis in radians.
+  // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.
+  // Calibrated with wheels physically pointing forward.
+  public static final double kFrontLeftChassisAngularOffset = 2.9935 + Math.PI + 0.0873 + 0.0349;  // FL 171.5° + 180° + 5° + 2°
+  public static final double kFrontRightChassisAngularOffset = 1.9154 + 0.0524 + 0.0175; // FR 109.75° + 3° + 1°
+  public static final double kBackLeftChassisAngularOffset = 1.7191 + Math.PI + 0.0873;   // BL 98.5° + 180°
+  public static final double kBackRightChassisAngularOffset = 4.0352 - 0.7854 - 1.5708 + Math.PI - 0.0349;  // BR - 135° + 180° - 2°
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
@@ -90,17 +65,18 @@ public final class Constants {
 
     public static int modeValue = 0;
 
-    //--- OTHER SPARK MAX CAN IDs (These will likely be changed each year) ---\\
-    public static final int intakeId = 14;
-    public static final int posIntakeId = 15;
-    public static final int shooter1Id = 16;
-    public static final int shooter2Id = 17;
-    public static final int launcherId = 18;
-    public static final int indexerId = 19; // removed launcher2 and indexer2 because there are only one motor per each
+    // OTHER SPARK MAX CAN IDs (These will likely be changed each year)
 
     public static final boolean kGyroReversed = false;
   }
-
+//------Intake and Shooter-----//
+  public static final class OtherMotors {
+    public static final int IntakeMotorId = 14;
+    public static final int ShooterMotorId = 15;
+    public static final int ShooterMotorReleaseId = 16;
+    public static final int ClimberMotorID = 17;
+  }
+//------Module-----//
   public static final class ModuleConstants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,
     // 13T, or 14T. This changes the drive speed of the module (a pinion gear with
