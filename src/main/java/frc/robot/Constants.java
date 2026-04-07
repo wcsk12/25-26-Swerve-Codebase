@@ -38,10 +38,10 @@ public final class Constants {
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FL at +x, +y
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FR at +x, -y
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),   // BL at -x, +y
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)); // BR at -x, -y
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FL at +x, -y
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FR at +x, +y
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  // BL at -x, -y
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR at -x, +y
 
   // Angular offsets of the modules relative to the chassis in radians.
   // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.

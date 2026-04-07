@@ -366,12 +366,12 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
     SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
 
-    // Swap left/right: kinematics order is [FL, FR, BL, BR] but physical
-    // layout needs states swapped for correct rotation behavior.
-    m_frontLeft.setDesiredState(desiredStates[1]);  // FL gets FR state
-    m_frontRight.setDesiredState(desiredStates[0]); // FR gets FL state
-    m_rearLeft.setDesiredState(desiredStates[3]);   // BL gets BR state
-    m_rearRight.setDesiredState(desiredStates[2]);  // BR gets BL state
+    // Apply module states in canonical WPILib/kinematics order:
+    // Front Left, Front Right, Back Left, Back Right.
+    m_frontLeft.setDesiredState(desiredStates[0]);
+    m_frontRight.setDesiredState(desiredStates[1]);
+    m_rearLeft.setDesiredState(desiredStates[2]);
+    m_rearRight.setDesiredState(desiredStates[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
