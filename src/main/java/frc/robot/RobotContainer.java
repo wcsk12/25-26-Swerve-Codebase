@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -12,6 +14,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 //Math Imports\\
 import edu.wpi.first.math.MathUtil;
+//Gyro Imports\\
+import edu.wpi.first.math.geometry.Rotation2d;
 //SmartDashboard Imports\\
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -190,10 +194,10 @@ public class RobotContainer {
         new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
-        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed)),
+        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, false)),
         new WaitCommand(6),
         // 3. Stop both
-        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0)),
+        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0,true)),
         new InstantCommand(() ->  m_ShooterSubsystem.stopShooter()), //(DriveConstants.ShootMotorSpeedOFF)),
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
         );
@@ -208,9 +212,17 @@ public class RobotContainer {
   //       );
   //     }
 
-    
+// Get your current rotation
+
+
+//COMBINE INTAKE, SHOOTER, AND RELEASE INTO ONE SEQUENCE (for ___ controller) \\
    public Command ReleaseandShootWithoutLimelight() {
       return Commands.sequence( 
+         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, true), m_IntakeSubsystem),
+         new WaitUntilCommand(() -> {
+          double currentRotation = m_robotDrive.GetPigeonDegrees(); //Check if the robot is effectively facing forward.
+          return currentRotation <= 10 && currentRotation >= -10; // Adjust the threshold as needed
+         }),
          new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
          new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
          new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
@@ -218,7 +230,7 @@ public class RobotContainer {
    }
    public Command ReleaseandShootOFF() {
      return Commands.sequence(
-        
+        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0,true)),
          new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed), m_ShooterSubsystem),
          new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
      );
@@ -254,8 +266,8 @@ public class RobotContainer {
   // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
   m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ Intake ------------------------------------------ \\
-  m_driverController.leftBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
-  m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
+  //m_driverController.leftBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
+  //m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
       // ------------------------------------------ Shooter ------------------------------------------ \\
   // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
       //m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));

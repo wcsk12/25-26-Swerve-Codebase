@@ -10,6 +10,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 //Limelight Imports
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 // Math Imports
@@ -72,6 +73,15 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
+  
+      //Use this to get Pigeon value in degrees wrapped to [-180, 180)
+  public double GetPigeonDegrees(){
+    Rotation2d currentRotation = m_Pigeon2.getRotation2d();
+    // Wrap the degrees to [-180, 180)
+    double wrappedDegrees = MathUtil.inputModulus(currentRotation.getDegrees(), -180, 180);
+    return wrappedDegrees;
+  }
+
   // Initializing kinematics
   SwerveDriveKinematics m_kinematics;
   // Sets up exception messages

@@ -11,8 +11,13 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {}
    public static SparkMax IntakeMotor = new SparkMax(OtherMotors.IntakeMotorId, MotorType.kBrushless);
 
-   public void setIntakeSpeed(double speed){
-    IntakeMotor.set(speed);
+   public void setIntakeSpeed(double speed, boolean forward){
+    if (forward == true) {
+      IntakeMotor.set(speed);
+    }
+    else {
+      IntakeMotor.set(-speed);
+    }
   }
 
    @Override

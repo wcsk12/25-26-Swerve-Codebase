@@ -27,16 +27,16 @@ public class IntakeCMD extends Command {
   @Override
   public void execute() {
     if (forward)
-      IntakeSubsystem.setIntakeSpeed(speed);
+      IntakeSubsystem.setIntakeSpeed(speed, forward);
     else {
-      IntakeSubsystem.setIntakeSpeed(-speed);
+      IntakeSubsystem.setIntakeSpeed(-speed, forward);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    IntakeSubsystem.setIntakeSpeed(0);
+    IntakeSubsystem.setIntakeSpeed(0, forward);
   }
 
   // Returns true when the command should end.
