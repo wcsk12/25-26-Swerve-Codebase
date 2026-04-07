@@ -46,10 +46,10 @@ public final class Constants {
   // Angular offsets of the modules relative to the chassis in radians.
   // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.
   // Calibrated with wheels physically pointing forward.
-  public static final double kFrontLeftChassisAngularOffset = 2.9935 + Math.PI;  // FL 171.5° + 180°
-  public static final double kFrontRightChassisAngularOffset = 1.9154; // FR 109.75° (no flip)
-  public static final double kBackLeftChassisAngularOffset = 1.7191 + Math.PI;   // BL 98.5° + 180°
-  public static final double kBackRightChassisAngularOffset = 4.0352 - 0.7854 - 1.5708 + Math.PI;  // BR - 135° + 180°
+  public static final double kFrontLeftChassisAngularOffset = 2.9935 + Math.PI + 0.0873 + 0.0349;  // FL 171.5° + 180° + 5° + 2°
+  public static final double kFrontRightChassisAngularOffset = 1.9154 + 0.0524 + 0.0175; // FR 109.75° + 3° + 1°
+  public static final double kBackLeftChassisAngularOffset = 1.7191 + Math.PI + 0.0873;   // BL 98.5° + 180°
+  public static final double kBackRightChassisAngularOffset = 4.0352 - 0.7854 - 1.5708 + Math.PI - 0.0349;  // BR - 135° + 180° - 2°
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
