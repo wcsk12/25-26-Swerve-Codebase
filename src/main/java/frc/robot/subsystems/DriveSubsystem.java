@@ -260,13 +260,17 @@ public class DriveSubsystem extends SubsystemBase {
         m_frontRight.getState(),
         m_rearLeft.getState(),
         m_rearRight.getState());
-    // Return speeds directly - module swap in setModuleStates handles coordinate mapping
-    return measured;
+    // Invert Y to compensate for swapped kinematics Y-signs
+    return new ChassisSpeeds(measured.vxMetersPerSecond, -measured.vyMetersPerSecond, measured.omegaRadiansPerSecond);
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    // Pass through directly - module swap in setModuleStates handles coordinate mapping
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    // Invert Y to compensate for swapped kinematics Y-signs
+    ChassisSpeeds adjusted = new ChassisSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        -robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond);
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(adjusted, 0.02);
 
     SwerveModuleState[] targetStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(targetSpeeds);
     setModuleStates(targetStates);
