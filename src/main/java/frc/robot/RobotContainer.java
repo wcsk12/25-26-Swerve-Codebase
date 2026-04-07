@@ -371,7 +371,7 @@ public class RobotContainer {
       //.25 speed mode
       m_driverController.rightBumper().onTrue(new InstantCommand(() -> speedMode = .25));
       m_driverController.rightBumper().onFalse(new InstantCommand(() -> speedMode = 1.0));
-      m_driverController.back().onTrue(new InstantCommand(()-> DriveSubsystem.zeroHeading()));
+  m_driverController.back().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading()));
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       /*new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));*/

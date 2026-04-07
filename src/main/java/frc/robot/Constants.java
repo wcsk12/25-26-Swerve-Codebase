@@ -61,7 +61,7 @@ public final class Constants {
     // Distance Sensor Constants
     public static final double endEffectorDist = 0.08;
 
-    // Chassis configuration
+    // Chassis configuration (preserved from HEAD)
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
@@ -70,7 +70,7 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
-    // Angular offsets of the modules relative to the chassis in radians
+    // Angular offsets of the modules relative to the chassis in radians (preserved from HEAD)
     public static final double kFrontLeftChassisAngularOffset = Math.PI;
     public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
     public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
@@ -99,6 +99,14 @@ public final class Constants {
     public static final int indexerId = 19; // removed launcher2 and indexer2 because there are only one motor per each
 
     public static final boolean kGyroReversed = false;
+  }
+
+  // Preserve OtherMotors helper from HEAD for compatibility
+  public static final class OtherMotors {
+    public static final int IntakeMotorId = 14;
+    public static final int ShooterMotorId = 15;
+    public static final int ShooterMotorReleaseId = 16;
+    public static final int ClimberMotorID = 17;
   }
 
   public static final class ModuleConstants {

@@ -301,7 +301,9 @@ public class DriveSubsystem extends SubsystemBase {
     // Convert the commanded (normalized -1..1) speeds into physical units
     double xSpeedDelivered = xSpeed * MaxDriveSpeed;
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
-    double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+  // Invert rotation input to match robot's positive-rotation convention
+  // (joystick + should produce the expected module angles / angular direction).
+  double rotDelivered = -rot * DriveConstants.kMaxAngularSpeed;
 
     // DEBUG: Publish raw inputs to help diagnose teleop issues
     SmartDashboard.putNumber("Drive/xSpeed_raw", xSpeed);
@@ -370,12 +372,42 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
     SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
 
-    // Apply module states in canonical WPILib/kinematics order:
-    // Front Left, Front Right, Back Left, Back Right.
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    // Optionally apply a 90-degree debug correction to desired angles. This
+    // helps diagnose whether module angular offsets / frame alignment are
+    // responsible for the observed 90° mismatch when rotating in place.
+    boolean apply90Correction = SmartDashboard.getBoolean("Rotation/Apply90Correction", false);
+
+    if (apply90Correction) {
+      // Build corrected states and publish them for debugging
+      SwerveModuleState[] corrected = new SwerveModuleState[desiredStates.length];
+      for (int i = 0; i < desiredStates.length; ++i) {
+        corrected[i] = new SwerveModuleState();
+        corrected[i].speedMetersPerSecond = desiredStates[i].speedMetersPerSecond;
+        corrected[i].angle = desiredStates[i].angle.plus(Rotation2d.fromRadians(Math.PI / 2.0));
+      }
+
+      SmartDashboard.putNumber("Mod/FL_desired_deg", desiredStates[0].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/FR_desired_deg", desiredStates[1].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/BL_desired_deg", desiredStates[2].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/BR_desired_deg", desiredStates[3].angle.getDegrees());
+
+      SmartDashboard.putNumber("Mod/FL_corrected_deg", corrected[0].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/FR_corrected_deg", corrected[1].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/BL_corrected_deg", corrected[2].angle.getDegrees());
+      SmartDashboard.putNumber("Mod/BR_corrected_deg", corrected[3].angle.getDegrees());
+
+      m_frontLeft.setDesiredState(corrected[0]);
+      m_frontRight.setDesiredState(corrected[1]);
+      m_rearLeft.setDesiredState(corrected[2]);
+      m_rearRight.setDesiredState(corrected[3]);
+    } else {
+      // Apply module states in canonical WPILib/kinematics order:
+      // Front Left, Front Right, Back Left, Back Right.
+      m_frontLeft.setDesiredState(desiredStates[0]);
+      m_frontRight.setDesiredState(desiredStates[1]);
+      m_rearLeft.setDesiredState(desiredStates[2]);
+      m_rearRight.setDesiredState(desiredStates[3]);
+    }
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

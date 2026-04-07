@@ -27,9 +27,14 @@ import org.json.simple.parser.ParseException;
 public final class Configs {
     public static final class MAXSwerveModule {
       // Initializes variables
-        public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
-        public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig drivingConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig turningConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
+  // Small motor configs used by shooter/launcher/indexer/intake subsystems
+  public static final SparkMaxConfig launcherConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig indexerConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig intakeConfig = new SparkMaxConfig();
+  public static final SparkMaxConfig posIntakeConfig = new SparkMaxConfig();
 
         static {
             // Use module constants to calculate conversion factors and feed forward gain.
@@ -73,6 +78,18 @@ public final class Configs {
                     .positionWrappingInputRange(0, turningFactor);
 
           shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(0);
+          // Conservative small-motor configs
+          launcherConfig.apply(drivingConfig);
+          launcherConfig.smartCurrentLimit(40);
+
+          indexerConfig.apply(drivingConfig);
+          indexerConfig.smartCurrentLimit(30);
+
+          intakeConfig.apply(drivingConfig);
+          intakeConfig.smartCurrentLimit(40);
+
+          posIntakeConfig.apply(drivingConfig);
+          posIntakeConfig.smartCurrentLimit(20);
         }
     }
 
