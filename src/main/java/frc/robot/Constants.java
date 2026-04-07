@@ -38,18 +38,18 @@ public final class Constants {
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FL at +x, +y
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FR at +x, -y
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),   // BL at -x, +y
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)); // BR at -x, -y
 
   // Angular offsets of the modules relative to the chassis in radians.
   // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.
-  // These are intentionally neutral for re-zero/calibration on the real robot.
-  public static final double kFrontLeftChassisAngularOffset = 0.21946135; // ID 1
-  public static final double kFrontRightChassisAngularOffset = 0.194 + Math.PI / 2; // ID 3: nudged -90 deg from field test
-  public static final double kBackLeftChassisAngularOffset = 0.19213657 - Math.PI / 2; // ID 5
-  public static final double kBackRightChassisAngularOffset = 0.230 - Math.PI / 2;  // ID 7: nudged -90 deg from field test
+  // Calibrated with wheels physically pointing forward.
+  public static final double kFrontLeftChassisAngularOffset = 2.9935 + Math.PI;  // FL 171.5° + 180°
+  public static final double kFrontRightChassisAngularOffset = 1.9154; // FR 109.75° (no flip)
+  public static final double kBackLeftChassisAngularOffset = 1.7191 + Math.PI;   // BL 98.5° + 180°
+  public static final double kBackRightChassisAngularOffset = 4.0352 - 0.7854 - 1.5708 + Math.PI;  // BR - 135° + 180°
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors

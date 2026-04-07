@@ -2,16 +2,10 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AutoAlignCommand;
-import frc.robot.subsystems.DriveSubsystem;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.LimelightHelpers.RawFiducial;
-import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -20,16 +14,7 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
-  private final XboxController m_driverController = 
-    new XboxController(OIConstants.kDriverControllerPort);
-
-  private DriveSubsystem m_swerve;
   private final RobotContainer m_robotContainer;
-
-  private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
-  private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
-  private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
 
   public static double rot = 0.0;
 
@@ -41,8 +26,6 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    // Reuse DriveSubsystem from RobotContainer
-    m_swerve = m_robotContainer.getDriveSubsystem();
     //Set up a camera --Potentially set up two this year.
     UsbCamera usbCamera = CameraServer.startAutomaticCapture();
     usbCamera.setResolution(640, 480);
@@ -103,10 +86,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // Drive normally; OI bindings in RobotContainer will schedule alignment command when A is pressed
-    if (m_driverController.getAButton()) {
-      drive(true);
-    }
+    // Drive control is handled by the RobotContainer default command and button bindings.
+    // Avoid commanding drivetrain directly here to prevent conflicting control paths.
   }
 
   public static double limelight_aim_proportional()
@@ -138,16 +119,6 @@ public class Robot extends TimedRobot {
     }
     System.out.println("id: " + apriltagid); //Prints the current seen apriltag.
     return apriltagid;
-  }
-
-  private void drive(boolean fieldRelative){
-    var xSpeed = -MathUtil.applyDeadband(m_driverController.getRawAxis(1), OIConstants.kDriveDeadband);
-
-    var ySpeed = MathUtil.applyDeadband(m_driverController.getRawAxis(0), OIConstants.kDriveDeadband);
-
-    // Teleop alignment moved to command: Robot.teleopPeriodic schedules AutoAlignCommand when A is down.
-
-    m_swerve.drive(xSpeed, ySpeed, AutoAlignCommand.rCmd, fieldRelative, getPeriod()); //rot was set to negative, but was changed to positive
   }
 
   @Override

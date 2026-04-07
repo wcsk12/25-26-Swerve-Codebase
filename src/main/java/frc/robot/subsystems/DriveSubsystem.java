@@ -309,6 +309,15 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
+    // DEBUG: Publish raw inputs to help diagnose teleop issues
+    SmartDashboard.putNumber("Drive/xSpeed_raw", xSpeed);
+    SmartDashboard.putNumber("Drive/ySpeed_raw", ySpeed);
+    SmartDashboard.putNumber("Drive/rot_raw", rot);
+    SmartDashboard.putNumber("Drive/xSpeed_delivered", xSpeedDelivered);
+    SmartDashboard.putNumber("Drive/ySpeed_delivered", ySpeedDelivered);
+    SmartDashboard.putNumber("Drive/rotDelivered", rotDelivered);
+    SmartDashboard.putNumber("Drive/MaxDriveSpeed", MaxDriveSpeed);
+
     // Build chassis speeds using the delivered (scaled) values. Use field-relative
     // conversion when requested so joystick inputs are interpreted relative to the
     // field rather than the robot.
@@ -324,6 +333,11 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Ensure wheel speeds are within the configured maximum
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+
+    // DEBUG: Publish computed chassis speeds
+    SmartDashboard.putNumber("Drive/chassisVx", discretized.vxMetersPerSecond);
+    SmartDashboard.putNumber("Drive/chassisVy", discretized.vyMetersPerSecond);
+    SmartDashboard.putNumber("Drive/chassisOmega", discretized.omegaRadiansPerSecond);
 
     // Apply via centralized canonical mapping (FL, FR, BL, BR)
     setModuleStates(swerveModuleStates);
@@ -351,12 +365,23 @@ public class DriveSubsystem extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    // Apply module states in canonical WPILib/kinematics order:
-    // Front Left, Front Right, Back Left, Back Right.
-    m_frontLeft.setDesiredState(desiredStates[0]);
-    m_frontRight.setDesiredState(desiredStates[1]);
-    m_rearLeft.setDesiredState(desiredStates[2]);
-    m_rearRight.setDesiredState(desiredStates[3]);
+    
+    // DEBUG: Show commanded states for each module
+    SmartDashboard.putNumber("Mod/FL_speed", desiredStates[0].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/FL_angle", desiredStates[0].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/FR_speed", desiredStates[1].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/FR_angle", desiredStates[1].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/BL_speed", desiredStates[2].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/BL_angle", desiredStates[2].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
+
+    // Swap left/right: kinematics order is [FL, FR, BL, BR] but physical
+    // layout needs states swapped for correct rotation behavior.
+    m_frontLeft.setDesiredState(desiredStates[1]);  // FL gets FR state
+    m_frontRight.setDesiredState(desiredStates[0]); // FR gets FL state
+    m_rearLeft.setDesiredState(desiredStates[3]);   // BL gets BR state
+    m_rearRight.setDesiredState(desiredStates[2]);  // BR gets BL state
   }
 
   /** Resets the drive encoders to currently read a position of 0. */

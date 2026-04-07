@@ -307,6 +307,8 @@ private double SetShooterSpeedLimelight() {
       // ------------------------------------------ LowerSpeed ------------------------------------------ \\
       // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
       m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
+      // ------------------------------------------ Reset Gyro (Driver Back Button) ------------------------------------------ \\
+      m_driverController.back().onTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive));
       // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
       m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
 
