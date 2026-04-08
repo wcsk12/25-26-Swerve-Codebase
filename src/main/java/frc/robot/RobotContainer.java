@@ -228,6 +228,14 @@ public class RobotContainer {
          new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
          );
    }
+
+   public Command ReverseShooterandRelease() { // Reverse shooter and release to clear jams. \\
+    return Commands.sequence(
+      new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ReversedSpeed), m_ShooterSubsystem),
+      new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+    );
+   }
+
    public Command ReleaseandShootOFF() {
      return Commands.sequence(
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0,true)),
@@ -264,42 +272,24 @@ public class RobotContainer {
       m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
   // Driver X button: one-shot full autonomous alignment (translation + rotation)
   // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
-  m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
-      // ------------------------------------------ Intake ------------------------------------------ \\
-  //m_driverController.leftBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards)
-  //m_driverController.rightBumper().whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false));
-      // ------------------------------------------ Shooter ------------------------------------------ \\
-  // Toggle the shooter command (start/stop) directly. Do NOT wrap command creation in an InstantCommand.
-      //m_operatorController.leftBumper().whileTrue(new ShooterCMD(m_ShooterSubsystem, DriveConstants.ShooterMotorSpeed, m_operatorController));
-    
-      m_operatorController.leftBumper().toggleOnTrue(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed))).toggleOnFalse(new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed)));
-
-      m_operatorController.x().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
-  //  m_operatorController.rightBumper().toggleOnTrue((ReleaseandShootWithoutLimelight(1)));
-  //  m_operatorController.rightBumper().toggleOnFalse((ReleaseandShootOFF()));
-  //   m_operatorController.leftBumper().toggleOnTrue(ReleaseandShootWithoutLimelight(-1));
-  //  m_operatorController.leftBumper().toggleOnFalse(ReleaseandShootOFF());
-   // LIMELIGHT SHOOTER \\
-   //m_operatorController.b().whileTrue((ReleaseandShootWithLimelight()));
-   //m_operatorController.b().whileFalse((ReleaseandShootOFF()));
-      // ------------------------------------------ Release ------------------------------------------ \\
-      m_operatorController.rightBumper().whileTrue(new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed));
+  // ------------------------------------------ LowerSpeed ------------------------------------------ \\
+      // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
+      m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button //May need to be altered to work with RPM.
+  // --------------------- Limelight AutoAlign ---------------------\\
+      m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
+      // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
+      m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
+      m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
-      // ------------------------------------------ LowerSpeed ------------------------------------------ \\
-      // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
-      m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button
       // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
       m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
 
-      //Back up Buttons! (Regular Controller) \\
+      // ___________________Back up Buttons!(Regular Controller)___________________ \\
 
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
       new JoystickButton(m_driverJoystick, 1).whileTrue(new AutoAlignCommand(m_robotDrive, 0.6)); //Potentially just use onTrue - A BUTTON
-      // ------------------------------------------ Intake ------------------------------------------ \\
-  new JoystickButton(m_driverJoystick, 5).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); //Intake speed (Forwards) - LEFT BUTTON
-   new JoystickButton(m_driverJoystick, 6).whileTrue(new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, false)); //Intake speed (Backwards) - RIGHT BUTTON
         // ------------------------------------------ Shooter ------------------------------------------ \\
   // Run the combined one-shot shoot sequence when the operator presses button 6.
   // new JoystickButton(m_operatorJoystick, 6).toggleOnTrue(ReleaseandShootWithoutLimelight(1)); // Shooter - RIGHT BUTTON --Shoot!

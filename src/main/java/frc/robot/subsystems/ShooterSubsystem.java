@@ -36,6 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public enum SetShooterSpeed {
     ZeroSpeed(0),
     SlowSpeed(3420),
+    ReversedSpeed(-3420),
     FarSpeed(3900);
 
     private final double value;
