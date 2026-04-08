@@ -70,11 +70,12 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  // BL: -x, -y (swapped Y)
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR: -x, +y (swapped Y)
 
-    // Angular offsets of the modules relative to the chassis in radians (preserved from HEAD)
-    public static final double kFrontLeftChassisAngularOffset = Math.PI;
-    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = 0;
+    // Angular offsets of the modules relative to the chassis in radians
+    // Calibrated from REV Hardware Client with wheels pointing straight forward + adjustments
+    public static final double kFrontLeftChassisAngularOffset = 0.2199 + Math.PI + Math.PI - 0.5236 + 0.0175;           // FL: -30° +1° CW
+    public static final double kFrontRightChassisAngularOffset = 2.0672 + (-Math.PI / 2) + 0.0349 + 0.0349 + 0.0524 + 0.0175;    // FR: +8°
+    public static final double kBackLeftChassisAngularOffset = 4.0715 + (Math.PI / 2) + Math.PI - 0.0524 - 0.1745;      // BL: -3° -10° CCW
+    public static final double kBackRightChassisAngularOffset = 2.0672 + 0 + (3 * Math.PI / 2) + Math.PI + 0.6981 + 0.0175 - 0.0873 - 0.0698 + 0.0175; // BR: +33°
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
