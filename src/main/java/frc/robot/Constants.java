@@ -71,11 +71,11 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR: -x, +y (swapped Y)
 
     // Angular offsets of the modules relative to the chassis in radians
-    // Calibrated from REV Hardware Client with wheels pointing straight forward + adjustments
-    public static final double kFrontLeftChassisAngularOffset = 0.2199 + Math.PI + Math.PI - 0.5236 + 0.0175;           // FL: -30° +1° CW
-    public static final double kFrontRightChassisAngularOffset = 2.0672 + (-Math.PI / 2) + 0.0349 + 0.0349 + 0.0524 + 0.0175;    // FR: +8°
-    public static final double kBackLeftChassisAngularOffset = 4.0715 + (Math.PI / 2) + Math.PI - 0.0524 - 0.1745;      // BL: -3° -10° CCW
-    public static final double kBackRightChassisAngularOffset = 2.0672 + 0 + (3 * Math.PI / 2) + Math.PI + 0.6981 + 0.0175 - 0.0873 - 0.0698 + 0.0175; // BR: +33°
+    // Calibrated from REV Hardware Client encoder readings + fine-tuning adjustments
+    public static final double kFrontLeftChassisAngularOffset = 5.9970;   // FL: calibrated -29°
+    public static final double kFrontRightChassisAngularOffset = 0.7060;  // FR: calibrated +12°
+    public static final double kBackLeftChassisAngularOffset = 8.5570;    // BL: calibrated -13°
+    public static final double kBackRightChassisAngularOffset = 10.4448;  // BR: calibrated +30°
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
@@ -118,7 +118,7 @@ public final class Constants {
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
-    public static final double kWheelDiameterMeters = 0.0762;
+    public static final double kWheelDiameterMeters = 0.1048; // 4 1/8" = 4.125" = 0.1048 m
     public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
     // 45 teeth on the wheel's bevel gear, 22 teeth on the first-stage spur gear, 15
     // teeth on the bevel pinion
