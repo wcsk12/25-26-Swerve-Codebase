@@ -41,9 +41,9 @@ public class pathConfig {
     boolean isHolonomic = true;
     double massKG = 61.2; // Robot mass in kg
     double MOI = 6.883; // Moment of inertia
-    double wheelRadius = 0.0381; // 3" diameter = 0.0762m, radius = 0.0381m
-    double gearing = 4.714; // (45*22)/(14*15) for 14T pinion
-    double maxDriveSpeed = 5.45; // Max drive speed m/s
+    double wheelRadius = 0.0508; // 4" diameter = 0.1016m, radius = 0.0508m
+    double gearing = 6.75; // SDS MK4 L2 gear ratio
+    double maxDriveSpeed = 4.47; // Max drive speed m/s (NEO + MK4 L2)
     double wheelCOF = 1.2; // Wheel coefficient of friction
     String driveMotor = "NEO";
     double driveCurrentLimit = 60.0;
