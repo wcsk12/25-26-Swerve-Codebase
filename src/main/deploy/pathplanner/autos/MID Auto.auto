@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLU R PATH 1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot!"
+            "pathName": "BLU M PATH 1"
           }
         },
         {
@@ -23,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLU R PATH 2"
+                  "pathName": "BLU M PATH 2"
                 }
               },
               {
@@ -38,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLU R PATH 3"
+            "pathName": "BLU M PATH 3"
           }
         },
         {

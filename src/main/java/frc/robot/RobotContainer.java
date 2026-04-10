@@ -55,6 +55,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -202,15 +204,6 @@ public class RobotContainer {
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
         );
 }
-// Limelight Release and shoot simultaneously \\
-  // public Command ReleaseandShootWithLimelight() { //shooter and release combined.
-  //   // Run a one-shot sequence: start shooter, wait to spin up, run release, then stop both.
-  //     return Commands.sequence(
-  //       new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed), m_ShooterSubsystem),
-  //       new WaitCommand(1.1), // headstart for shooter spin-up
-  //       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
-  //       );
-  //     }
 
 // Get your current rotation
 
@@ -268,20 +261,23 @@ public class RobotContainer {
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
       // Debug: log when A is pressed
-      m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
-      m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
+     // m_driverController.a().onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Driver A pressed")));
+     // m_driverController.a().whileTrue(new AutoAlignCommand(m_robotDrive, 0.6));
   // Driver X button: one-shot full autonomous alignment (translation + rotation)
   // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
   // ------------------------------------------ LowerSpeed ------------------------------------------ \\
       // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
-      m_driverController.b().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button //May need to be altered to work with RPM.
+      m_driverController.leftBumper().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button //May need to be altered to work with RPM.
   // --------------------- Limelight AutoAlign ---------------------\\
-      m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
+     // m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
       m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ Climber ------------------------------------------ \\
-      m_operatorController.y().whileTrue(new ClimberCMD(m_ClimberSubsystem, DriveConstants.ClimberSpeed));
+      m_driverController.y().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed))); //Climb!
+      m_driverController.a().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(-DriveConstants.ClimberSpeed)));//Reverse Climber
+      m_driverController.x().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(1))); //Flip Servo (Down)
+      m_driverController.b().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0))); //Flip Servo (Up)
       // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
       m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
 

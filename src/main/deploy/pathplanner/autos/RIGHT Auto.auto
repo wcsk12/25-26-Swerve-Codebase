@@ -5,25 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "BLU M PATH 1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot!"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BLU M PATH 2"
+                  "pathName": "BLU R PATH 1"
                 }
               },
               {
@@ -38,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BLU M PATH 3"
+            "pathName": "BLU R PATH 2"
           }
         },
         {

@@ -3,61 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.397807692307693,
-        "y": 7.511833333333334
+        "x": 4.362923076923078,
+        "y": 7.430435897435898
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.9327051282051295,
-        "y": 7.442064102564103
+        "x": 4.897820512820514,
+        "y": 7.360666666666668
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.095576923076925,
-        "y": 7.162987179487179
+        "x": 7.502538461544278,
+        "y": 7.290897435903251
       },
       "prevControl": {
-        "x": 7.783429697598382,
-        "y": 7.311628715429341
-      },
-      "nextControl": {
-        "x": 8.339769230769232,
-        "y": 7.0467051282051285
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 8.281628205128206,
-        "y": 5.976910256410256
-      },
-      "prevControl": {
-        "x": 8.270000000000001,
-        "y": 6.616461538461539
+        "x": 6.711820512826328,
+        "y": 7.2792692307750455
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": -92.4895529219992
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.9302325581395314,
+      "minWaypointRelativePos": 0.45,
       "maxWaypointRelativePos": 0.0,
       "constraints": {
-        "maxVelocity": 3.0,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 5.4,
+        "maxAcceleration": 5.4,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -76,8 +55,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -90.88140399658207
+    "velocity": 3.4,
+    "rotation": -53.392925187392464
   },
   "reversed": false,
   "folder": "CompPaths",

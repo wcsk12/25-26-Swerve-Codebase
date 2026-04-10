@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.5461,
-  "robotLength": 0.546,
+  "robotWidth": 0.89,
+  "robotLength": 0.89,
   "holonomicMode": true,
   "pathFolders": [
     "CompPaths"
