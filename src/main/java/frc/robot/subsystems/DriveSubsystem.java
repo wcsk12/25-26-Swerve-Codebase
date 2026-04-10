@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 // DriverStation and SmartDashboard Imports
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -74,6 +75,9 @@ public class DriveSubsystem extends SubsystemBase {
       });
   // Initializing kinematics
   SwerveDriveKinematics m_kinematics;
+  // Simulation: track last commanded speeds for sim odometry
+  private ChassisSpeeds m_simSpeeds = new ChassisSpeeds();
+  private Pose2d m_simPose = new Pose2d();
   // Sets up exception messages
   public static RobotConfig config;{
     try{
@@ -239,6 +243,8 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearRight.getPosition()
         },
         pose);
+    // Also reset sim pose so simulation tracks correctly
+    m_simPose = pose;
       }
 /* 
     m_PoseEstimator.resetPosition(
@@ -265,6 +271,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
+    // Save raw speeds for simulation (before Y-inversion)
+    m_simSpeeds = robotRelativeSpeeds;
     // Invert Y to compensate for swapped kinematics Y-signs
     ChassisSpeeds adjusted = new ChassisSpeeds(
         robotRelativeSpeeds.vxMetersPerSecond,
@@ -335,6 +343,11 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Drive/chassisVy", discretized.vyMetersPerSecond);
     SmartDashboard.putNumber("Drive/chassisOmega", discretized.omegaRadiansPerSecond);
 
+    // Update sim speeds for simulation odometry (robot-relative)
+    // Invert Y because teleop ChassisSpeeds went through swapped-Y kinematics
+    // Invert omega because teleop negates rotation for the real gyro convention
+    m_simSpeeds = new ChassisSpeeds(discretized.vxMetersPerSecond, -discretized.vyMetersPerSecond, -discretized.omegaRadiansPerSecond);
+
     // Apply via centralized canonical mapping (FL, FR, BL, BR)
     setModuleStates(swerveModuleStates);
   }
@@ -374,7 +387,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Optionally apply a 90-degree debug correction to desired angles. This
     // helps diagnose whether module angular offsets / frame alignment are
-    // responsible for the observed 90° mismatch when rotating in place.
+    // responsible for the observed 90Â° mismatch when rotating in place.
     boolean apply90Correction = SmartDashboard.getBoolean("Rotation/Apply90Correction", false);
 
     if (apply90Correction) {
@@ -446,6 +459,44 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Field2d getField() {
     return m_field;
+  }
+
+  // ---- Simulation support ----
+  // In simulation, real encoders/gyro return zero.  Instead we integrate
+  // the last commanded ChassisSpeeds to update the pose, so the field
+  // widget and PathPlanner feedback loop work correctly.
+
+  @Override
+  public void simulationPeriodic() {
+    // Only runs in simulation
+    double dt = 0.02; // 20 ms loop
+
+    // Convert robot-relative speeds to field-relative displacement
+    double angle = m_simPose.getRotation().getRadians();
+    double dx = (m_simSpeeds.vxMetersPerSecond * Math.cos(angle)
+               - m_simSpeeds.vyMetersPerSecond * Math.sin(angle)) * dt;
+    double dy = (m_simSpeeds.vxMetersPerSecond * Math.sin(angle)
+               + m_simSpeeds.vyMetersPerSecond * Math.cos(angle)) * dt;
+    double dtheta = m_simSpeeds.omegaRadiansPerSecond * dt;
+
+    m_simPose = new Pose2d(
+        m_simPose.getX() + dx,
+        m_simPose.getY() + dy,
+        new Rotation2d(m_simPose.getRotation().getRadians() + dtheta));
+
+    // Push sim pose into odometry so getPose() returns it
+    m_odometry.resetPosition(
+        m_simPose.getRotation(),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        },
+        m_simPose);
+
+    // Update field widget
+    m_field.setRobotPose(m_simPose);
   }
 
 }
