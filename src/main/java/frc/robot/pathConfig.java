@@ -39,14 +39,14 @@ public class pathConfig {
     //JSONObject json = (JSONObject) new JSONParser().parse(fileContent);
 
     boolean isHolonomic = true;
-    double massKG = 50.03; //((Number) json.get("robotMass")).doubleValue();
-    double MOI = 6.883; //((Number) json.get("robotMOI")).doubleValue();
-    double wheelRadius = 0.051; //((Number) json.get("driveWheelRadius")).doubleValue();
-    double gearing = 5.143; //((Number) json.get("driveGearing")).doubleValue();
-    double maxDriveSpeed = 4.8; //((Number) json.get("maxDriveSpeed")).doubleValue();
-    double wheelCOF = 1.4; //((Number) json.get("wheelCOF")).doubleValue();
-    String driveMotor = "NEO"; //(String) json.get("driveMotorType");
-    double driveCurrentLimit = 60.0; //((Number) json.get("driveCurrentLimit")).doubleValue();
+    double massKG = 61.2; // Robot mass in kg
+    double MOI = 6.883; // Moment of inertia
+    double wheelRadius = 0.0381; // 3" diameter = 0.0762m, radius = 0.0381m
+    double gearing = 4.714; // (45*22)/(14*15) for 14T pinion
+    double maxDriveSpeed = 5.45; // Max drive speed m/s
+    double wheelCOF = 1.2; // Wheel coefficient of friction
+    String driveMotor = "NEO";
+    double driveCurrentLimit = 60.0;
 
     int numMotors = isHolonomic ? 1 : 2;
     DCMotor gearbox =
@@ -68,25 +68,19 @@ public class pathConfig {
             wheelRadius, maxDriveSpeed, wheelCOF, gearbox, driveCurrentLimit, numMotors);
 
     if (isHolonomic) {
+      // Module positions: 22.5" trackwidth = 0.5715m, half = 0.286m from center
+      // Standard WPILib convention (Y-inversion handled in driveRobotRelative)
       Translation2d[] moduleOffsets =
           new Translation2d[] {
-            new Translation2d(
-              0.381,//((Number) json.get("flModuleX")).doubleValue(),
-              0.279),//((Number) json.get("flModuleY")).doubleValue()),
-            new Translation2d(
-              0.381,//((Number) json.get("frModuleX")).doubleValue(),
-               -0.279),//((Number) json.get("frModuleY")).doubleValue()),
-            new Translation2d(
-               -0.381,//((Number) json.get("blModuleX")).doubleValue(),
-              0.279),//((Number) json.get("blModuleY")).doubleValue()),
-            new Translation2d(
-               -0.381,//((Number) json.get("brModuleX")).doubleValue(),
-               -0.279)//((Number) json.get("brModuleY")).doubleValue())
+            new Translation2d(0.286, 0.286),   // FL: +x, +y
+            new Translation2d(0.286, -0.286),  // FR: +x, -y
+            new Translation2d(-0.286, 0.286),  // BL: -x, +y
+            new Translation2d(-0.286, -0.286)  // BR: -x, -y
           };
 
       return new RobotConfig(massKG, MOI, moduleConfig, moduleOffsets);
     } else {
-      double trackwidth = 0.546;//((Number) json.get("robotTrackwidth")).doubleValue();
+      double trackwidth = 0.5715; // 22.5" in meters
 
       return new RobotConfig(massKG, MOI, moduleConfig, trackwidth);
     }
