@@ -46,7 +46,9 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.MotorizedIntakeSubsystem.IntakePositions;
 import frc.robot.subsystems.ShooterSubsystem.SetShooterSpeed;
+import frc.robot.subsystems.MotorizedIntakeSubsystem;
 //Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -70,6 +72,7 @@ public class RobotContainer {
   private final IntakeSubsystem m_IntakeSubsystem;
   private final ShooterSubsystem m_ShooterSubsystem;
   private final ClimberSubsystem m_ClimberSubsystem;
+  private final MotorizedIntakeSubsystem m_MotorizedIntakeSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController = //Operator Controller
@@ -97,6 +100,7 @@ public class RobotContainer {
     m_ShooterSubsystem = new ShooterSubsystem();
     m_ClimberSubsystem = new ClimberSubsystem();
     m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
+    m_MotorizedIntakeSubsystem = new MotorizedIntakeSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
@@ -211,6 +215,9 @@ public class RobotContainer {
 //COMBINE INTAKE, SHOOTER, AND RELEASE INTO ONE SEQUENCE (for ___ controller) \\
    public Command ReleaseandShootWithoutLimelight() {
       return Commands.sequence( 
+        //Set Intake down first)
+        new InstantCommand(() -> m_MotorizedIntakeSubsystem.setPosition(IntakePositions.down), m_MotorizedIntakeSubsystem),
+        new WaitCommand(0.5), // Give the intake time to lower before starting the motors
          new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, true), m_IntakeSubsystem),
          new WaitUntilCommand(() -> {
           double currentRotation = m_robotDrive.GetPigeonDegrees(); //Check if the robot is effectively facing forward.
@@ -224,6 +231,7 @@ public class RobotContainer {
 
    public Command ReverseShooterandRelease() { // Reverse shooter and release to clear jams. \\
     return Commands.sequence(
+       new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0, true), m_IntakeSubsystem), //Turn intake off to prevent jams from getting worse.
       new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ReversedSpeed), m_ShooterSubsystem),
       new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
     );
@@ -292,6 +300,9 @@ public class RobotContainer {
       // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
       m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
+      // ------------------------------------------ Intake Up ------------------------------------------ \\ -
+      m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() ->m_MotorizedIntakeSubsystem.setPosition(IntakePositions.zero), m_MotorizedIntakeSubsystem)); //bring intake up for driving.
+
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_driverController.y().toggleOnTrue(ClimberUp()).toggleOnFalse(ClimberOff()); //Climb!
       m_driverController.a().toggleOnTrue(ClimberDown()).toggleOnFalse(ClimberOff()); //Descend!

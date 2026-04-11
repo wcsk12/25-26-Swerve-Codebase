@@ -73,6 +73,7 @@ public final class Constants {
     public static final int ShooterMotorId = 15;
     public static final int ShooterMotorReleaseId = 16;
     public static final int ClimberMotorID = 17;
+    public static final int MotorizedIntakeMotorID = 18;
   }
 //------Module-----//
   public static final class ModuleConstants {
