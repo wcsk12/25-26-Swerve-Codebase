@@ -34,9 +34,13 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void SetServoPosition(double position) { // This is used to set the servo position.
-      climberServo.set(position);
+      climberServo.setAngle(position);
     }
 
+    public double GetClimberPosition() { //Return the last set position of the climber motor (in degrees).
+      double angle = climberServo.getAngle();
+      return angle;
+    }
 
     public void stopClimber(double speed) {
       ClimberMotor.stopMotor();

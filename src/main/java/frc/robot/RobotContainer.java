@@ -236,15 +236,34 @@ public class RobotContainer {
          new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
      );
    }
-      //   new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
-      //   new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
-      //   // 2. Run feeder/release motor to fire
-      //   new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed));
-      //     })
-      //   );
-      // }
-        //50/50 w way to talj lol
-        
+
+   public Command ClimberUp() {
+    return Commands.sequence(
+
+      new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 0).withTimeout(0.5), // Gets what servo was last set to.
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem)
+      
+      
+      );
+   }
+
+   public Command ClimberDown() {
+    return Commands.sequence(
+
+      new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 180).withTimeout(0.5), // Gets what servo was last set to.
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem),
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(180), m_ClimberSubsystem)
+      
+      );
+   }
+
+   public Command ClimberOff() { //Turn Climber off (for both up and down)
+    return Commands.sequence(
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(0), m_ClimberSubsystem)
+      );
+   }
+
   // Sets up controller bindings
   
   private void configureBindings() {
@@ -267,21 +286,21 @@ public class RobotContainer {
   // Use a short timeout as a safety net so it doesn't run forever if pose estimates fail.
   // ------------------------------------------ LowerSpeed ------------------------------------------ \\
       // Toggle the LowerSpeedCMD directly so press-on -> schedule the command, press-again -> cancel it
-      m_driverController.leftBumper().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -B button //May need to be altered to work with RPM.
+      m_driverController.back().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -Back button
   // --------------------- Limelight AutoAlign ---------------------\\
      // m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
       m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ Climber ------------------------------------------ \\
-      m_driverController.y().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed))); //Climb!
-      m_driverController.a().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(-DriveConstants.ClimberSpeed)));//Reverse Climber
-      m_driverController.x().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(1))); //Flip Servo (Down)
-      m_driverController.b().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0))); //Flip Servo (Up)
+      m_driverController.y().toggleOnTrue(ClimberUp()).toggleOnFalse(ClimberOff()); //Climb!
+      m_driverController.a().toggleOnTrue(ClimberDown()).toggleOnFalse(ClimberOff()); //Descend!
+      //m_driverController.x().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(180))); //Flip Servo (Down)
+      //m_driverController.b().whileTrue(new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0))); //Flip Servo (Up)
       // ------------------------------------------ Reset Pigeon ------------------------------------------ \\
       m_operatorController.a().whileTrue(new InstantCommand(() -> m_robotDrive.zeroHeading(), m_robotDrive)); //Pigeon Reset
 
-      // ___________________Back up Buttons!(Regular Controller)___________________ \\
+      // ________________________________Back up Buttons!(Regular Controller)________________________________ \\
 
       // Also bind raw joystick button 1 as a fallback for non-Xbox controllers
       new JoystickButton(m_driverJoystick, 1).onTrue(new InstantCommand(() -> System.out.println("[RobotContainer] Joystick button 1 pressed")));
