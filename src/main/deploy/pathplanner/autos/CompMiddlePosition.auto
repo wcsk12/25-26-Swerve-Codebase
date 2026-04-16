@@ -11,32 +11,13 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShooterCMD"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "LauncherCMD"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IndexerCMD"
-                }
-              }
-            ]
+            "name": "ShootAndLaunch"
           }
         },
         {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -67,46 +48,9 @@
           }
         },
         {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "ShooterCMD"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "LauncherCMD"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "IndexerCMD"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "RaiseIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Middle Scoring to Tower"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ClimbCMD"
+            "name": "ShootAndLaunchwithShake"
           }
         }
       ]

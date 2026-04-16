@@ -28,7 +28,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
   public void setLauncherSpeed(double speed){
     launcherMotor.set(speed);
-    indexerMotor.set(speed);
+    indexerMotor.set(-speed);
   }
 
   @Override

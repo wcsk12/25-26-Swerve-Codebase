@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 0.851,
-        "y": 5.43
+        "x": 1.13,
+        "y": 5.988
       },
       "prevControl": {
-        "x": 1.641718322659822,
-        "y": 5.3834935369349965
+        "x": 1.920718322659821,
+        "y": 5.941493536934997
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 139.6
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "CompMiddlePaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
