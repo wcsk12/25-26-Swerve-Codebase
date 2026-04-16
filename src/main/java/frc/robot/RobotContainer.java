@@ -46,9 +46,9 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.OtherMotorsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.MotorizedIntakeSubsystem.IntakePositions;
+//import frc.robot.subsystems.MotorizedIntakeSubsystem.IntakePositions;
 import frc.robot.subsystems.ShooterSubsystem.SetShooterSpeed;
-import frc.robot.subsystems.MotorizedIntakeSubsystem;
+//import frc.robot.subsystems.MotorizedIntakeSubsystem;
 //Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -72,7 +72,7 @@ public class RobotContainer {
   private final IntakeSubsystem m_IntakeSubsystem;
   private final ShooterSubsystem m_ShooterSubsystem;
   private final ClimberSubsystem m_ClimberSubsystem;
-  private final MotorizedIntakeSubsystem m_MotorizedIntakeSubsystem;
+  //private final MotorizedIntakeSubsystem m_MotorizedIntakeSubsystem;
   
   // Initializes the controller (Xbox)
   private final CommandXboxController m_operatorController = //Operator Controller
@@ -100,7 +100,7 @@ public class RobotContainer {
     m_ShooterSubsystem = new ShooterSubsystem();
     m_ClimberSubsystem = new ClimberSubsystem();
     m_OtherMotorsSubsystem = new OtherMotorsSubsystem();
-    m_MotorizedIntakeSubsystem = new MotorizedIntakeSubsystem();
+    //m_MotorizedIntakeSubsystem = new MotorizedIntakeSubsystem();
     // Initialize programmatic dashboard layout (creates Shuffleboard tabs/widgets)
     Dashboard.init(m_robotDrive);
   // Ensure CAN Checks widgets are present on Shuffleboard (doesn't probe hardware)
@@ -190,6 +190,7 @@ public class RobotContainer {
 
 // (previous toggle state removed — ReleaseandShoot is a one-shot sequence now)
 
+// ---------------------------------- Auto Methods ---------------------------------- \\
 // Shooter Command for Autos \\
   public Command getShootSequence() {
     // ShooterCMD is a persistent command (isFinished() == false) and would block a sequence.
@@ -209,6 +210,37 @@ public class RobotContainer {
         );
 }
 
+  public Command ZeroClimber() { //Zero the climber in the beginning so it doesn't hit trench.
+    return Commands.sequence(
+      new InstantCommand(() -> m_ClimberSubsystem.setSpeed(ClimberSubsystem.ClimberPositions.zero), m_ClimberSubsystem)
+    );
+  }
+
+  public Command AutoClimb() { //Perhaps use rpm or encoder values instead of time-based commands for more consistency?
+    return Commands.sequence(
+      new InstantCommand(() -> m_ClimberSubsystem.setSpeed(ClimberSubsystem.ClimberPositions.zero), m_ClimberSubsystem),
+      new WaitUntilCommand(() -> { //wait until climber is fully down.
+        double CurPosition = m_ClimberSubsystem.GetClimberPosition();
+        return CurPosition >= -0.2 && CurPosition <= 0.2; // Adjust the threshold as needed based on testing to determine when the climber is at the correct position for climbing.
+      }).withTimeout(0.5),
+
+      new InstantCommand(() -> m_ClimberSubsystem.setSpeed(ClimberSubsystem.ClimberPositions.maxheight), m_ClimberSubsystem),
+      new WaitUntilCommand(() -> { //wait until climber is fully raised.
+        double CurPosition = m_ClimberSubsystem.GetClimberPosition();
+        return CurPosition >= 9.5 && CurPosition <= 10.5; // Adjust the threshold as needed based on testing to determine when the climber is at the correct position for climbing.
+      }).withTimeout(0.5),
+
+      new InstantCommand(() -> m_ClimberSubsystem.setSpeed(ClimberSubsystem.ClimberPositions.midheight), m_ClimberSubsystem),
+      new WaitUntilCommand(() -> { //wait until climber is at mid-height.
+        double CurPosition = m_ClimberSubsystem.GetClimberPosition();
+        return CurPosition >= 4.5 && CurPosition <= 5.5; // Adjust the threshold as needed based on testing to determine when the climber is at the correct position for climbing.
+      }).withTimeout(0.5),
+      
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem),
+      new WaitCommand(2),
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(0), m_ClimberSubsystem)
+    );
+  }
 // Get your current rotation
 
 
@@ -216,7 +248,7 @@ public class RobotContainer {
    public Command ReleaseandShootWithoutLimelight() {
       return Commands.sequence( 
         //Set Intake down first)
-        new InstantCommand(() -> m_MotorizedIntakeSubsystem.setPosition(IntakePositions.down), m_MotorizedIntakeSubsystem),
+        //new InstantCommand(() -> m_MotorizedIntakeSubsystem.setPosition(IntakePositions.down), m_MotorizedIntakeSubsystem),
         new WaitCommand(0.5), // Give the intake time to lower before starting the motors
          new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, true), m_IntakeSubsystem),
          new WaitUntilCommand(() -> {
@@ -248,10 +280,9 @@ public class RobotContainer {
    public Command ClimberUp() {
     return Commands.sequence(
 
-      new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 0).withTimeout(0.5), // Gets what servo was last set to.
+      //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 0).withTimeout(0.5), // Gets what servo was last set to.
       new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
-      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem)
-      
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(-DriveConstants.ClimberSpeed), m_ClimberSubsystem)
       
       );
    }
@@ -259,7 +290,7 @@ public class RobotContainer {
    public Command ClimberDown() {
     return Commands.sequence(
 
-      new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 180).withTimeout(0.5), // Gets what servo was last set to.
+      //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 180).withTimeout(0.5), // Gets what servo was last set to.
       new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem),
       new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(180), m_ClimberSubsystem)
       
@@ -284,6 +315,8 @@ public class RobotContainer {
   //NamedCommands.registerCommand("Release", new ReleaseCMD(m_OtherMotorsSubsystem, DriveConstants.ReleaseMotorSpeed).withTimeout(1)); // Release up to shooter
   NamedCommands.registerCommand("Intake!", new IntakeCMD(m_IntakeSubsystem, DriveConstants.IntakeMotorSpeed, true)); // Intake the Fuel! - Potentially remove withTimeout due to parallel deadline command.
   NamedCommands.registerCommand("Shoot!", getShootSequence()); // Release + Shoot!
+  NamedCommands.registerCommand("Zero Climber", ZeroClimber()); //Zero the climber at the beginning of the match so it doesn't hit the trench.
+  //NamedCommands.registerCommand("Climb!", getAutonomousCommand()); //write climb method for this
 
         // Driver A button: while held, run auto-align to AprilTag (0.6m target distance)
     try {
@@ -301,7 +334,7 @@ public class RobotContainer {
       m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
       // ------------------------------------------ Intake Up ------------------------------------------ \\ -
-      m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() ->m_MotorizedIntakeSubsystem.setPosition(IntakePositions.zero), m_MotorizedIntakeSubsystem)); //bring intake up for driving.
+      //m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() ->m_MotorizedIntakeSubsystem.setPosition(IntakePositions.zero), m_MotorizedIntakeSubsystem)); //bring intake up for driving.
 
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_driverController.y().toggleOnTrue(ClimberUp()).toggleOnFalse(ClimberOff()); //Climb!

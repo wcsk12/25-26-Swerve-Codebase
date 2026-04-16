@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Zero Climber"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
