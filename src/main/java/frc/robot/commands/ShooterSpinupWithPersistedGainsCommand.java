@@ -46,8 +46,7 @@ public class ShooterSpinupWithPersistedGainsCommand extends Command {
         double iGain = Double.parseDouble(p.getProperty("i", "0"));
         double dGain = Double.parseDouble(p.getProperty("d", "0"));
         double ff = Double.parseDouble(p.getProperty("ff", "0"));
-        System.out.println(String.format("[ShooterSpinupWithPersistedGains] Applying persisted gains p=%.8f i=%.8f d=%.8f ff=%.8f", pGain, iGain, dGain, ff));
-        shooter.applyClosedLoopGains(pGain, iGain, dGain, ff);
+        System.out.println("[ShooterSpinupWithPersistedGains] Software PID in use — ignoring persisted gains file");
       } else {
         System.out.println("[ShooterSpinupWithPersistedGains] No persisted gains file found; using current in-memory gains.");
       }

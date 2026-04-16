@@ -122,8 +122,7 @@ public class ShooterTunerCommand extends Command {
           }
         }
         if (best != null) {
-          System.out.println(String.format("[ShooterTuner] best P=%.8f rise=%.3f steady=%.1f", best.p, best.rise, best.steady));
-          shooter.applyClosedLoopGains(best.p, 0.0, 0.0, thisCalcedFF);
+          System.out.println(String.format("[ShooterTuner] best P=%.8f rise=%.3f steady=%.1f (software PID — not applying to SparkMax)", best.p, best.rise, best.steady));
           // Persist chosen gains to disk on the roboRIO so they survive restarts.
           try {
             java.util.Properties props = new java.util.Properties();
@@ -147,8 +146,8 @@ public class ShooterTunerCommand extends Command {
       }
       double p = pCandidates.get(sweepIndex);
       // apply gains and start sampling
-      shooter.applyClosedLoopGains(p, 0.0, 0.0, thisCalcedFF);
-      System.out.println(String.format("[ShooterTuner] testing P=%.8f", p));
+      // Software PID — gains are constants, no SparkMax apply needed
+      System.out.println(String.format("[ShooterTuner] testing P=%.8f (info only)", p));
       samples.clear();
       sampleTimes.clear();
       stateStartTime = Timer.getFPGATimestamp();

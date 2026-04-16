@@ -54,7 +54,6 @@ import frc.robot.subsystems.PosIntakeSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.ShooterSubsystem.ShooterSetSpeed;
 public class RobotContainer {
   //Intialize the Autochooser for selecting autos in SmartDashboard\\
   private final SendableChooser<Command> autoChooser;
@@ -146,7 +145,7 @@ public class RobotContainer {
             double dGain = Double.parseDouble(p.getProperty("d", "0"));
             double ff = Double.parseDouble(p.getProperty("ff", "0"));
             System.out.println(String.format("[RobotContainer] Reloaded shooter gains p=%.8f i=%.8f d=%.8f ff=%.8f", pGain, iGain, dGain, ff));
-            shooterSubsystem.applyClosedLoopGains(pGain, iGain, dGain, ff);
+            System.out.println(String.format("[RobotContainer] Gains file found but software PID is in use — ignoring persisted gains"));
           } else {
             System.out.println("[RobotContainer] No persisted gains file found at /home/lvuser/shooter_gains.properties");
           }
@@ -287,7 +286,7 @@ public class RobotContainer {
           double dGain = Double.parseDouble(p.getProperty("d", "0"));
           double ff = Double.parseDouble(p.getProperty("ff", "0"));
           System.out.println(String.format("[RobotContainer] Reloaded shooter gains p=%.8f i=%.8f d=%.8f ff=%.8f", pGain, iGain, dGain, ff));
-          shooterSubsystem.applyClosedLoopGains(pGain, iGain, dGain, ff);
+          System.out.println(String.format("[RobotContainer] Gains file found but software PID is in use — ignoring"));
         } else {
           System.out.println("[RobotContainer] No persisted gains file found at /home/lvuser/shooter_gains.properties");
         }
@@ -419,7 +418,7 @@ public class RobotContainer {
     // Also bind raw joystick buttons as a fallback for non-Xbox controllers
     new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
   // B (button 2): normal shooting behavior — spin up to softShooterTargetRPM and fire once at speed.
-  new JoystickButton(m_operatorJoystick, 2).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.FarSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+  new JoystickButton(m_operatorJoystick, 2).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(3450))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
@@ -428,7 +427,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
     new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
-    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setSpeed(ShooterSetSpeed.TrenchSpeed))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(3030))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 9).whileTrue(new LauncherCMD(launcherSubsystem, -0.3)); //  (for unjamming)
   }
 
