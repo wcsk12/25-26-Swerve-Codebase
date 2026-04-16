@@ -350,6 +350,12 @@ public class DriveSubsystem extends SubsystemBase {
 
     // Apply via centralized canonical mapping (FL, FR, BL, BR)
     setModuleStates(swerveModuleStates);
+
+    // Publish actual module wheel speeds so we can diagnose drive PID
+    SmartDashboard.putNumber("Drive/FL_vel_mps", m_frontLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Drive/FR_vel_mps", m_frontRight.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Drive/BL_vel_mps", m_rearLeft.getState().speedMetersPerSecond);
+    SmartDashboard.putNumber("Drive/BR_vel_mps", m_rearRight.getState().speedMetersPerSecond);
   }
 
   /**

@@ -14,6 +14,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.Configs; // Configs file
+import frc.robot.Constants.ModuleConstants;
 
 public class MAXSwerveModule {
   // Initializes Variables
@@ -104,8 +105,20 @@ public class MAXSwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     correctedDesiredState.optimize(new Rotation2d(m_turningEncoder.getPosition()));
 
-    // Command driving and turning SPARKS towards their respective setpoints.
-    m_drivingClosedLoopController.setSetpoint(correctedDesiredState.speedMetersPerSecond, ControlType.kVelocity);
+    // Bypass SparkMax onboard velocity PID (config doesn't stick reliably).
+    // Use software FF+P to drive the motor, same approach that fixed the shooter.
+    double desiredSpeed = correctedDesiredState.speedMetersPerSecond;
+    double freeSpeed = ModuleConstants.kDriveWheelFreeSpeedRps; // m/s at free speed
+    double ff = desiredSpeed / freeSpeed;
+    double measuredSpeed = m_drivingEncoder.getVelocity(); // m/s (conversion factor applied)
+    double error = desiredSpeed - measuredSpeed;
+    double kP = 0.1; // P gain in output-per-(m/s error)
+    double output = ff + (kP * error);
+    // Clamp to [-1, 1]
+    output = Math.max(-1.0, Math.min(1.0, output));
+    m_drivingSpark.set(output);
+
+    // Turning PID stays on SparkMax (position mode works fine)
     m_turningClosedLoopController.setSetpoint(correctedDesiredState.angle.getRadians(), ControlType.kPosition);
 
     m_desiredState = desiredState;
