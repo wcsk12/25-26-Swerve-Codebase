@@ -101,8 +101,14 @@ public class MAXSwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     correctedDesiredState.optimize(new Rotation2d(m_turningEncoder.getPosition()));
 
-    // Command driving and turning SPARKS towards their respective setpoints.
-    m_drivingClosedLoopController.setSetpoint(correctedDesiredState.speedMetersPerSecond, ControlType.kVelocity);
+    // Drive open-loop: convert desired m/s to a -1..1 duty cycle using the
+    // theoretical free speed so we bypass the SparkMax onboard PID entirely.
+    // This gives maximum responsiveness / power delivery.
+    double dutyCycle = correctedDesiredState.speedMetersPerSecond
+        / frc.robot.Constants.ModuleConstants.kDriveWheelFreeSpeedRps;
+    m_drivingSpark.set(dutyCycle);
+
+    // Turning still uses closed-loop position control (works well).
     m_turningClosedLoopController.setSetpoint(correctedDesiredState.angle.getRadians(), ControlType.kPosition);
 
     m_desiredState = desiredState;

@@ -24,7 +24,7 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static double kMaxSpeedMetersPerSecond = 5.0; //Originally 4.8
+    public static double kMaxSpeedMetersPerSecond = 4.8; // Match NEO free speed with 14T pinion (~4.81 m/s)
     public static final double kMaxAngularSpeed = 1.8 * Math.PI; // radians per second //originally 2
 
     // Motor Speeds of additional motors
