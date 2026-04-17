@@ -300,36 +300,26 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
-        // Lock wheels to prevent drift while shooting
-        new InstantCommand(() -> m_robotDrive.setX()),
-        // Use closed-loop RPM target for consistent speed during autos
         new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
         new WaitCommand(1),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
-        //new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed).withTimeout(1.5),
         new WaitCommand(3),
         new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
-        //new PosIntakeShakeCMD(posIntakeSubsystem, 0)
       );
   }
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
-  // Lock wheels to prevent drift while shooting
-  new InstantCommand(() -> m_robotDrive.setX()),
-  // Use a midpoint RPM for the "shake" auto variant so shots feed faster than
-  // the soft target but slower than the hard target.
-  new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
-        new WaitCommand(1),
-        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
-  // Move posIntake until encoder reaches target (normalize wrap-around in the command)
-  new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed).withTimeout(4),
-        new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(4)),
-    new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
-        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
-        new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
-      );
+      new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
+      new WaitCommand(1),
+      new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
+      new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed).withTimeout(4),
+      new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(4)),
+      new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
+      new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
+      new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
+    );
   }
 
   public Command getIntakeCommand() {
