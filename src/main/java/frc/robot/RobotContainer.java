@@ -23,7 +23,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; 
@@ -246,15 +248,21 @@ public class RobotContainer {
 
 //COMBINE INTAKE, SHOOTER, AND RELEASE INTO ONE SEQUENCE (for ___ controller) \\
    public Command ReleaseandShootWithoutLimelight() {
-      Command cmd = Commands.sequence( 
-         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
-         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed)),
-         new WaitCommand(1.0), // Give shooter time to spin up
-         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
-         Commands.idle() // Keep running so onFalse can cancel it
-         );
-      cmd.addRequirements(m_ShooterSubsystem);
-      return cmd;
+    return new ConditionalCommand(
+      new SequentialCommandGroup(
+        new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
+        new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed))
+        //Commands.idle() // Keep running so onFalse can cancel it
+      ),
+
+    new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
+    
+    () -> {
+      double currentRotation = m_robotDrive.GetPigeonDegrees();
+      return currentRotation > 10 || currentRotation < -10; // If the robot is not facing forward, run the intake to help clear jams and get fuel into the shooter.
+    }
+    ).repeatedly();
    }
 
    public Command ReverseShooterandRelease() { // Reverse shooter and release to clear jams. \\

@@ -10,6 +10,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 //Limelight Imports
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 // Math Imports
@@ -240,6 +241,13 @@ public class DriveSubsystem extends SubsystemBase {
         },
         pose);
       }
+      
+  public double GetPigeonDegrees(){
+    Rotation2d currentRotation = m_Pigeon2.getRotation2d();
+    // Wrap the degrees to [-180, 180)
+    double wrappedDegrees = MathUtil.inputModulus(currentRotation.getDegrees(), -180, 180);
+    return wrappedDegrees;
+  }
 /* 
     m_PoseEstimator.resetPosition(
         Rotation2d.fromDegrees(m_Pigeon2.getYaw().getValueAsDouble()), // This is what pathplanner uses for position
