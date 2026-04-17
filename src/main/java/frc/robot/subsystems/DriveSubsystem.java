@@ -310,7 +310,7 @@ public class DriveSubsystem extends SubsystemBase {
     double xSpeedDelivered = xSpeed * MaxDriveSpeed;
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
   // Apply rotation scaling (standard WPILib: +omega = CCW)
-  double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
+  double rotDelivered = -rot * DriveConstants.kMaxAngularSpeed;
 
     // DEBUG: Publish raw inputs to help diagnose teleop issues
     SmartDashboard.putNumber("Drive/xSpeed_raw", xSpeed);
