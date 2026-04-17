@@ -271,7 +271,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    // Save raw speeds for simulation (before Y-inversion)
+    // Save raw speeds for simulation (before any adjustments)
     m_simSpeeds = robotRelativeSpeeds;
     // Invert Y to compensate for swapped kinematics Y-signs
     ChassisSpeeds adjusted = new ChassisSpeeds(
@@ -309,8 +309,7 @@ public class DriveSubsystem extends SubsystemBase {
     // Convert the commanded (normalized -1..1) speeds into physical units
     double xSpeedDelivered = xSpeed * MaxDriveSpeed;
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
-  // Invert rotation input to match robot's positive-rotation convention
-  // (joystick + should produce the expected module angles / angular direction).
+  // Apply rotation scaling (standard WPILib: +omega = CCW)
   double rotDelivered = -rot * DriveConstants.kMaxAngularSpeed;
 
     // DEBUG: Publish raw inputs to help diagnose teleop issues
