@@ -418,16 +418,16 @@ public class RobotContainer {
     // Also bind raw joystick buttons as a fallback for non-Xbox controllers
     new JoystickButton(m_operatorJoystick, 1).whileTrue(new ShooterCMD(shooterSubsystem, DriveConstants.softShooterTargetRPM)); // Soft shooter
   // B (button 2): normal shooting behavior — spin up to softShooterTargetRPM and fire once at speed.
-  new JoystickButton(m_operatorJoystick, 2).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(3450))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+  new JoystickButton(m_operatorJoystick, 2).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.hardShooterTargetRPM))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
-    new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
+    //new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
     //new JoystickButton(m_operatorJoystick, 4).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake while agitating
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
     new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
-    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(3030))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
+    new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.midShooterTargetRPM))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 9).whileTrue(new LauncherCMD(launcherSubsystem, -0.3)); //  (for unjamming)
   }
 

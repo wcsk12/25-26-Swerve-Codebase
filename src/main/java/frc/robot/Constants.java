@@ -33,13 +33,13 @@ public final class Constants {
     //public static final double indexerMotorSpeed = 0.75; indexer uses launcherMotorSpeed
     public static final double intakeMotorSpeed = 1.0;
     public static final double launcherMotorSpeed = 0.75;
-    public static final double softShooterTargetRPM = 2800;
-    public static final double hardShooterTargetRPM = 3800;
+    public static final double softShooterTargetRPM = 3025;
+    public static final double hardShooterTargetRPM = 3750;
   // Midpoint target for auto "shake" behavior (between soft and hard)
-  public static final double midShooterTargetRPM = 3100;
+  public static final double midShooterTargetRPM = 3350;
     public static final double shooterRPMDeadzone = 150;
-    public static final double posIntakeMotorSpeed = 0.30;
-    public static final double posIntakeZeroMotorSpeed = -0.40;
+    public static final double posIntakeMotorSpeed = 0.50;
+    public static final double posIntakeZeroMotorSpeed = -0.50;
 
     // Current Regulation Constants
     public static final boolean regulateShooter = false;

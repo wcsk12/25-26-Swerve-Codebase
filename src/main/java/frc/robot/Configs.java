@@ -77,7 +77,7 @@ public final class Configs {
                     .positionWrappingEnabled(true)
                     .positionWrappingInputRange(0, turningFactor);
 
-          shooterConfig.idleMode(IdleMode.kBrake).smartCurrentLimit(50);
+          shooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(50);
           // Conservative small-motor configs
           launcherConfig.apply(drivingConfig);
           launcherConfig.smartCurrentLimit(40);
