@@ -246,35 +246,36 @@ public class RobotContainer {
 
 //COMBINE INTAKE, SHOOTER, AND RELEASE INTO ONE SEQUENCE (for ___ controller) \\
    public Command ReleaseandShootWithoutLimelight() {
-      return Commands.sequence( 
-        //Set Intake down first)
-        //new InstantCommand(() -> m_MotorizedIntakeSubsystem.setPosition(IntakePositions.down), m_MotorizedIntakeSubsystem),
-        new WaitCommand(0.5), // Give the intake time to lower before starting the motors
-         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, true), m_IntakeSubsystem),
-         new WaitUntilCommand(() -> {
-          double currentRotation = m_robotDrive.GetPigeonDegrees(); //Check if the robot is effectively facing forward.
-          return currentRotation <= 10 && currentRotation >= -10; // Adjust the threshold as needed
-         }),
-         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
-         new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
-         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+      Command cmd = Commands.sequence( 
+         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
+         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed)),
+         new WaitCommand(1.0), // Give shooter time to spin up
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
+         Commands.idle() // Keep running so onFalse can cancel it
          );
+      cmd.addRequirements(m_ShooterSubsystem);
+      return cmd;
    }
 
    public Command ReverseShooterandRelease() { // Reverse shooter and release to clear jams. \\
-    return Commands.sequence(
-       new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0, true), m_IntakeSubsystem), //Turn intake off to prevent jams from getting worse.
-      new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ReversedSpeed), m_ShooterSubsystem),
-      new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed), m_OtherMotorsSubsystem)
+    Command cmd = Commands.sequence(
+       new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0, true)),
+      new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ReversedSpeed)),
+      new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(DriveConstants.ReleaseMotorSpeed)),
+      Commands.idle() // Keep running so onFalse can cancel it
     );
+    cmd.addRequirements(m_ShooterSubsystem);
+    return cmd;
    }
 
    public Command ReleaseandShootOFF() {
-     return Commands.sequence(
+     Command cmd = Commands.sequence(
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0,true)),
-         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed), m_ShooterSubsystem),
-         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0), m_OtherMotorsSubsystem)
+         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.ZeroSpeed)),
+         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(0))
      );
+     cmd.addRequirements(m_ShooterSubsystem);
+     return cmd;
    }
 
    public Command ClimberUp() {
@@ -331,8 +332,10 @@ public class RobotContainer {
   // --------------------- Limelight AutoAlign ---------------------\\
      // m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
-      m_operatorController.rightBumper().toggleOnTrue(ReleaseandShootWithoutLimelight()).toggleOnFalse(ReleaseandShootOFF());
-      m_operatorController.leftBumper().toggleOnTrue(ReverseShooterandRelease()).toggleOnFalse(ReleaseandShootOFF());
+      m_operatorController.rightBumper().onTrue(ReleaseandShootWithoutLimelight());
+      m_operatorController.rightBumper().onFalse(ReleaseandShootOFF());
+      m_operatorController.leftBumper().onTrue(ReverseShooterandRelease());
+      m_operatorController.leftBumper().onFalse(ReleaseandShootOFF());
       // ------------------------------------------ Intake Up ------------------------------------------ \\ -
       //m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() ->m_MotorizedIntakeSubsystem.setPosition(IntakePositions.zero), m_MotorizedIntakeSubsystem)); //bring intake up for driving.
 

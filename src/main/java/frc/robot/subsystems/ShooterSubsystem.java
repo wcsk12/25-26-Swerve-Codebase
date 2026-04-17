@@ -35,9 +35,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public enum SetShooterSpeed {
     ZeroSpeed(0),
-    SlowSpeed(3420),
-    ReversedSpeed(-3420),
-    FarSpeed(3900);
+    SlowSpeed(-3420),
+    ReversedSpeed(3420),
+    FarSpeed(-3900);
 
     private final double value;
 
@@ -57,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
     this.kP = 0.000134;
     this.kI = 0.00;
     this.kD = 0.00;
-    this.kMinOutput = 0.00;
+    this.kMinOutput = -1.00;
     this.kMaxOutput = 1.00;
 
     config.closedLoop
