@@ -10,7 +10,6 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.MathUtil;
 //Limelight Imports
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 // Math Imports
@@ -73,15 +72,6 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearLeft.getPosition(),
           m_rearRight.getPosition()
       });
-  
-      //Use this to get Pigeon value in degrees wrapped to [-180, 180)
-  public double GetPigeonDegrees(){
-    Rotation2d currentRotation = m_Pigeon2.getRotation2d();
-    // Wrap the degrees to [-180, 180)
-    double wrappedDegrees = MathUtil.inputModulus(currentRotation.getDegrees(), -180, 180);
-    return wrappedDegrees;
-  }
-
   // Initializing kinematics
   SwerveDriveKinematics m_kinematics;
   // Sets up exception messages
@@ -265,14 +255,22 @@ public class DriveSubsystem extends SubsystemBase {
 */
 
   public ChassisSpeeds getRobotRelativeSpeeds(){
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_frontLeft.getState(),
-                                                           m_frontRight.getState(),
-                                                           m_rearLeft.getState(),
-                                                           m_rearRight.getState());
+    ChassisSpeeds measured = DriveConstants.kDriveKinematics.toChassisSpeeds(
+        m_frontLeft.getState(),
+        m_frontRight.getState(),
+        m_rearLeft.getState(),
+        m_rearRight.getState());
+    // Invert Y to compensate for swapped kinematics Y-signs
+    return new ChassisSpeeds(measured.vxMetersPerSecond, -measured.vyMetersPerSecond, measured.omegaRadiansPerSecond);
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
-    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+    // Invert Y to compensate for swapped kinematics Y-signs
+    ChassisSpeeds adjusted = new ChassisSpeeds(
+        robotRelativeSpeeds.vxMetersPerSecond,
+        -robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.omegaRadiansPerSecond);
+    ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(adjusted, 0.02);
 
     SwerveModuleState[] targetStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(targetSpeeds);
     setModuleStates(targetStates);
@@ -305,6 +303,15 @@ public class DriveSubsystem extends SubsystemBase {
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
     double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
+    // DEBUG: Publish raw inputs to help diagnose teleop issues
+    SmartDashboard.putNumber("Drive/xSpeed_raw", xSpeed);
+    SmartDashboard.putNumber("Drive/ySpeed_raw", ySpeed);
+    SmartDashboard.putNumber("Drive/rot_raw", rot);
+    SmartDashboard.putNumber("Drive/xSpeed_delivered", xSpeedDelivered);
+    SmartDashboard.putNumber("Drive/ySpeed_delivered", ySpeedDelivered);
+    SmartDashboard.putNumber("Drive/rotDelivered", rotDelivered);
+    SmartDashboard.putNumber("Drive/MaxDriveSpeed", MaxDriveSpeed);
+
     // Build chassis speeds using the delivered (scaled) values. Use field-relative
     // conversion when requested so joystick inputs are interpreted relative to the
     // field rather than the robot.
@@ -321,11 +328,13 @@ public class DriveSubsystem extends SubsystemBase {
     // Ensure wheel speeds are within the configured maximum
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
 
-    // Assign states in the canonical order: [0]=FL, [1]=FR, [2]=BL, [3]=BR
-    m_frontLeft.setDesiredState(swerveModuleStates[2]);
-    m_frontRight.setDesiredState(swerveModuleStates[3]);
-    m_rearLeft.setDesiredState(swerveModuleStates[0]);
-    m_rearRight.setDesiredState(swerveModuleStates[1]);
+    // DEBUG: Publish computed chassis speeds
+    SmartDashboard.putNumber("Drive/chassisVx", discretized.vxMetersPerSecond);
+    SmartDashboard.putNumber("Drive/chassisVy", discretized.vyMetersPerSecond);
+    SmartDashboard.putNumber("Drive/chassisOmega", discretized.omegaRadiansPerSecond);
+
+    // Apply via centralized canonical mapping (FL, FR, BL, BR)
+    setModuleStates(swerveModuleStates);
   }
 
   /**
@@ -350,10 +359,23 @@ public class DriveSubsystem extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
-    m_frontLeft.setDesiredState(desiredStates[2]);
-    m_frontRight.setDesiredState(desiredStates[3]);
-    m_rearLeft.setDesiredState(desiredStates[0]);
-    m_rearRight.setDesiredState(desiredStates[1]);
+    
+    // DEBUG: Show commanded states for each module
+    SmartDashboard.putNumber("Mod/FL_speed", desiredStates[0].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/FL_angle", desiredStates[0].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/FR_speed", desiredStates[1].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/FR_angle", desiredStates[1].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/BL_speed", desiredStates[2].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/BL_angle", desiredStates[2].angle.getDegrees());
+    SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
+    SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
+
+    // Apply module states in canonical WPILib/kinematics order:
+    // Front Left, Front Right, Back Left, Back Right.
+    m_frontLeft.setDesiredState(desiredStates[0]);
+    m_frontRight.setDesiredState(desiredStates[1]);
+    m_rearLeft.setDesiredState(desiredStates[2]);
+    m_rearRight.setDesiredState(desiredStates[3]);
   }
 
   /** Resets the drive encoders to currently read a position of 0. */
