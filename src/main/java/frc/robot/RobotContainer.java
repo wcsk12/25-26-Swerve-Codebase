@@ -300,6 +300,8 @@ public class RobotContainer {
 
   public Command getShootSequence() {
       return Commands.sequence(
+        // Lock wheels to prevent drift while shooting
+        new InstantCommand(() -> m_robotDrive.setX()),
         // Use closed-loop RPM target for consistent speed during autos
         new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
         new WaitCommand(1),
@@ -314,6 +316,8 @@ public class RobotContainer {
 
   public Command getShootShakeCommand() {
     return Commands.sequence(
+  // Lock wheels to prevent drift while shooting
+  new InstantCommand(() -> m_robotDrive.setX()),
   // Use a midpoint RPM for the "shake" auto variant so shots feed faster than
   // the soft target but slower than the hard target.
   new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
@@ -324,9 +328,6 @@ public class RobotContainer {
         new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(4)),
     new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
         new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
-        // Ensure we stop the posIntake and finish the sequence instead of scheduling
-        // another PosIntakeShakeCMD (which never finishes). Use an InstantCommand to
-        // explicitly stop the motor so the NamedCommand completes reliably.
         new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
       );
   }
