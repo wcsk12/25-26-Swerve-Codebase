@@ -65,29 +65,30 @@ public final class Constants {
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FL: +x, -y (swapped Y)
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FR: +x, +y (swapped Y)
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  // BL: -x, -y (swapped Y)
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR: -x, +y (swapped Y)
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FL: +x, +y (standard WPILib)
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FR: +x, -y (standard WPILib)
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),   // BL: -x, +y (standard WPILib)
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2)); // BR: -x, -y (standard WPILib)
 
     // Angular offsets of the modules relative to the chassis in radians
     // Calibrated from REV Hardware Client encoder readings + fine-tuning adjustments
-    public static final double kFrontLeftChassisAngularOffset = 5.9970;   // FL: calibrated -29°
-    public static final double kFrontRightChassisAngularOffset = 0.7060;  // FR: calibrated +12°
-    public static final double kBackLeftChassisAngularOffset = 8.5570;    // BL: calibrated -13°
-    public static final double kBackRightChassisAngularOffset = 10.4448;  // BR: calibrated +30°
+    // Swapped FL↔FR and BL↔BR to match standard WPILib kinematics convention
+    public static final double kFrontLeftChassisAngularOffset = 0.7060;   // physical front-left module
+    public static final double kFrontRightChassisAngularOffset = 5.9970;  // physical front-right module
+    public static final double kBackLeftChassisAngularOffset = 10.4448;   // physical back-left module
+    public static final double kBackRightChassisAngularOffset = 8.5570;   // physical back-right module
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
-    // Driving Motors
-    public static final int kFrontLeftDrivingCanId = 2;
-    public static final int kFrontRightDrivingCanId = 4;
-    public static final int kRearLeftDrivingCanId = 6;
-    public static final int kRearRightDrivingCanId = 8;
-    // Turning Motors 
-    public static final int kFrontLeftTurningCanId = 1;
-    public static final int kFrontRightTurningCanId = 3;
-    public static final int kRearLeftTurningCanId = 5;
-    public static final int kRearRightTurningCanId = 7;
+    // Driving Motors (swapped FL↔FR and BL↔BR to match standard kinematics)
+    public static final int kFrontLeftDrivingCanId = 4;
+    public static final int kFrontRightDrivingCanId = 2;
+    public static final int kRearLeftDrivingCanId = 8;
+    public static final int kRearRightDrivingCanId = 6;
+    // Turning Motors (swapped FL↔FR and BL↔BR to match standard kinematics)
+    public static final int kFrontLeftTurningCanId = 3;
+    public static final int kFrontRightTurningCanId = 1;
+    public static final int kRearLeftTurningCanId = 7;
+    public static final int kRearRightTurningCanId = 5;
 
     public static int modeValue = 0;
 

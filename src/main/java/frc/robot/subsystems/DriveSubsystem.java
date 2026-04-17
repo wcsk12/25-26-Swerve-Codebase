@@ -266,17 +266,17 @@ public class DriveSubsystem extends SubsystemBase {
         m_frontRight.getState(),
         m_rearLeft.getState(),
         m_rearRight.getState());
-    // Invert Y to compensate for swapped kinematics Y-signs
-    return new ChassisSpeeds(measured.vxMetersPerSecond, -measured.vyMetersPerSecond, measured.omegaRadiansPerSecond);
+    // Standard kinematics — no compensation needed
+    return new ChassisSpeeds(measured.vxMetersPerSecond, measured.vyMetersPerSecond, measured.omegaRadiansPerSecond);
   }
 
   public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds){
     // Save raw speeds for simulation (before any adjustments)
     m_simSpeeds = robotRelativeSpeeds;
-    // Invert Y to compensate for swapped kinematics Y-signs
+    // Standard kinematics — no compensation needed
     ChassisSpeeds adjusted = new ChassisSpeeds(
         robotRelativeSpeeds.vxMetersPerSecond,
-        -robotRelativeSpeeds.vyMetersPerSecond,
+        robotRelativeSpeeds.vyMetersPerSecond,
         robotRelativeSpeeds.omegaRadiansPerSecond);
     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(adjusted, 0.02);
 
@@ -310,7 +310,7 @@ public class DriveSubsystem extends SubsystemBase {
     double xSpeedDelivered = xSpeed * MaxDriveSpeed;
     double ySpeedDelivered = ySpeed * MaxDriveSpeed;
   // Apply rotation scaling (standard WPILib: +omega = CCW)
-  double rotDelivered = -rot * DriveConstants.kMaxAngularSpeed;
+  double rotDelivered = rot * DriveConstants.kMaxAngularSpeed;
 
     // DEBUG: Publish raw inputs to help diagnose teleop issues
     SmartDashboard.putNumber("Drive/xSpeed_raw", xSpeed);
@@ -343,9 +343,7 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Drive/chassisOmega", discretized.omegaRadiansPerSecond);
 
     // Update sim speeds for simulation odometry (robot-relative)
-    // Invert Y because teleop ChassisSpeeds went through swapped-Y kinematics
-    // Invert omega because teleop negates rotation for the real gyro convention
-    m_simSpeeds = new ChassisSpeeds(discretized.vxMetersPerSecond, -discretized.vyMetersPerSecond, -discretized.omegaRadiansPerSecond);
+    m_simSpeeds = new ChassisSpeeds(discretized.vxMetersPerSecond, discretized.vyMetersPerSecond, discretized.omegaRadiansPerSecond);
 
     // Apply via centralized canonical mapping (FL, FR, BL, BR)
     setModuleStates(swerveModuleStates);
