@@ -299,26 +299,34 @@ public class RobotContainer {
   }
 
   public Command getShootSequence() {
-      return Commands.sequence(
-        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
-        new WaitCommand(1),
-        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
-        new WaitCommand(3),
-        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
-        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
+      return Commands.deadline(
+        Commands.sequence(
+          new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
+          new WaitCommand(1),
+          new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
+          new WaitCommand(3),
+          new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
+          new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0))
+        ),
+        // Hold zero drive to prevent drift (claims m_robotDrive so default command doesn't run)
+        new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false, 0.02), m_robotDrive)
       );
   }
 
   public Command getShootShakeCommand() {
-    return Commands.sequence(
-      new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
-      new WaitCommand(1),
-      new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
-      new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed).withTimeout(4),
-      new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(4)),
-      new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
-      new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
-      new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
+    return Commands.deadline(
+      Commands.sequence(
+        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM((int)DriveConstants.midShooterTargetRPM)),
+        new WaitCommand(1),
+        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
+        new PosIntakeShakeCMD(posIntakeSubsystem, -DriveConstants.posIntakeMotorSpeed).withTimeout(4),
+        new WaitUntilCommand(() -> PosIntakeShakeCMD.autoTimer.hasElapsed(4)),
+        new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
+        new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(0)),
+        new InstantCommand(() -> posIntakeSubsystem.setPosIntakeSpeed(0))
+      ),
+      // Hold zero drive to prevent drift (claims m_robotDrive so default command doesn't run)
+      new RunCommand(() -> m_robotDrive.drive(0, 0, 0, false, 0.02), m_robotDrive)
     );
   }
 
