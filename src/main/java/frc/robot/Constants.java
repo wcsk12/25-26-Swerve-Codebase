@@ -45,17 +45,12 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
     // Angular offsets of the modules relative to the chassis in radians
-    public static final double kFrontLeftChassisAngularOffset = Math.PI;
-    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = 0;
-
-    // Absolute encoder zero offsets for each module (rotations, 0–1).
-    // Measured with all wheels pointed straight forward.
-    public static final double kFrontLeftEncoderOffset = 0.7944;
-    public static final double kFrontRightEncoderOffset = 0.5758;
-    public static final double kBackLeftEncoderOffset = 0.5578;
-    public static final double kBackRightEncoderOffset = 0.7647;
+    // These are the raw absolute encoder readings (in radians) when wheels point straight forward.
+    // FL=285°, FR=118°, BL=291°, BR=276° converted to radians
+    public static final double kFrontLeftChassisAngularOffset = Math.toRadians(210);
+    public static final double kFrontRightChassisAngularOffset = Math.toRadians(238);
+    public static final double kBackLeftChassisAngularOffset = Math.toRadians(210);
+    public static final double kBackRightChassisAngularOffset = Math.toRadians(186);
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors

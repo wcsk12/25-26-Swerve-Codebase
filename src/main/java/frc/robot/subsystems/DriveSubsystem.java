@@ -41,26 +41,22 @@ public class DriveSubsystem extends SubsystemBase {
   private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
       DriveConstants.kFrontLeftDrivingCanId,
       DriveConstants.kFrontLeftTurningCanId,
-      DriveConstants.kFrontLeftChassisAngularOffset,
-      DriveConstants.kFrontLeftEncoderOffset);
+      DriveConstants.kFrontLeftChassisAngularOffset);
 
   private final MAXSwerveModule m_frontRight = new MAXSwerveModule(
       DriveConstants.kFrontRightDrivingCanId,
       DriveConstants.kFrontRightTurningCanId,
-      DriveConstants.kFrontRightChassisAngularOffset,
-      DriveConstants.kFrontRightEncoderOffset);
+      DriveConstants.kFrontRightChassisAngularOffset);
 
   private final MAXSwerveModule m_rearLeft = new MAXSwerveModule(
       DriveConstants.kRearLeftDrivingCanId,
       DriveConstants.kRearLeftTurningCanId,
-      DriveConstants.kBackLeftChassisAngularOffset,
-      DriveConstants.kBackLeftEncoderOffset);
+      DriveConstants.kBackLeftChassisAngularOffset);
 
   private final MAXSwerveModule m_rearRight = new MAXSwerveModule(
       DriveConstants.kRearRightDrivingCanId,
       DriveConstants.kRearRightTurningCanId,
-      DriveConstants.kBackRightChassisAngularOffset,
-      DriveConstants.kBackRightEncoderOffset);
+      DriveConstants.kBackRightChassisAngularOffset);
 
   // The gyro sensor
   private final Pigeon2 m_Pigeon2 = new Pigeon2(12);
@@ -187,6 +183,12 @@ public class DriveSubsystem extends SubsystemBase {
   SmartDashboard.putNumber("FR Angle (deg)", Math.toDegrees(frState.angle.getRadians()));
   SmartDashboard.putNumber("BL Angle (deg)", Math.toDegrees(blState.angle.getRadians()));
   SmartDashboard.putNumber("BR Angle (deg)", Math.toDegrees(brState.angle.getRadians()));
+
+  // Raw absolute encoder positions (degrees) — use these for calibrating zeroOffset
+  SmartDashboard.putNumber("FL Raw Enc (deg)", Math.toDegrees(m_frontLeft.getRawAbsoluteEncoderPosition()));
+  SmartDashboard.putNumber("FR Raw Enc (deg)", Math.toDegrees(m_frontRight.getRawAbsoluteEncoderPosition()));
+  SmartDashboard.putNumber("BL Raw Enc (deg)", Math.toDegrees(m_rearLeft.getRawAbsoluteEncoderPosition()));
+  SmartDashboard.putNumber("BR Raw Enc (deg)", Math.toDegrees(m_rearRight.getRawAbsoluteEncoderPosition()));
 
   // Keep the original relative encoder velocity values for backwards compatibility
   SmartDashboard.putNumber("fRightDrive", m_frontRight.getRelativeEncoder());
