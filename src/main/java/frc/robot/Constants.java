@@ -50,6 +50,13 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
     public static final double kBackRightChassisAngularOffset = 0;
 
+    // Absolute encoder zero offsets for each module (rotations, 0–1).
+    // Measured with all wheels pointed straight forward.
+    public static final double kFrontLeftEncoderOffset = 0.7944;
+    public static final double kFrontRightEncoderOffset = 0.5758;
+    public static final double kBackLeftEncoderOffset = 0.5578;
+    public static final double kBackRightEncoderOffset = 0.7647;
+
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors
     public static final int kFrontLeftDrivingCanId = 2;
