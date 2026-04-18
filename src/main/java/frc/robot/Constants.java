@@ -29,7 +29,7 @@ public final class Constants {
     public static final double RobotWeight = 89.9; // The Robot's current weight in pounds.
 
     // Motor Speeds of additional motors
-    public static final double IntakeMotorSpeed = -0.7; //Intake
+    public static final double IntakeMotorSpeed = 0.7; //Intake
     public static final double ShooterMotorSpeed = -0.65;
     public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
     public static final double ReleaseMotorSpeed = 0.75;
