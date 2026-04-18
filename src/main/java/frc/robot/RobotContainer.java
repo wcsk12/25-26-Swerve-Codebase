@@ -281,7 +281,7 @@ public class RobotContainer {
         //Commands.idle() // Keep running so onFalse can cancel it,
       ).onlyWhile(() -> {
         double currentRotation = m_robotDrive.GetPigeonDegrees();
-      return currentRotation < 10 || currentRotation > -10;
+      return currentRotation < 20 && currentRotation > -20;
       })
     ).repeatedly();
      }
