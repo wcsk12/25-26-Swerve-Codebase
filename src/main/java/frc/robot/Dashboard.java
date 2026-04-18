@@ -41,16 +41,19 @@ public final class Dashboard {
     driveTab.add("Pose Rot (deg)", 0.0).withSize(2, 1).withPosition(8, 1).withWidget(BuiltInWidgets.kTextView);
 
     // Module speeds
-    driveTab.add("FL Speed (m/s)", 0.0).withSize(2, 1).withPosition(0, 4);
-    driveTab.add("FR Speed (m/s)", 0.0).withSize(2, 1).withPosition(2, 4);
-    driveTab.add("BL Speed (m/s)", 0.0).withSize(2, 1).withPosition(4, 4);
-    driveTab.add("BR Speed (m/s)", 0.0).withSize(2, 1).withPosition(6, 4);
+    //driveTab.add("FL Speed (m/s)", 0.0).withSize(2, 1).withPosition(0, 4);
+    //driveTab.add("FR Speed (m/s)", 0.0).withSize(2, 1).withPosition(2, 4);
+    //driveTab.add("BL Speed (m/s)", 0.0).withSize(2, 1).withPosition(4, 4);
+    //driveTab.add("BR Speed (m/s)", 0.0).withSize(2, 1).withPosition(6, 4);
 
     // Module angles
-    driveTab.add("FL Angle (deg)", 0.0).withSize(2, 1).withPosition(0, 5);
-    driveTab.add("FR Angle (deg)", 0.0).withSize(2, 1).withPosition(2, 5);
-    driveTab.add("BL Angle (deg)", 0.0).withSize(2, 1).withPosition(4, 5);
-    driveTab.add("BR Angle (deg)", 0.0).withSize(2, 1).withPosition(6, 5);
+    //driveTab.add("FL Angle (deg)", 0.0).withSize(2, 1).withPosition(0, 5);
+    //driveTab.add("FR Angle (deg)", 0.0).withSize(2, 1).withPosition(2, 5);
+    //driveTab.add("BL Angle (deg)", 0.0).withSize(2, 1).withPosition(4, 5);
+    //driveTab.add("BR Angle (deg)", 0.0).withSize(2, 1).withPosition(6, 5);
+
+    // Climber Position
+    driveTab.add("Climber Position", 0.0).withSize(2, 1).withPosition(0, 4);
 
     // Small status widgets (redundant with banner): keep numeric/text indicators
   var slowWidget = driveTab.add("Slow Mode", false).withSize(2, 1).withPosition(8, 4).withWidget(BuiltInWidgets.kTextView);

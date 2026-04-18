@@ -49,7 +49,7 @@ public class ClimberSubsystem extends SubsystemBase {
       ClimberMotor.set(speed);
     }
 
-    public void SetServoPosition(double position) { // This is used to set the servo position.
+    public void SetServoPosition(int position) { // This is used to set the servo position.
       if (climberServo.getAngle() != position) { //set the servo position only if it is different from the current position to avoid unnecessary updates.
         climberServo.setAngle(position);
       }

@@ -200,7 +200,7 @@ public class RobotContainer {
     return Commands.sequence(
         // 1. Start shooter motor, wait for it to reach speed
         new InstantCommand(() -> m_ShooterSubsystem.setShooterSpeed(DriveConstants.ShooterMotorSpeed)),
-        new WaitCommand(1.1), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
+        new WaitCommand(0.5), // Adjust wait time for spin-up //Takes 0.8 sec for other motor to start.
         // 2. Run feeder/release motor to fire
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
         new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(DriveConstants.IntakeMotorSpeed, false)),
@@ -247,11 +247,12 @@ public class RobotContainer {
 
 
 //COMBINE INTAKE, SHOOTER, AND RELEASE INTO ONE SEQUENCE (for ___ controller) \\
+//Plan A
    public Command ReleaseandShootWithoutLimelight() {
     return new ConditionalCommand(
       new SequentialCommandGroup(
         new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem),
-        new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
+        //new WaitUntilCommand(() -> m_ShooterSubsystem.getShooterRPM() >= 3100).withTimeout(5), // headstart for shooter spin-up
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed))
         //Commands.idle() // Keep running so onFalse can cancel it
       ),
@@ -264,7 +265,25 @@ public class RobotContainer {
     }
     ).repeatedly();
    }
-
+//Plan B
+   public Command ReleaseandShootWithoutLimelight2() {
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
+      new WaitUntilCommand(() -> {
+        double currentRotation = m_robotDrive.GetPigeonDegrees();
+      return currentRotation < 10 || currentRotation > -10; // If the robot is not facing forward, run the intake to help clear jams and get fuel into the shooter.
+      }),
+      new SequentialCommandGroup(
+        new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
+        //new WaitCommand(0.5), // headstart for shooter spin-up
+        new InstantCommand(() -> m_ShooterSubsystem.setSpeed(SetShooterSpeed.SlowSpeed), m_ShooterSubsystem)
+        //Commands.idle() // Keep running so onFalse can cancel it,
+      ).onlyWhile(() -> {
+        double currentRotation = m_robotDrive.GetPigeonDegrees();
+      return currentRotation < 10 || currentRotation > -10;
+      })
+    ).repeatedly();
+     }
    public Command ReverseShooterandRelease() { // Reverse shooter and release to clear jams. \\
     Command cmd = Commands.sequence(
        new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0, true)),
@@ -290,7 +309,8 @@ public class RobotContainer {
     return Commands.sequence(
 
       //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 0).withTimeout(0.5), // Gets what servo was last set to.
-      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(90), m_ClimberSubsystem),
+      new WaitCommand(1),
       new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(-DriveConstants.ClimberSpeed), m_ClimberSubsystem)
       
       );
@@ -300,8 +320,9 @@ public class RobotContainer {
     return Commands.sequence(
 
       //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 180).withTimeout(0.5), // Gets what servo was last set to.
-      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem),
-      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(180), m_ClimberSubsystem)
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
+      new WaitCommand(1),
+      new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem)
       
       );
    }
@@ -340,7 +361,7 @@ public class RobotContainer {
   // --------------------- Limelight AutoAlign ---------------------\\
      // m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
       // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
-      m_operatorController.rightBumper().onTrue(ReleaseandShootWithoutLimelight());
+      m_operatorController.rightBumper().onTrue(ReleaseandShootWithoutLimelight2());
       m_operatorController.rightBumper().onFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().onTrue(ReverseShooterandRelease());
       m_operatorController.leftBumper().onFalse(ReleaseandShootOFF());

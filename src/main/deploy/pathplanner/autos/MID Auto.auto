@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Zero Climber"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "BLU M PATH 1"

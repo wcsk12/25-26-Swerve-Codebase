@@ -24,11 +24,12 @@ public final class Constants {
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static double kMaxSpeedMetersPerSecond = 4.8; // Match NEO free speed with 14T pinion (~4.81 m/s)
-    public static final double kMaxAngularSpeed = 1.8 * Math.PI; // radians per second //originally 2
+    public static double kMaxSpeedMetersPerSecond = 5.4; //Originally 4.8
+    public static final double kMaxAngularSpeed = 1.5 * Math.PI; // radians per second //originally 2
+    public static final double RobotWeight = 89.9; // The Robot's current weight in pounds.
 
     // Motor Speeds of additional motors
-    public static final double IntakeMotorSpeed = 0.7; //Intake
+    public static final double IntakeMotorSpeed = -0.7; //Intake
     public static final double ShooterMotorSpeed = -0.65;
     public static final double ShootMotorSpeedOFF = 0; // speed when shooter is turned off.
     public static final double ReleaseMotorSpeed = 0.75;
@@ -38,18 +39,16 @@ public final class Constants {
     public static final double kTrackWidth = Units.inchesToMeters(22.5); // Distance between centers of right and left wheels on robot
     public static final double kWheelBase = Units.inchesToMeters(22.5); // Distance between front and back wheels on robot
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),   // FL at +x, -y
-        new Translation2d(kWheelBase / 2, kTrackWidth / 2),    // FR at +x, +y
-        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  // BL at -x, -y
-        new Translation2d(-kWheelBase / 2, kTrackWidth / 2));  // BR at -x, +y
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
-  // Angular offsets of the modules relative to the chassis in radians.
-  // Canonical state mapping is FL, FR, BL, BR in DriveSubsystem#setModuleStates.
-  // Calibrated with wheels physically pointing forward.
-  public static final double kFrontLeftChassisAngularOffset = 2.9935 + Math.PI + 0.0873 + 0.0349;  // FL
-  public static final double kFrontRightChassisAngularOffset = 1.9154 + 0.0524 + 0.0175; // FR
-  public static final double kBackLeftChassisAngularOffset = 1.7191 + Math.PI + 0.0873;   // BL
-  public static final double kBackRightChassisAngularOffset = 4.0352 - 0.7854 - 1.5708 + Math.PI - 0.0349;  // BR
+    // Angular offsets of the modules relative to the chassis in radians
+    public static final double kFrontLeftChassisAngularOffset = Math.PI;
+    public static final double kFrontRightChassisAngularOffset = -Math.PI / 2;
+    public static final double kBackLeftChassisAngularOffset = Math.PI / 2;
+    public static final double kBackRightChassisAngularOffset = 0;
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
     // Driving Motors

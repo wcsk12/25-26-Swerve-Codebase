@@ -246,7 +246,9 @@ public class DriveSubsystem extends SubsystemBase {
     Rotation2d currentRotation = m_Pigeon2.getRotation2d();
     // Wrap the degrees to [-180, 180)
     double wrappedDegrees = MathUtil.inputModulus(currentRotation.getDegrees(), -180, 180);
+    SmartDashboard.putNumber("Pigeon Degrees", wrappedDegrees);
     return wrappedDegrees;
+    
   }
 /* 
     m_PoseEstimator.resetPosition(
@@ -368,15 +370,16 @@ public class DriveSubsystem extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     
+// -------------- SMARTDASHBOARD MODULE STATES --------------  \\
     // DEBUG: Show commanded states for each module
-    SmartDashboard.putNumber("Mod/FL_speed", desiredStates[0].speedMetersPerSecond);
-    SmartDashboard.putNumber("Mod/FL_angle", desiredStates[0].angle.getDegrees());
-    SmartDashboard.putNumber("Mod/FR_speed", desiredStates[1].speedMetersPerSecond);
-    SmartDashboard.putNumber("Mod/FR_angle", desiredStates[1].angle.getDegrees());
-    SmartDashboard.putNumber("Mod/BL_speed", desiredStates[2].speedMetersPerSecond);
-    SmartDashboard.putNumber("Mod/BL_angle", desiredStates[2].angle.getDegrees());
-    SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
-    SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
+    //SmartDashboard.putNumber("Mod/FL_speed", desiredStates[0].speedMetersPerSecond);
+    //SmartDashboard.putNumber("Mod/FL_angle", desiredStates[0].angle.getDegrees());
+    //SmartDashboard.putNumber("Mod/FR_speed", desiredStates[1].speedMetersPerSecond);
+    //SmartDashboard.putNumber("Mod/FR_angle", desiredStates[1].angle.getDegrees());
+    //SmartDashboard.putNumber("Mod/BL_speed", desiredStates[2].speedMetersPerSecond);
+    //SmartDashboard.putNumber("Mod/BL_angle", desiredStates[2].angle.getDegrees());
+    //SmartDashboard.putNumber("Mod/BR_speed", desiredStates[3].speedMetersPerSecond);
+    //SmartDashboard.putNumber("Mod/BR_angle", desiredStates[3].angle.getDegrees());
 
     // Apply module states in canonical WPILib/kinematics order:
     // Front Left, Front Right, Back Left, Back Right.
