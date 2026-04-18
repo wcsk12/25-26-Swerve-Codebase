@@ -77,10 +77,10 @@
   },
   "goalEndState": {
     "velocity": 3.0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "CompRightPaths",
+  "folder": "CompLeftPaths",
   "idealStartingState": {
     "velocity": 0.0,
     "rotation": 180.0

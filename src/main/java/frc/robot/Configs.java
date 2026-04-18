@@ -45,7 +45,7 @@ public final class Configs {
 
             drivingConfig
                     .idleMode(IdleMode.kBrake)
-                    .smartCurrentLimit(80);
+                    .smartCurrentLimit(50);
             drivingConfig.encoder
                     .positionConversionFactor(drivingFactor) // meters
                     .velocityConversionFactor(drivingFactor / 60.0); // meters per second
@@ -77,16 +77,16 @@ public final class Configs {
                     .positionWrappingEnabled(true)
                     .positionWrappingInputRange(0, turningFactor);
 
-          shooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(50);
+          shooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(30);
           // Conservative small-motor configs
           launcherConfig.apply(drivingConfig);
-          launcherConfig.smartCurrentLimit(40);
+          launcherConfig.smartCurrentLimit(20);
 
           indexerConfig.apply(drivingConfig);
-          indexerConfig.smartCurrentLimit(30);
+          indexerConfig.smartCurrentLimit(20);
 
           intakeConfig.apply(drivingConfig);
-          intakeConfig.smartCurrentLimit(40);
+          intakeConfig.smartCurrentLimit(30);
 
           posIntakeConfig.apply(drivingConfig);
           posIntakeConfig.smartCurrentLimit(20);

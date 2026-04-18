@@ -62,7 +62,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6736842105263207,
+      "waypointRelativePos": 0.4455445544554464,
       "rotationDegrees": 0.0
     },
     {
@@ -87,13 +87,13 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": -91.70981404414161
+    "rotation": -91.0
   },
   "reversed": false,
-  "folder": "CompRightPaths",
+  "folder": "CompLeftPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -138.528
+    "rotation": -112.774
   },
   "useDefaultConstraints": true
 }

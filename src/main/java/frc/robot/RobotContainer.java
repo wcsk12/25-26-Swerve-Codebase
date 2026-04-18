@@ -163,7 +163,7 @@ public class RobotContainer {
       new RunCommand(
         () -> m_robotDrive.drive(
         -MathUtil.applyDeadband(m_driverController.getRawAxis(1) * speedMode, OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(-m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(-m_driverController.getRawAxis(4) * speedMode, OIConstants.kDriveDeadband), 
         true, 0.02),
       m_robotDrive));
@@ -421,7 +421,7 @@ public class RobotContainer {
     new JoystickButton(m_operatorJoystick, 3).whileTrue(new IntakeCMD(intakeSubsystem, DriveConstants.intakeMotorSpeed)); // Intake
     //new JoystickButton(m_operatorJoystick, 3).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper when intaking
     new JoystickButton(m_operatorJoystick, 4).whileTrue(new LauncherCMD(launcherSubsystem, DriveConstants.launcherMotorSpeed)); // Fuel to shooter
-    new JoystickButton(m_operatorJoystick, 4).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
+    //new JoystickButton(m_operatorJoystick, 4).whileTrue(new PosIntakeShakeCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // Jiggles posIntake when using launcher
     //new JoystickButton(m_operatorJoystick, 4).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake while agitating
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
