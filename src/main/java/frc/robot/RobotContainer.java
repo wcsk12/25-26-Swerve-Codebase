@@ -265,10 +265,11 @@ public class RobotContainer {
     }
     ).repeatedly();
    }
-//Plan B
+//Plan B Works!
    public Command ReleaseandShootWithoutLimelight2() {
     return new SequentialCommandGroup(
-      new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
+      new InstantCommand(() -> {}),
+     // new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
       new WaitUntilCommand(() -> {
         double currentRotation = m_robotDrive.GetPigeonDegrees();
       return currentRotation < 10 || currentRotation > -10; // If the robot is not facing forward, run the intake to help clear jams and get fuel into the shooter.
@@ -309,8 +310,8 @@ public class RobotContainer {
     return Commands.sequence(
 
       //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 0).withTimeout(0.5), // Gets what servo was last set to.
-      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(90), m_ClimberSubsystem),
-      new WaitCommand(1),
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
+      new WaitCommand(0.5),
       new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(-DriveConstants.ClimberSpeed), m_ClimberSubsystem)
       
       );
@@ -320,8 +321,8 @@ public class RobotContainer {
     return Commands.sequence(
 
       //new WaitUntilCommand(() -> m_ClimberSubsystem.GetClimberPosition() == 180).withTimeout(0.5), // Gets what servo was last set to.
-      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(0), m_ClimberSubsystem),
-      new WaitCommand(1),
+      new InstantCommand(() -> m_ClimberSubsystem.SetServoPosition(180), m_ClimberSubsystem),
+      new WaitCommand(0.5),
       new InstantCommand(() -> m_ClimberSubsystem.SetClimberSpeed(DriveConstants.ClimberSpeed), m_ClimberSubsystem)
       
       );
@@ -360,14 +361,14 @@ public class RobotContainer {
       m_driverController.back().toggleOnTrue(new frc.robot.commands.LowerSpeedCMD(m_robotDrive, 2)); //set to two when pressed! -Back button
   // --------------------- Limelight AutoAlign ---------------------\\
      // m_driverController.x().toggleOnTrue(new AutoAlignCommand(m_robotDrive, 0.6, frc.robot.commands.AutoAlignCommand.Mode.FULL_ALIGN).withTimeout(5));
-      // ------------------------------------------ ShooterIntakeRelease ------------------------------------------ \\
+      // ------------------------------------------ Shooter(+ Intake) Release ------------------------------------------ \\
       m_operatorController.rightBumper().onTrue(ReleaseandShootWithoutLimelight2());
       m_operatorController.rightBumper().onFalse(ReleaseandShootOFF());
       m_operatorController.leftBumper().onTrue(ReverseShooterandRelease());
       m_operatorController.leftBumper().onFalse(ReleaseandShootOFF());
-      // ------------------------------------------ Intake Up ------------------------------------------ \\ -
+      // ------------------------------------------ Intake ------------------------------------------ \\ -
       //m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() ->m_MotorizedIntakeSubsystem.setPosition(IntakePositions.zero), m_MotorizedIntakeSubsystem)); //bring intake up for driving.
-
+      m_driverController.rightBumper().toggleOnTrue(new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true), m_IntakeSubsystem)).toggleOnFalse(new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(0, true), m_IntakeSubsystem)); //Hold right bumper to intake, release to stop.
       // ------------------------------------------ Climber ------------------------------------------ \\
       m_driverController.y().toggleOnTrue(ClimberUp()).toggleOnFalse(ClimberOff()); //Climb!
       m_driverController.a().toggleOnTrue(ClimberDown()).toggleOnFalse(ClimberOff()); //Descend!
