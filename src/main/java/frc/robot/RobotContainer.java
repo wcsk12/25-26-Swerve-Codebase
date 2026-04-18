@@ -163,7 +163,7 @@ public class RobotContainer {
       new RunCommand(
         () -> m_robotDrive.drive(
         -MathUtil.applyDeadband(m_driverController.getRawAxis(1) * speedMode, OIConstants.kDriveDeadband), 
-        MathUtil.applyDeadband(m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
+        MathUtil.applyDeadband(-m_driverController.getRawAxis(0) * speedMode, OIConstants.kDriveDeadband), 
         MathUtil.applyDeadband(-m_driverController.getRawAxis(4) * speedMode, OIConstants.kDriveDeadband), 
         true, 0.02),
       m_robotDrive));
