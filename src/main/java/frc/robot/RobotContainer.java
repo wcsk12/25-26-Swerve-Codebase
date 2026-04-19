@@ -301,8 +301,8 @@ public class RobotContainer {
   public Command getShootSequence() {
       return Commands.deadline(
         Commands.sequence(
-          new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.softShooterTargetRPM)),
-          new WaitCommand(1),
+          new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(3100)),
+          new WaitCommand(1.3),
           new InstantCommand(() -> launcherSubsystem.setLauncherSpeed(DriveConstants.launcherMotorSpeed)),
           new WaitCommand(3),
           new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(0)),
@@ -352,6 +352,14 @@ public class RobotContainer {
         //posIntakeSubsystem.setPosIntakeSpeed(0);
       },
       intakeSubsystem/* , posIntakeSubsystem*/);
+    /* // Use if we have net attached to robot \\ 
+    return Commands.deadline(
+      Commands.sequence(
+        new WaitCommand(1),
+        new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(Constants.DriveConstants.intakeMotorSpeed)),
+        new WaitCommand(4),
+        new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(0))
+      )); */
   }
 
   // Sets up controller bindings
@@ -425,9 +433,10 @@ public class RobotContainer {
     //new JoystickButton(m_operatorJoystick, 4).whileTrue(new IntakeCMD(miscSubsystem, DriveConstants.intakeMotorSpeed)); // Intake while agitating
     new JoystickButton(m_operatorJoystick, 5).whileTrue(new PosIntakeBumperCMD(posIntakeSubsystem, DriveConstants.posIntakeMotorSpeed)); // posIntake to bumper
     new JoystickButton(m_operatorJoystick, 6).whileTrue(new PosIntakeZeroCMD(posIntakeSubsystem, DriveConstants.posIntakeZeroMotorSpeed)); // posIntake to zero    
-    new JoystickButton(m_operatorJoystick, 7).whileTrue(new ShooterCMD(shooterSubsystem, 1000));
+    new JoystickButton(m_operatorJoystick, 7).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.superShooterTargetRPM))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 8).toggleOnTrue(new InstantCommand(() -> shooterSubsystem.setClosedLoopTargetRPM(DriveConstants.midShooterTargetRPM))).toggleOnFalse(new InstantCommand(() -> shooterSubsystem.stopShooterSpeed()));
     new JoystickButton(m_operatorJoystick, 9).whileTrue(new LauncherCMD(launcherSubsystem, -0.3)); //  (for unjamming)
+    new JoystickButton(m_operatorJoystick, 10).whileTrue(new IntakeCMD(intakeSubsystem, -DriveConstants.intakeMotorSpeed)); // Use to free the net from Intake (Outtake)
   }
 
   /**

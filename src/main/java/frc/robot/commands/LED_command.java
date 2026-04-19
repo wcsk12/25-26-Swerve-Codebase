@@ -16,7 +16,8 @@ public class LED_command extends Command {
     // Lower threshold so small alignment outputs are detected. We'll also
     // log the observed power for diagnostics.
     private final double threshold = 2.0; // Threshold to determine if the motor is running
-    private final double farThreshold = 2.4;
+    private final double trenchThreshold = 2.4;
+    private final double farThreshold = 3;
     private final double offset = .1;
 
     public LED_command(LEDSubsystem ledSubsystem) {
@@ -32,12 +33,14 @@ public class LED_command extends Command {
         System.out.println("[LED_command] motor power=" + power);
         if (power < threshold - offset){
             // Motor is running, set blue (It is too close)
-            ledSubsystem.setPattern(-0.15); // blue
+            ledSubsystem.setPattern(-0.15); // fading blue
         } else if (power > threshold - offset && power < threshold + offset){
             // Motor stopped, set green
             ledSubsystem.setPattern(0.71); // green
+        } else if (power > trenchThreshold - offset && power < trenchThreshold + offset) {
+            ledSubsystem.setPattern(0.91); // purple
         } else if (power > farThreshold - offset && power < farThreshold + offset) {
-            ledSubsystem.setPattern(0.91); // green
+            ledSubsystem.setPattern(0); // Light Blue
         } else {
             // Motor is running, set red (It is too far)
             ledSubsystem.setPattern(0.59); // red

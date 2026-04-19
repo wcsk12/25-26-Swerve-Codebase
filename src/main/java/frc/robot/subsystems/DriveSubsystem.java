@@ -439,6 +439,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_Pigeon2.reset();
   }
 
+  public void setHeading(double angleDegrees) {
+    m_Pigeon2.setYaw(0 - angleDegrees);
+  }
+
   /**
    * Returns the heading of the robot.
    *

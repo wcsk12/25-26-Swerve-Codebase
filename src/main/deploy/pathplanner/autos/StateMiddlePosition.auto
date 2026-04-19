@@ -42,6 +42,31 @@
           }
         },
         {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Intake Everything in Depot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LowerIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCMD"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Depot to Middle Scoring"
@@ -51,6 +76,12 @@
           "type": "named",
           "data": {
             "name": "ShootAndLaunchwithShake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "180"
           }
         }
       ]
