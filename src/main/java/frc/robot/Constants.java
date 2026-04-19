@@ -75,7 +75,7 @@ public final class Constants {
     // Calibrated from REV Hardware Client encoder readings + fine-tuning adjustments
     // Swapped FL↔FR and BL↔BR to match standard WPILib kinematics convention
     public static final double kFrontLeftChassisAngularOffset = 0.7060;   // physical front-left module
-    public static final double kFrontRightChassisAngularOffset = 5.9970;  // physical front-right module
+    public static final double kFrontRightChassisAngularOffset = 0.4592;  // physical front-right module
     public static final double kBackLeftChassisAngularOffset = 10.4448;   // physical back-left module
     public static final double kBackRightChassisAngularOffset = 8.5570;   // physical back-right module
 
