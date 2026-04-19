@@ -272,7 +272,7 @@ public class RobotContainer {
      // new InstantCommand(() -> m_IntakeSubsystem.setIntakeSpeed(-DriveConstants.IntakeMotorSpeed, true)),
       new WaitUntilCommand(() -> {
         double currentRotation = m_robotDrive.GetPigeonDegrees();
-      return currentRotation < 20 && currentRotation > -20; // If the robot is not facing forward, run the intake to help clear jams and get fuel into the shooter.
+      return currentRotation < 60 && currentRotation > -60; // If the robot is not facing forward, run the intake to help clear jams and get fuel into the shooter.
       }),
       new SequentialCommandGroup(
         new InstantCommand(() -> m_OtherMotorsSubsystem.setReleaseSpeed(-DriveConstants.ReleaseMotorSpeed)),
@@ -281,7 +281,7 @@ public class RobotContainer {
         //Commands.idle() // Keep running so onFalse can cancel it,
       ).onlyWhile(() -> {
         double currentRotation = m_robotDrive.GetPigeonDegrees();
-      return currentRotation < 20 && currentRotation > -20;
+      return currentRotation < 60 && currentRotation > -60;
       })
     ).repeatedly();
      }
