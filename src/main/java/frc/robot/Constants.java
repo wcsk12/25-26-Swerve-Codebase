@@ -49,7 +49,8 @@ public final class Constants {
     // FL=285°, FR=118°, BL=291°, BR=276° converted to radians
     public static final double kFrontLeftChassisAngularOffset = Math.toRadians(210);
     public static final double kFrontRightChassisAngularOffset = Math.toRadians(238);
-    public static final double kBackLeftChassisAngularOffset = Math.toRadians(210);
+  // Rear-left module angular offset (radians) - calibrated value from REV hardware client (motor ID 5)
+  public static final double kBackLeftChassisAngularOffset = 4.150;
     public static final double kBackRightChassisAngularOffset = Math.toRadians(186);
 
     // SWERVE SPARK MAX CAN IDs  CANNOT USE ID 12 DUE TO PIGEON BEING SET TO ID 12
